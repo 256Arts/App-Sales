@@ -5,17 +5,30 @@
 
 import SwiftUI
 import AppStoreConnect_Swift_SDK
+import WelcomeKit
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 struct HomeView: View {
+    
+    private let welcomeFeatures = [
+        WelcomeFeature(image: Image(systemName: "dollarsign.circle"), title: "Proceeds", body: "Track proceed numbers."),
+        WelcomeFeature(image: Image(systemName: "arrow.down.app"), title: "Downloads", body: "Track download numbers."),
+        WelcomeFeature(image: Image(systemName: "apps.iphone"), title: "Widgets", body: "Add widgets to your home screen.")
+    ]
     
     @State var data: ACData?
     @State var error: APIError?
 
+    @State var showingWelcome = false
     @State var showSettings = false
 
-    @EnvironmentObject var apiKeysProvider: AccountProvider
+    @EnvironmentObject var apiKeysProvider: AccountManager
 
-    @AppStorage(UserDefaultsKey.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
+    @AppStorage(UserDefaults.Key.whatsNewVersion) var whatsNewVersion = 0
+    @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
+    
     private var selectedKey: Account? {
         return apiKeysProvider.getApiKey(apiKeyId: keyID) ?? apiKeysProvider.accounts.first
     }
@@ -28,6 +41,13 @@ struct HomeView: View {
         formatter.negativePrefix = ""
         return formatter
     }()
+    private var appListIconLength: CGFloat {
+        #if targetEnvironment(macCatalyst)
+        24
+        #else
+        32
+        #endif
+    }
 
     var body: some View {
         Group {
@@ -69,13 +89,12 @@ struct HomeView: View {
                                 AsyncImage(url: app.iconURL100) { image in
                                     image
                                         .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                                        .clipShape(RoundedRectangle(cornerRadius: appListIconLength / 4))
                                 } placeholder: {
                                     Color.secondary
-                                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                                        .clipShape(RoundedRectangle(cornerRadius: appListIconLength / 4))
                                 }
-                                .frame(height: 32)
+                                .frame(width: appListIconLength, height: appListIconLength)
                                 
                                 VStack(alignment: .leading) {
                                     Text(app.name)
@@ -96,35 +115,63 @@ struct HomeView: View {
                     }
                 }
                 .refreshable {
-                    await onAppear(useMemoization: false)
+                    await fetchData(useMemoization: false)
                 }
             } else if let error {
-                Text(error.localizedDescription)
-                    .foregroundStyle(.secondary)
+                VStack(spacing: 20) {
+                    Text(error.localizedDescription)
+                        .foregroundStyle(.secondary)
+                    
+                    Button("Retry") {
+                        Task { await fetchData(useMemoization: false) }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
             } else {
                 ProgressView()
             }
         }
         .navigationTitle("App Sales")
+        #if !os(macOS)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
+                Button {
                     showSettings.toggle()
-                }, label: {
+                } label: {
                     Image(systemName: "gear")
-                })
+                }
             }
         }
+        #endif
         .sheet(isPresented: $showSettings) {
             NavigationStack {
                 SettingsView()
             }
         }
-        .onChange(of: keyID, perform: { _ in Task { await onAppear(useMemoization: false) } })
-        .task { await onAppear(useMemoization: true) }
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-            Task { await onAppear() }
+        .sheet(isPresented: $showingWelcome, onDismiss: {
+            if whatsNewVersion < appWhatsNewVersion {
+                whatsNewVersion = appWhatsNewVersion
+            }
+        }, content: {
+            WelcomeView(isFirstLaunch: whatsNewVersion == 0, appName: "App Sales", features: welcomeFeatures)
+                #if os(macOS)
+                .frame(width: 500, height: 500)
+                #endif
+        })
+        .onChange(of: keyID) {
+            Task { await fetchData(useMemoization: false) }
         }
+        .task { await fetchData(useMemoization: true) }
+        .onAppear {
+            if whatsNewVersion < appWhatsNewVersion {
+                showingWelcome = true
+            }
+        }
+        #if canImport(UIKit)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            Task { await fetchData() }
+        }
+        #endif
     }
     
     private let relativeDateFormatter = RelativeDateTimeFormatter()
@@ -135,12 +182,15 @@ struct HomeView: View {
         return formatter
     }()
 
-    private func onAppear(useMemoization: Bool = true) async {
+    private func fetchData(useMemoization: Bool = true) async {
         guard let apiKey = selectedKey else { return }
         let api = AppStoreConnectAPI(apiKey: apiKey)
         do {
             self.data = try await api.getData(currency: Currency(rawValue: Locale.autoupdatingCurrent.currency?.identifier ?? ""), useMemoization: useMemoization)
             self.error = nil
+            #if canImport(WidgetKit)
+            WidgetCenter.shared.reloadAllTimelines()
+            #endif
         } catch let err as APIError {
             self.data = nil
             self.error = err

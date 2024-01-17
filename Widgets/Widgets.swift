@@ -70,20 +70,20 @@ struct Provider: AppIntentTimelineProvider {
             var nextUpdate = Date()
 
             if nextUpdate.getCETHour() <= 12 {
-                // every 15 minutes
-                nextUpdate = nextUpdate.advanced(by: 15 * 60)
+                // every 3 hour
+                nextUpdate = nextUpdate.advanced(by: 3 * 60 * 60)
             } else {
-                nextUpdate = nextUpdate.nextFullHour()
+                nextUpdate = nextUpdate.advanced(by: 12 * 60 * 60)
             }
 
             let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
             return timeline
         } catch let err as APIError {
-            let entry = ACStatEntry(date: Date(), data: nil, error: err, configuration: configuration)
+            let entry = ACStatEntry(date: Date(), data: nil, error: err, configuration: configuration, relevance: .low)
 
             var nextUpdateDate = Date()
             if err == .invalidCredentials {
-                nextUpdateDate = nextUpdateDate.advanced(by: 24 * 60)
+                nextUpdateDate = nextUpdateDate.advanced(by: 20 * 60)
             } else {
                 // when api down, update in 5 min erneut
                 nextUpdateDate = nextUpdateDate.advanced(by: 5 * 60)
@@ -92,7 +92,7 @@ struct Provider: AppIntentTimelineProvider {
             let timeline = Timeline(entries: [entry], policy: .after(nextUpdateDate))
             return timeline
         } catch {
-            let entry = ACStatEntry(date: Date(), data: nil, error: APIError.unknown, configuration: configuration)
+            let entry = ACStatEntry(date: Date(), data: nil, error: APIError.unknown, configuration: configuration, relevance: .low)
 
             // when api down, update in 5 min erneut
             let timeline = Timeline(entries: [entry], policy: .after(Date().advanced(by: 5 * 60)))
@@ -102,7 +102,7 @@ struct Provider: AppIntentTimelineProvider {
 
     func getApiData(apiKey: Account?) async throws -> ACData {
         guard let apiKey,
-              AccountProvider.shared.getApiKey(apiKeyId: apiKey.id) != nil else {
+              AccountManager.shared.getApiKey(apiKeyId: apiKey.id) != nil else {
                   throw APIError.invalidCredentials
               }
         let api = AppStoreConnectAPI(apiKey: apiKey)
@@ -145,10 +145,8 @@ struct WidgetsEntryView: View {
             switch size {
             case .systemSmall:
                 SummarySmall(data: data, advanced: entry.configuration.advanced)
-            case .systemMedium, .systemLarge:
-                SummaryWithChart(data: data, advanced: entry.configuration.advanced)
             default:
-                ErrorWidget(error: .unknown)
+                SummaryWithChart(data: data, advanced: entry.configuration.advanced)
             }
         } else {
             ErrorWidget(error: entry.error ?? .unknown)

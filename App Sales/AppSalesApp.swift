@@ -4,12 +4,17 @@
 //
 
 import SwiftUI
-import WidgetKit
+
+let appWhatsNewVersion = 1
 
 @main
 struct AppSalesApp: App {
     
-    @StateObject private var apiKeysProvider = AccountProvider.shared
+    init() {
+        UserDefaults.standard.register()
+    }
+    
+    @StateObject private var apiKeysProvider = AccountManager.shared
 
     var body: some Scene {
         WindowGroup {
@@ -17,15 +22,16 @@ struct AppSalesApp: App {
                 HomeView()
             }
             .environmentObject(apiKeysProvider)
-            .onAppear {
-                WidgetCenter.shared.reloadAllTimelines()
-            }
         }
+        .defaultSize(CGSize(width: 600, height: 800))
         
         #if os(macOS)
         Settings {
             SettingsView()
+                .scenePadding()
+                .environmentObject(accountManager)
         }
+        .defaultSize(width: 400, height: 400)
         #endif
     }
 }

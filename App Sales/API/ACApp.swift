@@ -4,7 +4,6 @@
 //
 
 import CoreImage
-import UIKit
 
 struct ACApp: Codable, Identifiable {
     var id: String { return sku }

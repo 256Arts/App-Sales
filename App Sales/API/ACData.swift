@@ -49,7 +49,7 @@ struct ACData: Codable {
         case .proceeds:
             entries = entries.filter({ $0.proceeds > 0 })
         case .downloads:
-            if UserDefaults.shared?.bool(forKey: UserDefaultsKey.includeRedownloads) ?? false {
+            if UserDefaults.shared?.bool(forKey: UserDefaults.Key.includeRedownloads) ?? false {
                 entries = entries.filter({ $0.type == .download || $0.type == .redownload })
             } else {
                 entries = entries.filter({ $0.type == .download })

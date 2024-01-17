@@ -8,7 +8,7 @@ import SwiftUI
 struct NewAccountView: View {
     
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var apiKeysProvider: AccountProvider
+    @EnvironmentObject var apiKeysProvider: AccountManager
     @State private var alert: AddAPIKeyAlert?
 
     @State private var name: String = ""
@@ -87,9 +87,10 @@ struct NewAccountView: View {
             .scenePadding()
         }
         .navigationTitle("New Account")
+        #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
+        #endif
         .alert(item: $alert, content: { generateAlert($0) })
-        .navigationViewStyle(.stack)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {
@@ -202,7 +203,11 @@ struct NewAccountView: View {
 
     private struct TextFieldStyle: ViewModifier {
         init(borderColor: Color? = nil, borderWidth: CGFloat = 1, cornerRadius: CGFloat = 5) {
+            #if canImport(UIKit)
             self.borderColor = borderColor ?? Color(UIColor.systemGray5)
+            #else
+            self.borderColor = borderColor ?? Color(NSColor.systemGray)
+            #endif
             self.borderWidth = borderWidth
             self.cornerRadius = cornerRadius
         }

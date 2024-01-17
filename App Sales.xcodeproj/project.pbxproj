@@ -23,6 +23,11 @@
 		1B7243F52AF4A6AB00C64E0C /* Demo Icon 2.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B7243EF2AF4A36800C64E0C /* Demo Icon 2.png */; };
 		1B7243F62AF4A6AF00C64E0C /* Demo Icon 3.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B7243ED2AF4A36800C64E0C /* Demo Icon 3.png */; };
 		1B7243F72AF4A6B100C64E0C /* Demo Icon 4.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B7243EC2AF4A36800C64E0C /* Demo Icon 4.png */; };
+		1BB606BE2B57697700F7B52F /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB606BD2B57697700F7B52F /* UserDefaults.swift */; };
+		1BB606C02B576B8500F7B52F /* WelcomeKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BB606BF2B576B8500F7B52F /* WelcomeKit */; };
+		1BB606C12B57774200F7B52F /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB606BD2B57697700F7B52F /* UserDefaults.swift */; };
+		1BB606C32B577DCD00F7B52F /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB606C22B577DCD00F7B52F /* AccountManager.swift */; };
+		1BB606C42B577DEE00F7B52F /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB606C22B577DCD00F7B52F /* AccountManager.swift */; };
 		452A37F126161C97005CD1DA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 452A37F026161C97005CD1DA /* Extensions.swift */; };
 		452A37F226161C97005CD1DA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 452A37F026161C97005CD1DA /* Extensions.swift */; };
 		4552EE9E261CF3FF006C30B9 /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4552EE9D261CF3FF006C30B9 /* Event.swift */; };
@@ -42,7 +47,7 @@
 		45E8C4972612531D007F9B0E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45E8C4962612531D007F9B0E /* WidgetKit.framework */; };
 		45E8C4992612531D007F9B0E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45E8C4982612531D007F9B0E /* SwiftUI.framework */; };
 		45E8C49C2612531D007F9B0E /* Widgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E8C49B2612531D007F9B0E /* Widgets.swift */; };
-		45E8C4A52612531E007F9B0E /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 45E8C4942612531D007F9B0E /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		45E8C4A52612531E007F9B0E /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 45E8C4942612531D007F9B0E /* WidgetsExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		45E8C4BD261267FB007F9B0E /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 45E8C4BC261267FB007F9B0E /* Gzip */; };
 		45E8C4C0261268D4007F9B0E /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 45E8C4BF261268D4007F9B0E /* SwiftCSV */; };
 		CB28AEE62615D28F00B48215 /* SummarySmall.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB28AEE42615D28F00B48215 /* SummarySmall.swift */; };
@@ -97,6 +102,8 @@
 		1B7243ED2AF4A36800C64E0C /* Demo Icon 3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Demo Icon 3.png"; sourceTree = "<group>"; };
 		1B7243EE2AF4A36800C64E0C /* Demo Icon 1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Demo Icon 1.png"; sourceTree = "<group>"; };
 		1B7243EF2AF4A36800C64E0C /* Demo Icon 2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Demo Icon 2.png"; sourceTree = "<group>"; };
+		1BB606BD2B57697700F7B52F /* UserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaults.swift; sourceTree = "<group>"; };
+		1BB606C22B577DCD00F7B52F /* AccountManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
 		452A37F026161C97005CD1DA /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		4552EE9D261CF3FF006C30B9 /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		4570D399261EE1FC006F50AA /* ACDataCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ACDataCache.swift; sourceTree = "<group>"; };
@@ -132,6 +139,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				45E8C4C0261268D4007F9B0E /* SwiftCSV in Frameworks */,
+				1BB606C02B576B8500F7B52F /* WelcomeKit in Frameworks */,
 				456187F426F66FE400FAE4F8 /* KeychainAccess in Frameworks */,
 				45E8C4BD261267FB007F9B0E /* Gzip in Frameworks */,
 				45CAC1092615CB8100FF63E7 /* AppStoreConnect-Swift-SDK in Frameworks */,
@@ -163,6 +171,7 @@
 				CBAB7284261B32C700ED0F94 /* API */,
 				1B7243EB2AF4A35600C64E0C /* Demo Icons */,
 				452A37F026161C97005CD1DA /* Extensions.swift */,
+				1BB606BD2B57697700F7B52F /* UserDefaults.swift */,
 				45E8C4892612512F007F9B0E /* Info.plist */,
 				45E8C4842612512F007F9B0E /* Assets.xcassets */,
 			);
@@ -240,6 +249,7 @@
 			isa = PBXGroup;
 			children = (
 				45CAC1142615CDBE00FF63E7 /* AppStoreConnectAPI.swift */,
+				1BB606C22B577DCD00F7B52F /* AccountManager.swift */,
 				4583A842261A3E3700368001 /* Account.swift */,
 				CB28AED32615D1FA00B48215 /* APIError.swift */,
 				CB28AED72615D21C00B48215 /* ACData.swift */,
@@ -275,6 +285,7 @@
 				45E8C4BF261268D4007F9B0E /* SwiftCSV */,
 				45CAC1082615CB8100FF63E7 /* AppStoreConnect-Swift-SDK */,
 				456187F326F66FE400FAE4F8 /* KeychainAccess */,
+				1BB606BF2B576B8500F7B52F /* WelcomeKit */,
 			);
 			productName = "AC Widget";
 			productReference = 45E8C47D2612512E007F9B0E /* App Sales.app */;
@@ -335,6 +346,7 @@
 				45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */,
 				45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */,
 				456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				1BB606BC2B57690700F7B52F /* XCRemoteSwiftPackageReference "WelcomeKit" */,
 			);
 			productRefGroup = 45E8C47E2612512E007F9B0E /* Products */;
 			projectDirPath = "";
@@ -392,6 +404,8 @@
 				CBAB729D261B338600ED0F94 /* APIError.swift in Sources */,
 				CB28AF012616163600B48215 /* SettingsView.swift in Sources */,
 				452A37F126161C97005CD1DA /* Extensions.swift in Sources */,
+				1BB606C32B577DCD00F7B52F /* AccountManager.swift in Sources */,
+				1BB606BE2B57697700F7B52F /* UserDefaults.swift in Sources */,
 				1B1B71B42AEB37DD00276D7A /* DownloadsAndProceedsChart.swift in Sources */,
 				CBAB729E261B338600ED0F94 /* AppStoreConnectAPI.swift in Sources */,
 				CBAB729F261B338600ED0F94 /* ACData.swift in Sources */,
@@ -407,6 +421,8 @@
 				1B1B71AF2AEA2D0200276D7A /* PerformanceSummary.swift in Sources */,
 				45D2041E262CBEB000D0E889 /* ACApp.swift in Sources */,
 				CB28AEE62615D28F00B48215 /* SummarySmall.swift in Sources */,
+				1BB606C42B577DEE00F7B52F /* AccountManager.swift in Sources */,
+				1BB606C12B57774200F7B52F /* UserDefaults.swift in Sources */,
 				CBAB7298261B338600ED0F94 /* APIError.swift in Sources */,
 				452A37F226161C97005CD1DA /* Extensions.swift in Sources */,
 				CBAB729A261B338600ED0F94 /* ACData.swift in Sources */,
@@ -426,6 +442,7 @@
 /* Begin PBXTargetDependency section */
 		45E8C4A42612531E007F9B0E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = 45E8C4932612531D007F9B0E /* WidgetsExtension */;
 			targetProxy = 45E8C4A32612531E007F9B0E /* PBXContainerItemProxy */;
 		};
@@ -486,12 +503,14 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Debug;
 		};
@@ -543,12 +562,14 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
+				XROS_DEPLOYMENT_TARGET = 1.0;
 			};
 			name = Release;
 		};
@@ -562,7 +583,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = VA3SY54YU8;
 				ENABLE_PREVIEWS = YES;
@@ -573,15 +594,18 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jaydenirwin.appsales;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Debug;
 		};
@@ -595,7 +619,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = VA3SY54YU8;
 				ENABLE_PREVIEWS = YES;
@@ -606,15 +630,18 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jaydenirwin.appsales;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,7";
 			};
 			name = Release;
 		};
@@ -640,7 +667,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 14.0;
@@ -670,7 +698,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TVOS_DEPLOYMENT_TARGET = 14.0;
@@ -711,6 +740,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1BB606BC2B57690700F7B52F /* XCRemoteSwiftPackageReference "WelcomeKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/256Arts/WelcomeKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
 		456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
@@ -746,6 +783,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1BB606BF2B576B8500F7B52F /* WelcomeKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BB606BC2B57690700F7B52F /* XCRemoteSwiftPackageReference "WelcomeKit" */;
+			productName = WelcomeKit;
+		};
 		456187F326F66FE400FAE4F8 /* KeychainAccess */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */;

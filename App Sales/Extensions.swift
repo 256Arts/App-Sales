@@ -5,7 +5,9 @@
 
 import Foundation
 import SwiftUI
+#if canImport(WidgetKit)
 import WidgetKit
+#endif
 import KeychainAccess
 
 extension Date {
@@ -80,16 +82,6 @@ extension UserDefaults {
     static var shared: UserDefaults? {
         UserDefaults(suiteName: appGroupID)
     }
-}
-
-enum UserDefaultsKey {
-    @available(*, unavailable)
-    static let apiKeys = "apiKeys"
-    @available(*, unavailable)
-    static let dataCache = "dataCache"
-    static let includeRedownloads = "includeRedownloads"
-    static let homeSelectedKey = "homeSelectedKey"
-    static let lastSeenVersion = "lastSeenVersion"
 }
 
 // MARK: Editing Strings

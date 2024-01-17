@@ -7,10 +7,10 @@ import SwiftUI
 
 struct AccountDetailView: View {
     
-    @AppStorage(UserDefaultsKey.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
+    @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
     
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var apiKeysProvider: AccountProvider
+    @EnvironmentObject var apiKeysProvider: AccountManager
 
     let account: Account
     @State private var keyName: String
@@ -58,9 +58,8 @@ struct AccountDetailView: View {
             
             if let status = status {
                 Section {
-                    ErrorWidget(error: status)
+                    Text(status.localizedDescription)
                 }
-                .frame(maxHeight: 250)
             }
             
             Section {
@@ -76,7 +75,11 @@ struct AccountDetailView: View {
                     HStack {
                         Text("••••\(String(privateKey.suffix(4)))")
                         Button {
+                            #if canImport(UIKit)
                             UIPasteboard.general.string = privateKey
+                            #else
+                            NSPasteboard.general.setString(privateKey, forType: .string)
+                            #endif
                         } label: {
                             Image(systemName: "doc.on.doc")
                         }
@@ -114,6 +117,15 @@ struct AccountDetailView: View {
             }
         }
         .navigationTitle("Account")
+        #if os(macOS)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Done") {
+                    dismiss()
+                }
+            }
+        }
+        #endif
     }
 
     private func loadApps() async throws {

@@ -35,11 +35,19 @@ struct DownloadsAndProceedsChart: View {
                     AsyncImage(url: apps[axis.index].iconURL) { image in
                         image.resizable()
                     } placeholder: {
+                        #if canImport(UIKit)
                         if let path = apps[axis.index].cachedIconURL?.path(), let data = FileManager.default.contents(atPath: path), let uiImage = UIImage(data: data) {
                             Image(uiImage: uiImage).resizable()
                         } else {
                             Color.secondary
                         }
+                        #else
+                        if let path = apps[axis.index].cachedIconURL?.path(), let data = FileManager.default.contents(atPath: path), let nsImage = NSImage(data: data) {
+                            Image(nsImage: nsImage).resizable()
+                        } else {
+                            Color.secondary
+                        }
+                        #endif
                     }
                     .frame(width: iconLength, height: iconLength)
                     .cornerRadius(iconLength / 4)

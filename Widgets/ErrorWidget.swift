@@ -3,6 +3,7 @@
 //  AC Widget by NO-COMMENT
 //
 
+#if canImport(WidgetKit)
 import SwiftUI
 import WidgetKit
 
@@ -10,23 +11,32 @@ struct ErrorWidget: View {
     let error: APIError
 
     var body: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "exclamationmark.circle.fill")
-                .font(.system(size: 20))
-                .foregroundColor(.red)
-
+        VStack(alignment: .leading) {
+            Text("App Sales")
+                .font(.headline)
+            
             Text("Error")
-                .font(.system(size: 22, weight: .medium, design: .rounded))
-
-            Text(error.errorDescription ?? "")
-                .multilineTextAlignment(.center)
-                .font(.system(size: 14))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            
+            Spacer()
         }
-        .minimumScaleFactor(0.5)
-        .padding()
+        .frame(idealWidth: .infinity, maxWidth: .infinity, alignment: .leading)
+        .containerBackground(backgroundColor, for: .widget)
+    }
+    
+    private var backgroundColor: Color {
+        #if canImport(UIKit)
+        Color(UIColor.systemBackground)
+        #else
+        Color(NSColor.windowBackgroundColor)
+        #endif
     }
 }
 
+#Preview {
+    ErrorWidget(error: .invalidCredentials)
+}
 #Preview {
     ErrorWidget(error: .wrongPermissions)
 }
@@ -34,5 +44,9 @@ struct ErrorWidget: View {
     ErrorWidget(error: .exceededLimit)
 }
 #Preview {
-    ErrorWidget(error: .exceededLimit)
+    ErrorWidget(error: .noDataAvailable)
 }
+#Preview {
+    ErrorWidget(error: .unknown)
+}
+#endif

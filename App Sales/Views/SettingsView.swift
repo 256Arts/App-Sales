@@ -4,44 +4,51 @@
 //
 
 import SwiftUI
-import WidgetKit
 
 struct SettingsView: View {
     
-    @AppStorage(UserDefaultsKey.includeRedownloads, store: UserDefaults.shared) var includeRedownloads: Bool = false
+    @AppStorage(UserDefaults.Key.includeRedownloads, store: UserDefaults.shared) var includeRedownloads: Bool = false
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var apiKeysProvider: AccountProvider
+    @EnvironmentObject var accountManager: AccountManager
 
-    @State private var addKeySheet: Bool = false
-
+    @State private var showingAddAccount: Bool = false
     @State private var cachedEntries: Int = 0
-
     @State private var updateSheetVisible = false
+    #if os(macOS)
+    @State private var selectedAccount: Account?
+    #endif
 
     var body: some View {
         Form {
             Section("Accounts") {
-                ForEach(apiKeysProvider.accounts) { key in
-                    NavigationLink(destination: AccountDetailView(key),
-                                   label: {
-                        HStack {
-                            Text(key.name)
-                            Spacer()
-                            ApiKeyCheckIndicator(key: key)
+                ForEach(accountManager.accounts) { account in
+                    #if os(macOS)
+                    Button {
+                        selectedAccount = account
+                    } label: {
+                        LabeledContent(account.name) {
+                            AccountStatusSymbol(account: account)
                         }
-                    })
+                    }
+                    #else
+                    NavigationLink(destination: AccountDetailView(account)) {
+                        LabeledContent(account.name) {
+                            AccountStatusSymbol(account: account)
+                        }
+                    }
+                    #endif
                 }
                 .onDelete(perform: deleteKey)
 
                 Button {
-                    addKeySheet.toggle()
+                    showingAddAccount.toggle()
                 } label: {
                     Label("Add", systemImage: "plus")
                 }
                 .contextMenu {
-                    if apiKeysProvider.getApiKey(apiKeyId: "demo") == nil {
+                    if accountManager.getApiKey(apiKeyId: "demo") == nil {
                         Button("Add Demo Account") {
-                            try? apiKeysProvider.addApiKey(apiKey: Account.demoAccount)
+                            try? accountManager.addApiKey(apiKey: Account.demoAccount)
                         }
                     }
                 }
@@ -75,6 +82,22 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        #if os(macOS)
+        .sheet(isPresented: Binding(get: {
+            selectedAccount != nil
+        }, set: { newValue in
+            if !newValue {
+                selectedAccount = nil
+            }
+        })) {
+            if let selectedAccount {
+                NavigationStack {
+                    AccountDetailView(selectedAccount)
+                        .scenePadding()
+                }
+            }
+        }
+        #else
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done") {
@@ -82,7 +105,8 @@ struct SettingsView: View {
                 }
             }
         }
-        .sheet(isPresented: $addKeySheet) {
+        #endif
+        .sheet(isPresented: $showingAddAccount) {
             NavigationStack {
                 NewAccountView()
             }
@@ -90,9 +114,9 @@ struct SettingsView: View {
     }
 
     private func deleteKey(at offsets: IndexSet) {
-        let keys = offsets.map({ apiKeysProvider.accounts[$0] })
+        let keys = offsets.map({ accountManager.accounts[$0] })
         keys.forEach { ACDataCache.clearCache(apiKey: $0) }
-        apiKeysProvider.deleteApiKeys(keys: keys)
+        accountManager.deleteApiKeys(keys: keys)
     }
 }
 
@@ -100,10 +124,10 @@ struct SettingsView: View {
     SettingsView()
 }
 
-// MARK: - ApiKeyCheckIndicator
+// MARK: - AccountStatusSymbol
 
-struct ApiKeyCheckIndicator: View {
-    let key: Account
+struct AccountStatusSymbol: View {
+    let account: Account
     @State private var status: APIError?
     @State private var loading = true
 
@@ -123,13 +147,13 @@ struct ApiKeyCheckIndicator: View {
                     .foregroundColor(.orange)
             }
         }
-        .task(priority: .background, {
+        .task(priority: .background) {
             do {
-                try await key.checkKey()
+                try await account.checkKey()
             } catch let err {
                 status = (err as? APIError) ?? .unknown
             }
             loading = false
-        })
+        }
     }
 }
