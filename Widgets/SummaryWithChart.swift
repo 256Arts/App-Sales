@@ -31,6 +31,7 @@ struct SummaryWithChart: View {
             VStack(alignment: .leading) {
                 Text("App Sales")
                     .font(.headline)
+                    .widgetAccentable()
                 Text("30 days")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)

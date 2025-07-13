@@ -5,8 +5,6 @@
 
 import SwiftUI
 
-let appWhatsNewVersion = 1
-
 @main
 struct AppSalesApp: App {
     
@@ -14,14 +12,14 @@ struct AppSalesApp: App {
         UserDefaults.standard.register()
     }
     
-    @StateObject private var apiKeysProvider = AccountManager.shared
+    @Bindable private var apiKeysProvider = AccountManager.shared
 
     var body: some Scene {
         WindowGroup {
             NavigationStack {
                 HomeView()
             }
-            .environmentObject(apiKeysProvider)
+            .environment(apiKeysProvider)
         }
         .defaultSize(CGSize(width: 600, height: 800))
         

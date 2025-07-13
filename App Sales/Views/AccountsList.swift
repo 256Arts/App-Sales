@@ -1,15 +1,15 @@
 //
-//  SettingsView.swift
+//  AccountsList.swift
 //  AC Widget by NO-COMMENT
 //
 
 import SwiftUI
 
-struct SettingsView: View {
+struct AccountsList: View {
     
     @AppStorage(UserDefaults.Key.includeRedownloads, store: UserDefaults.shared) var includeRedownloads: Bool = false
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var accountManager: AccountManager
+    @Environment(AccountManager.self) var accountManager
 
     @State private var showingAddAccount: Bool = false
     @State private var cachedEntries: Int = 0
@@ -19,37 +19,33 @@ struct SettingsView: View {
     #endif
 
     var body: some View {
-        Form {
-            Section("Accounts") {
-                ForEach(accountManager.accounts) { account in
-                    #if os(macOS)
-                    Button {
-                        selectedAccount = account
-                    } label: {
-                        LabeledContent(account.name) {
-                            AccountStatusSymbol(account: account)
-                        }
-                    }
-                    #else
-                    NavigationLink(destination: AccountDetailView(account)) {
-                        LabeledContent(account.name) {
-                            AccountStatusSymbol(account: account)
-                        }
-                    }
-                    #endif
-                }
-                .onDelete(perform: deleteKey)
-
+        List {
+            ForEach(accountManager.accounts) { account in
+                #if os(macOS)
                 Button {
-                    showingAddAccount.toggle()
+                    selectedAccount = account
                 } label: {
-                    Label("Add", systemImage: "plus")
+                    LabeledContent(account.name) {
+                        AccountStatusSymbol(account: account)
+                    }
                 }
-                .contextMenu {
-                    if accountManager.getApiKey(apiKeyId: "demo") == nil {
-                        Button("Add Demo Account") {
-                            try? accountManager.addApiKey(apiKey: Account.demoAccount)
-                        }
+                #else
+                NavigationLink(destination: AccountDetailView(account)) {
+                    LabeledContent(account.name) {
+                        AccountStatusSymbol(account: account)
+                    }
+                }
+                #endif
+            }
+            .onDelete(perform: deleteKey)
+
+            Button("Add", systemImage: "plus") {
+                showingAddAccount.toggle()
+            }
+            .contextMenu {
+                if accountManager.getApiKey(apiKeyId: "demo") == nil {
+                    Button("Add Demo Account") {
+                        try? accountManager.addApiKey(apiKey: Account.demoAccount)
                     }
                 }
             }
@@ -68,20 +64,8 @@ struct SettingsView: View {
 //                    self.cachedEntries = ACDataCache.numberOfEntriesCached()
 //                }
 //            }
-            
-            Section {
-                Link(destination: URL(string: "https://www.256arts.com/")!) {
-                    Label("Developer Website", systemImage: "safari")
-                }
-                Link(destination: URL(string: "https://www.256arts.com/joincommunity/")!) {
-                    Label("Join Community", systemImage: "bubble.left.and.bubble.right")
-                }
-                Link(destination: URL(string: "https://github.com/256Arts/App-Sales")!) {
-                    Label("Contribute on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
-                }
-            }
         }
-        .navigationTitle("Settings")
+        .navigationTitle("Accounts")
         #if os(macOS)
         .sheet(isPresented: Binding(get: {
             selectedAccount != nil
@@ -100,7 +84,7 @@ struct SettingsView: View {
         #else
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Done") {
+                Button("Done", systemImage: "checkmark") {
                     dismiss()
                 }
             }
@@ -121,7 +105,7 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView()
+    AccountsList()
 }
 
 // MARK: - AccountStatusSymbol

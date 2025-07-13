@@ -13,7 +13,7 @@ struct WidgetPreferences: WidgetConfigurationIntent {
     static var description = IntentDescription("Selects the account to display information for.")
 
     @Parameter(title: "Account")
-    var account: Account
+    var account: Account?
     
     @Parameter(title: "Advanced", default: true)
     var advanced: Bool

@@ -10,7 +10,7 @@ struct AccountDetailView: View {
     @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
     
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var apiKeysProvider: AccountManager
+    @Environment(AccountManager.self) var accountManager
 
     let account: Account
     @State private var keyName: String
@@ -74,14 +74,12 @@ struct AccountDetailView: View {
                 LabeledContent("Private Key") {
                     HStack {
                         Text("••••\(String(privateKey.suffix(4)))")
-                        Button {
+                        Button("Copy", systemName: "doc.on.doc") {
                             #if canImport(UIKit)
                             UIPasteboard.general.string = privateKey
                             #else
                             NSPasteboard.general.setString(privateKey, forType: .string)
                             #endif
-                        } label: {
-                            Image(systemName: "doc.on.doc")
                         }
                     }
                 }
@@ -101,7 +99,7 @@ struct AccountDetailView: View {
                     title: Text("Delete Account?"),
                     primaryButton: .destructive(Text("Delete")) {
                         ACDataCache.clearCache(apiKey: account)
-                        apiKeysProvider.deleteApiKeys(keys: [account])
+                        accountManager.deleteApiKeys(keys: [account])
                         dismiss()
                     },
                     secondaryButton: .cancel()
@@ -135,11 +133,13 @@ struct AccountDetailView: View {
     }
 
     private func save() {
-        try? apiKeysProvider.addApiKey(apiKey: Account(name: keyName,
-                                        issuerID: issuerID,
-                                        privateKeyID: privateKeyID,
-                                        privateKey: privateKey,
-                                        vendorNumber: vendorNumber))
+        try? accountManager.addApiKey(
+            apiKey: Account(
+                name: keyName,
+                issuerID: issuerID,
+                privateKeyID: privateKeyID,
+                privateKey: privateKey,
+                vendorNumber: vendorNumber))
     }
 
     @State var showingDeleteAlert = false

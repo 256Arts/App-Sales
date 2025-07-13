@@ -8,7 +8,7 @@ import SwiftUI
 struct NewAccountView: View {
     
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var apiKeysProvider: AccountManager
+    @Environment(AccountManager.self) var accountManager
     @State private var alert: AddAPIKeyAlert?
 
     @State private var name: String = ""
@@ -126,12 +126,12 @@ struct NewAccountView: View {
             vendorNumber: vendor.trimmingCharacters(in: .whitespacesAndNewlines)
         )
 
-        if apiKeysProvider.getApiKey(apiKeyId: apiKey.id) != nil {
+        if accountManager.getApiKey(apiKeyId: apiKey.id) != nil {
             alert = .duplicateKey
             return
         }
         
-        if apiKeysProvider.accounts.contains(where: { $0.name == name }) {
+        if accountManager.accounts.contains(where: { $0.name == name }) {
             alert = .duplicateName
             return
         }
@@ -139,7 +139,7 @@ struct NewAccountView: View {
         Task(priority: .userInitiated) {
             do {
                 try await apiKey.checkKey()
-                try apiKeysProvider.addApiKey(apiKey: apiKey)
+                try accountManager.addApiKey(apiKey: apiKey)
                 finishOnboarding()
                 let api = AppStoreConnectAPI(apiKey: apiKey)
                 _ = try? await api.getData(useCache: true, useMemoization: false)
@@ -194,11 +194,11 @@ struct NewAccountView: View {
     }
 
     func infoCard(title: LocalizedStringKey) -> some View {
-        DisclosureGroup(content: {
+        DisclosureGroup {
             Text(title).frame(maxWidth: .infinity, alignment: .leading)
-        }, label: {
+        } label: {
             Label("How to find it", systemImage: "questionmark.circle")
-        })
+        }
     }
 
     private struct TextFieldStyle: ViewModifier {

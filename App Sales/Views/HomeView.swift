@@ -5,32 +5,24 @@
 
 import SwiftUI
 import AppStoreConnect_Swift_SDK
-import WelcomeKit
 #if canImport(WidgetKit)
 import WidgetKit
 #endif
 
 struct HomeView: View {
     
-    private let welcomeFeatures = [
-        WelcomeFeature(image: Image(systemName: "dollarsign.circle"), title: "Proceeds", body: "Track proceed numbers."),
-        WelcomeFeature(image: Image(systemName: "arrow.down.app"), title: "Downloads", body: "Track download numbers."),
-        WelcomeFeature(image: Image(systemName: "apps.iphone"), title: "Widgets", body: "Add widgets to your home screen.")
-    ]
-    
     @State var data: ACData?
     @State var error: APIError?
 
-    @State var showingWelcome = false
-    @State var showSettings = false
+    @State var showingAccountsList = false
 
-    @EnvironmentObject var apiKeysProvider: AccountManager
+    @Environment(AccountManager.self) var accountManager
 
     @AppStorage(UserDefaults.Key.whatsNewVersion) var whatsNewVersion = 0
     @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
     
     private var selectedKey: Account? {
-        return apiKeysProvider.getApiKey(apiKeyId: keyID) ?? apiKeysProvider.accounts.first
+        return accountManager.getApiKey(apiKeyId: keyID) ?? accountManager.accounts.first
     }
     private var summary: PerformanceSummary? {
         data?.getPerformanceSummary()
@@ -51,7 +43,7 @@ struct HomeView: View {
 
     var body: some View {
         Group {
-            if apiKeysProvider.accounts.isEmpty {
+            if accountManager.accounts.isEmpty {
                 Text("No Account")
                     .foregroundStyle(.secondary)
             } else if let data {
@@ -134,39 +126,34 @@ struct HomeView: View {
         .navigationTitle("App Sales")
         #if !os(macOS)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showSettings.toggle()
-                } label: {
-                    Image(systemName: "gear")
+            ToolbarItemGroup(placement: .secondaryAction) {
+                Button("Accounts", systemImage: "person.crop.circle") {
+                    showingAccountsList.toggle()
+                }
+                
+                Section {
+                    Link(destination: URL(string: "https://www.256arts.com/")!) {
+                        Label("Developer Website", systemImage: "safari")
+                    }
+                    Link(destination: URL(string: "https://www.256arts.com/joincommunity/")!) {
+                        Label("Join Community", systemImage: "bubble.left.and.bubble.right")
+                    }
+                    Link(destination: URL(string: "https://github.com/256Arts/App-Sales")!) {
+                        Label("Contribute on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
+                    }
                 }
             }
         }
         #endif
-        .sheet(isPresented: $showSettings) {
+        .sheet(isPresented: $showingAccountsList) {
             NavigationStack {
-                SettingsView()
+                AccountsList()
             }
         }
-        .sheet(isPresented: $showingWelcome, onDismiss: {
-            if whatsNewVersion < appWhatsNewVersion {
-                whatsNewVersion = appWhatsNewVersion
-            }
-        }, content: {
-            WelcomeView(isFirstLaunch: whatsNewVersion == 0, appName: "App Sales", features: welcomeFeatures)
-                #if os(macOS)
-                .frame(width: 500, height: 500)
-                #endif
-        })
         .onChange(of: keyID) {
             Task { await fetchData(useMemoization: false) }
         }
         .task { await fetchData(useMemoization: true) }
-        .onAppear {
-            if whatsNewVersion < appWhatsNewVersion {
-                showingWelcome = true
-            }
-        }
         #if canImport(UIKit)
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             Task { await fetchData() }

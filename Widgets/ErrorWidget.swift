@@ -14,6 +14,7 @@ struct ErrorWidget: View {
         VStack(alignment: .leading) {
             Text("App Sales")
                 .font(.headline)
+                .widgetAccentable()
             
             Text("Error")
                 .font(.subheadline)

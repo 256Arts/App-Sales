@@ -11,8 +11,9 @@ import WidgetKit
 #endif
 import KeychainAccess
 
-final class AccountManager: ObservableObject {
-    @Published private(set) var accounts: [Account]
+@Observable
+final class AccountManager {
+    private(set) var accounts: [Account]
 
     init() {
         do {

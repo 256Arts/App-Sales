@@ -4,6 +4,9 @@
 //
 
 import Foundation
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 let appGroupID = "group.com.jaydenirwin.appsales"
 
@@ -71,6 +74,10 @@ class ACDataCache {
 
         let collection = CacheObjectCollection(objects: cacheObjects)
         saveCollection(collection)
+        
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadAllTimelines()
+        #endif
     }
 
     private static func saveCollection(_ collection: CacheObjectCollection) {

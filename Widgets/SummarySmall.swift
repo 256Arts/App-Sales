@@ -28,6 +28,7 @@ struct SummarySmall: View {
             VStack(alignment: .leading) {
                 Text("App Sales")
                     .font(.headline)
+                    .widgetAccentable()
                 Text("30 days")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -62,12 +63,14 @@ struct SummarySmall: View {
                     Image(systemName: "chart.bar.xaxis.ascending")
                         .scaleEffect(x: -1, y: 1)
                         .foregroundStyle(.secondary)
+                        .widgetAccentable()
                     
                     ForEach(data.apps.prefix(3)) { app in
                         Group {
                             if let path = app.cachedIconURL?.path(), let data = FileManager.default.contents(atPath: path), let uiImage = UIImage(data: data) {
                                 Image(uiImage: uiImage)
                                     .resizable()
+                                    .widgetAccentedRenderingMode(.accentedDesaturated)
                             } else {
                                 Color.secondary
                             }
