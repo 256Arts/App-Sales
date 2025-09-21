@@ -64,7 +64,9 @@ struct SummaryWithChart: View {
                 DownloadsIconsGraphic(apps: data.apps)
             }
         }
+        #if canImport(UIKit)
         .containerBackground(Color(UIColor.systemBackground), for: .widget)
+        #endif
     }
 }
 

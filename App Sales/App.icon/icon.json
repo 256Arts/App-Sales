@@ -6,9 +6,19 @@
     {
       "layers" : [
         {
-          "fill" : {
-            "solid" : "extended-srgb:0.00000,0.47843,1.00000,1.00000"
-          },
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "extended-srgb:0.00000,0.47843,1.00000,1.00000"
+              }
+            },
+            {
+              "appearance" : "tinted",
+              "value" : {
+                "automatic-gradient" : "extended-gray:1.00000,1.00000"
+              }
+            }
+          ],
           "glass" : true,
           "image-name" : "Chart.svg",
           "name" : "Chart"
@@ -43,7 +53,15 @@
           "name" : "Outline watch"
         },
         {
-          "fill" : "automatic",
+          "fill-specializations" : [
+            {
+              "value" : "automatic"
+            },
+            {
+              "appearance" : "tinted",
+              "value" : "automatic"
+            }
+          ],
           "glass" : true,
           "hidden-specializations" : [
             {

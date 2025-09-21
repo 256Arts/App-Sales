@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct PerformanceSummary {
     let downloads: Int
@@ -38,5 +39,17 @@ struct AppPerformanceSummary: Identifiable {
         guard let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else { return nil }
         
         return groupURL.appending(path: appleID).appendingPathExtension("jpg")
+    }
+    
+    var cachedIcon: Image? {
+        guard let path = cachedIconURL?.path(), let data = FileManager.default.contents(atPath: path) else { return nil }
+        
+        #if canImport(UIKit)
+        guard let uiImage = UIImage(data: data) else { return nil }
+        return Image(uiImage: uiImage)
+        #else
+        guard let nsImage = NSImage(data: data) else { return nil }
+        return Image(nsImage: nsImage)
+        #endif
     }
 }

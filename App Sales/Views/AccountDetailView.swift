@@ -35,7 +35,7 @@ struct AccountDetailView: View {
     }
 
     var body: some View {
-        Form {
+        List {
             Toggle(isOn: Binding(get: {
                 keyID == account.id
             }, set: { newValue in
@@ -74,7 +74,7 @@ struct AccountDetailView: View {
                 LabeledContent("Private Key") {
                     HStack {
                         Text("••••\(String(privateKey.suffix(4)))")
-                        Button("Copy", systemName: "doc.on.doc") {
+                        Button("Copy", systemImage: "doc.on.doc") {
                             #if canImport(UIKit)
                             UIPasteboard.general.string = privateKey
                             #else
@@ -90,7 +90,7 @@ struct AccountDetailView: View {
             }
             
             Section {
-                Button("Delete", role: .destructive) {
+                Button("Delete", systemImage: "trash", role: .destructive) {
                     showingDeleteAlert.toggle()
                 }
             }
@@ -118,7 +118,7 @@ struct AccountDetailView: View {
         #if os(macOS)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Done") {
+                Button("Done", systemImage: "checkmark") {
                     dismiss()
                 }
             }

@@ -17,9 +17,10 @@ struct DownloadsIconsGraphic: View {
             HStack(alignment: .bottom) {
                 ForEach(apps) { app in
                     Group {
-                        if let path = app.cachedIconURL?.path(), let data = FileManager.default.contents(atPath: path), let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
+                        if let icon = app.cachedIcon {
+                            icon
                                 .resizable()
+                                .widgetAccentedRenderingMode(.accentedDesaturated)
                         } else {
                             Color.secondary
                         }
@@ -28,12 +29,20 @@ struct DownloadsIconsGraphic: View {
                     .clipShape(RoundedRectangle(cornerRadius: geometry.size.height * fractionOfBestApp(app) / 4))
                     .background {
                         RoundedRectangle(cornerRadius: geometry.size.height * fractionOfBestApp(app) / 4)
-                            .fill(Color(UIColor.systemFill))
+                            .fill(appOutlineColor)
                             .padding(-0.5)
                     }
                 }
             }
         }
+    }
+    
+    private var appOutlineColor: Color {
+        #if canImport(UIKit)
+        Color(UIColor.systemFill)
+        #else
+        Color.secondary
+        #endif
     }
     
     private func fractionOfBestApp(_ app: AppPerformanceSummary) -> CGFloat {

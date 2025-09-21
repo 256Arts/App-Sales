@@ -67,8 +67,8 @@ struct SummarySmall: View {
                     
                     ForEach(data.apps.prefix(3)) { app in
                         Group {
-                            if let path = app.cachedIconURL?.path(), let data = FileManager.default.contents(atPath: path), let uiImage = UIImage(data: data) {
-                                Image(uiImage: uiImage)
+                            if let icon = app.cachedIcon {
+                                icon
                                     .resizable()
                                     .widgetAccentedRenderingMode(.accentedDesaturated)
                             } else {
@@ -79,7 +79,7 @@ struct SummarySmall: View {
                         .clipShape(RoundedRectangle(cornerRadius: 6))
                         .background {
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(Color(UIColor.systemFill))
+                                .fill(appOutlineColor)
                                 .padding(-0.5)
                         }
                     }
@@ -88,7 +88,18 @@ struct SummarySmall: View {
         }
         .allowsTightening(true)
         .frame(idealWidth: .infinity, maxWidth: .infinity, alignment: .leading)
+        #if canImport(UIKit)
         .containerBackground(Color(UIColor.systemBackground), for: .widget)
+        #endif
     }
+    
+    private var appOutlineColor: Color {
+        #if canImport(UIKit)
+        Color(UIColor.systemFill)
+        #else
+        Color.secondary
+        #endif
+    }
+    
 }
 

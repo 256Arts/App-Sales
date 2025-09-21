@@ -21,15 +21,25 @@ struct AppSalesApp: App {
             }
             .environment(apiKeysProvider)
         }
-        .defaultSize(CGSize(width: 600, height: 800))
-        
-        #if os(macOS)
-        Settings {
-            SettingsView()
-                .scenePadding()
-                .environmentObject(accountManager)
+        .defaultSize(CGSize(width: 500, height: 700))
+        .commands {
+            CommandGroup(after: .help) {
+                AppSalesApp.links()
+            }
         }
-        .defaultSize(width: 400, height: 400)
-        #endif
     }
+    
+    @ViewBuilder
+    static func links() -> some View {
+        Link(destination: URL(string: "https://www.256arts.com/")!) {
+            Label("Developer Website", systemImage: "safari")
+        }
+        Link(destination: URL(string: "https://www.256arts.com/joincommunity/")!) {
+            Label("Join Community", systemImage: "bubble.left.and.bubble.right")
+        }
+        Link(destination: URL(string: "https://github.com/256Arts/App-Sales")!) {
+            Label("Contribute on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
+        }
+    }
+    
 }

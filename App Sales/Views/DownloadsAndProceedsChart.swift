@@ -26,14 +26,15 @@ struct DownloadsAndProceedsChart: View {
                     .foregroundStyle(.green)
                     .foregroundStyle(by: .value("Data Type", "Proceeds"))
                     .position(by: .value("Data Type", "Proceeds"))
-                
             }
         }
         .chartXAxis {
             AxisMarks(values: apps.map { $0.name }) { axis in
                 AxisValueLabel {
                     AsyncImage(url: apps[axis.index].iconURL) { image in
-                        image.resizable()
+                        image
+                            .resizable()
+                            .widgetAccentedRenderingMode(.accentedDesaturated)
                     } placeholder: {
                         #if canImport(UIKit)
                         if let path = apps[axis.index].cachedIconURL?.path(), let data = FileManager.default.contents(atPath: path), let uiImage = UIImage(data: data) {

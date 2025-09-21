@@ -34,7 +34,7 @@ struct HomeView: View {
         return formatter
     }()
     private var appListIconLength: CGFloat {
-        #if targetEnvironment(macCatalyst)
+        #if os(macOS)
         24
         #else
         32
@@ -64,7 +64,11 @@ struct HomeView: View {
                                 }
                                 
                                 DownloadsAndProceedsChart(apps: summary.apps, iconLength: 32)
+                                    #if os(visionOS)
+                                    .frame(height: 300)
+                                    #else
                                     .frame(height: 400)
+                                    #endif
                             }
                         }
                         .font(.title)
@@ -124,31 +128,32 @@ struct HomeView: View {
             }
         }
         .navigationTitle("App Sales")
-        #if !os(macOS)
         .toolbar {
+            #if os(macOS) || os(visionOS)
+            ToolbarItem(placement: .primaryAction) {
+                Button("Accounts", systemImage: "person.crop.circle") {
+                    showingAccountsList.toggle()
+                }
+            }
+            #else
             ToolbarItemGroup(placement: .secondaryAction) {
                 Button("Accounts", systemImage: "person.crop.circle") {
                     showingAccountsList.toggle()
                 }
                 
                 Section {
-                    Link(destination: URL(string: "https://www.256arts.com/")!) {
-                        Label("Developer Website", systemImage: "safari")
-                    }
-                    Link(destination: URL(string: "https://www.256arts.com/joincommunity/")!) {
-                        Label("Join Community", systemImage: "bubble.left.and.bubble.right")
-                    }
-                    Link(destination: URL(string: "https://github.com/256Arts/App-Sales")!) {
-                        Label("Contribute on GitHub", systemImage: "chevron.left.forwardslash.chevron.right")
-                    }
+                    AppSalesApp.links()
                 }
             }
+            #endif
         }
-        #endif
         .sheet(isPresented: $showingAccountsList) {
             NavigationStack {
                 AccountsList()
             }
+            #if os(macOS)
+            .frame(idealHeight: 400)
+            #endif
         }
         .onChange(of: keyID) {
             Task { await fetchData(useMemoization: false) }

@@ -14,28 +14,15 @@ struct AccountsList: View {
     @State private var showingAddAccount: Bool = false
     @State private var cachedEntries: Int = 0
     @State private var updateSheetVisible = false
-    #if os(macOS)
-    @State private var selectedAccount: Account?
-    #endif
 
     var body: some View {
         List {
             ForEach(accountManager.accounts) { account in
-                #if os(macOS)
-                Button {
-                    selectedAccount = account
-                } label: {
-                    LabeledContent(account.name) {
-                        AccountStatusSymbol(account: account)
-                    }
-                }
-                #else
                 NavigationLink(destination: AccountDetailView(account)) {
                     LabeledContent(account.name) {
                         AccountStatusSymbol(account: account)
                     }
                 }
-                #endif
             }
             .onDelete(perform: deleteKey)
 
@@ -66,22 +53,6 @@ struct AccountsList: View {
 //            }
         }
         .navigationTitle("Accounts")
-        #if os(macOS)
-        .sheet(isPresented: Binding(get: {
-            selectedAccount != nil
-        }, set: { newValue in
-            if !newValue {
-                selectedAccount = nil
-            }
-        })) {
-            if let selectedAccount {
-                NavigationStack {
-                    AccountDetailView(selectedAccount)
-                        .scenePadding()
-                }
-            }
-        }
-        #else
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done", systemImage: "checkmark") {
@@ -89,7 +60,6 @@ struct AccountsList: View {
                 }
             }
         }
-        #endif
         .sheet(isPresented: $showingAddAccount) {
             NavigationStack {
                 NewAccountView()
