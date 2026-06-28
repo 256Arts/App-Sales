@@ -18,7 +18,6 @@ struct HomeView: View {
 
     @Environment(AccountManager.self) var accountManager
 
-    @AppStorage(UserDefaults.Key.whatsNewVersion) var whatsNewVersion = 0
     @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
     
     private var selectedKey: Account? {
@@ -78,7 +77,11 @@ struct HomeView: View {
                             Text(updatedDateString(lastRefreshDate: data.latestReportingDate()))
                         }
                     }
-                    
+
+                    if let summary {
+                        InsightsView(summary: summary)
+                    }
+
                     Section {
                         ForEach(data.apps) { app in
                             HStack {

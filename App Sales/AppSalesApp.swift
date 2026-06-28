@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import StoreKit
 
 @main
 struct AppSalesApp: App {
@@ -12,7 +13,13 @@ struct AppSalesApp: App {
         UserDefaults.standard.register()
     }
     
+    @AppStorage(UserDefaults.Key.appLaunchCount) var appLaunchCount = 0
+    
+    @Environment(\.requestReview) private var requestReview
+    
     @Bindable private var apiKeysProvider = AccountManager.shared
+    
+    @State private var showingEvent = false
 
     var body: some Scene {
         WindowGroup {
@@ -20,6 +27,22 @@ struct AppSalesApp: App {
                 HomeView()
             }
             .environment(apiKeysProvider)
+            .onAppear {
+                appLaunchCount += 1
+                if [5, 20, 50, 100].contains(appLaunchCount) {
+                    requestReview()
+                }
+            }
+            .alert("Event Intro", isPresented: $showingEvent) {
+                Button("OK") { }
+            } message: {
+                Text("Now let's celebrate by connecting your App Store Connect account and trying out the new features!")
+            }
+            .onOpenURL { url in
+                if url.path().contains("appsales/appstoreevent") {
+                    showingEvent = true
+                }
+            }
         }
         .defaultSize(CGSize(width: 500, height: 700))
         .commands {
