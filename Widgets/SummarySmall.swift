@@ -47,7 +47,7 @@ struct SummarySmall: View {
             .fontWeight(.medium)
             
             HStack(spacing: 4) {
-                (Text("\(Image(systemName: "arrow.down.app"))").foregroundStyle(.secondary) + Text("\(data.downloads)"))
+                Text("\(Text(Image(systemName: "arrow.down.app")).foregroundStyle(.secondary))\(data.downloads)")
                     .layoutPriority(999)
                 Image(systemName: "arrowtriangle" + (data.downloadsPercentageChange < 0 ? ".down" : ".up"))
                     .symbolVariant(.fill)

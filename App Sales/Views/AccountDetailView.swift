@@ -94,16 +94,13 @@ struct AccountDetailView: View {
                     showingDeleteAlert.toggle()
                 }
             }
-            .alert(isPresented: $showingDeleteAlert) {
-                Alert(
-                    title: Text("Delete Account?"),
-                    primaryButton: .destructive(Text("Delete")) {
-                        ACDataCache.clearCache(apiKey: account)
-                        accountManager.deleteApiKeys(keys: [account])
-                        dismiss()
-                    },
-                    secondaryButton: .cancel()
-                )
+            .alert("Delete Account?", isPresented: $showingDeleteAlert) {
+                Button("Delete", role: .destructive) {
+                    ACDataCache.clearCache(apiKey: account)
+                    accountManager.deleteApiKeys(keys: [account])
+                    dismiss()
+                }
+                Button("Cancel", role: .cancel) { }
             }
         }
         .task {

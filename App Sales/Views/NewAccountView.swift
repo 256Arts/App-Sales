@@ -90,7 +90,11 @@ struct NewAccountView: View {
         #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        .alert(item: $alert, content: { generateAlert($0) })
+        .alert(alert?.title ?? "", item: $alert) { alertType in
+            Button(alertType.confirmLabel) { }
+        } message: { alertType in
+            Text(alertType.message)
+        }
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {
@@ -163,34 +167,31 @@ struct NewAccountView: View {
     }
 
     // MARK: Alert
-    private enum AddAPIKeyAlert: Identifiable {
+    private enum AddAPIKeyAlert {
         case invalidKey
         case duplicateKey
         case duplicateName
 
-        var id: Self { self }
-    }
-
-    private func generateAlert(_ alertType: AddAPIKeyAlert) -> Alert {
-        let button: Alert.Button
-        let title: Text
-        let message: Text
-        
-        switch alertType {
-        case .invalidKey:
-            title = Text("Invalid Account")
-            message = Text("Some or all of the information entered is incorrect.")
-            button = Alert.Button.default(Text("OK"))
-        case .duplicateKey:
-            title = Text("Duplicate Account")
-            message = Text("These credencials have already been added.")
-            button = Alert.Button.default(Text("Check Again"))
-        case .duplicateName:
-            title = Text("Duplicate Name")
-            message = Text("Choose a unique name.")
-            button = Alert.Button.default(Text("OK"))
+        var title: LocalizedStringKey {
+            switch self {
+            case .invalidKey: "Invalid Account"
+            case .duplicateKey: "Duplicate Account"
+            case .duplicateName: "Duplicate Name"
+            }
         }
-        return Alert(title: title, message: message, dismissButton: button)
+        var message: LocalizedStringKey {
+            switch self {
+            case .invalidKey: "Some or all of the information entered is incorrect."
+            case .duplicateKey: "These credentials have already been added."
+            case .duplicateName: "Choose a unique name."
+            }
+        }
+        var confirmLabel: LocalizedStringKey {
+            switch self {
+            case .duplicateKey: "Check Again"
+            default: "OK"
+            }
+        }
     }
 
     func infoCard(title: LocalizedStringKey) -> some View {
@@ -221,7 +222,7 @@ struct NewAccountView: View {
                 .buttonStyle(.plain)
                 .padding(5)
                 .overlay(RoundedRectangle(cornerRadius: cornerRadius).stroke(borderColor, lineWidth: borderWidth))
-                .disableAutocorrection(true)
+                .autocorrectionDisabled()
                 .font(.system(.body, design: .monospaced))
         }
     }

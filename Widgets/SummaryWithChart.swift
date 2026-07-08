@@ -47,7 +47,7 @@ struct SummaryWithChart: View {
                     }
                     
                     GridRow {
-                        Text("\(Image(systemName: "arrow.down.app"))").foregroundStyle(.secondary) + Text("\(data.downloads)")
+                        Text("\(Text(Image(systemName: "arrow.down.app")).foregroundStyle(.secondary))\(data.downloads)")
                         Text("\(Image(systemName: data.downloadsPercentageChange < 0 ? "arrow.down.forward" : "arrow.up.forward"))\(percentFormatter.string(from: NSNumber(value: data.downloadsPercentageChange)) ?? "")")
                             .font(.callout)
                             .foregroundStyle(data.downloadsPercentageChange < 0 ? Color.red : Color.green)

@@ -89,16 +89,16 @@ struct AccountStatusSymbol: View {
         Group {
             if loading {
                 Image(systemName: "icloud")
-                    .foregroundColor(.gray)
+                    .foregroundStyle(.gray)
             } else if status == nil {
                 Image(systemName: "checkmark.icloud")
-                    .foregroundColor(.green)
+                    .foregroundStyle(.green)
             } else if status == .invalidCredentials {
                 Image(systemName: "xmark.icloud")
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
             } else {
                 Image(systemName: "exclamationmark.icloud")
-                    .foregroundColor(.orange)
+                    .foregroundStyle(.orange)
             }
         }
         .task(priority: .background) {

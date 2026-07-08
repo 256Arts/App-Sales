@@ -51,7 +51,7 @@ struct DownloadsAndProceedsChart: View {
                         #endif
                     }
                     .frame(width: iconLength, height: iconLength)
-                    .cornerRadius(iconLength / 4)
+                    .clipShape(RoundedRectangle(cornerRadius: iconLength / 4))
                 }
             }
         }

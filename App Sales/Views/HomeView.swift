@@ -40,6 +40,17 @@ struct HomeView: View {
         #endif
     }
 
+    private var refreshButton: some View {
+        Button("Refresh", systemImage: "arrow.clockwise") {
+            Task { await fetchData(useMemoization: false) }
+        }
+    }
+    private var accountsButton: some View {
+        Button("Accounts", systemImage: "person.crop.circle") {
+            showingAccountsList.toggle()
+        }
+    }
+
     var body: some View {
         Group {
             if accountManager.accounts.isEmpty {
@@ -57,7 +68,7 @@ struct HomeView: View {
                                 }
                                 
                                 HStack {
-                                    Text("\(Image(systemName: "arrow.down.app"))").foregroundStyle(.secondary) + Text("\(summary.downloads)")
+                                    Text("\(Text(Image(systemName: "arrow.down.app")).foregroundStyle(.secondary))\(summary.downloads)")
                                     Text("\(Image(systemName: summary.downloadsPercentageChange < 0 ? "arrow.down.forward" : "arrow.up.forward"))\(percentFormatter.string(from: NSNumber(value: summary.downloadsPercentageChange)) ?? "")")
                                         .foregroundStyle(summary.downloadsPercentageChange < 0 ? Color.red : Color.green)
                                 }
@@ -132,21 +143,28 @@ struct HomeView: View {
         }
         .navigationTitle("App Sales")
         .toolbar {
-            #if os(macOS) || os(visionOS)
+            // Refresh stays in the bar under space pressure, overflowing last.
+            #if os(visionOS)
             ToolbarItem(placement: .primaryAction) {
-                Button("Accounts", systemImage: "person.crop.circle") {
-                    showingAccountsList.toggle()
-                }
+                refreshButton
             }
             #else
-            ToolbarItemGroup(placement: .secondaryAction) {
-                Button("Accounts", systemImage: "person.crop.circle") {
-                    showingAccountsList.toggle()
-                }
-                
-                Section {
-                    AppSalesApp.links()
-                }
+            ToolbarItem(placement: .primaryAction) {
+                refreshButton
+            }
+            .visibilityPriority(.high)
+            #endif
+
+            #if os(macOS)
+            ToolbarItem(placement: .primaryAction) {
+                accountsButton
+            }
+            #else
+            ToolbarItem(placement: .topBarPinnedTrailing) {
+                accountsButton
+            }
+            ToolbarOverflowMenu {
+                AppSalesApp.links()
             }
             #endif
         }
