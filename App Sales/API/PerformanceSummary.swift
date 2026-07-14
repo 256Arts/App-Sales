@@ -1,10 +1,3 @@
-//
-//  PerformanceSummary.swift
-//  App Sales
-//
-//  Created by 256 Arts Developer on 2023-10-26.
-//
-
 import Foundation
 import SwiftUI
 

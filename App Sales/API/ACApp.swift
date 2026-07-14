@@ -1,8 +1,3 @@
-//
-//  ACApp.swift
-//  AC Widget by NO-COMMENT
-//
-
 import CoreImage
 
 struct ACApp: Codable, Identifiable {

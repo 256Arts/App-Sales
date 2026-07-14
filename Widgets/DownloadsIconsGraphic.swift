@@ -1,10 +1,3 @@
-//
-//  DownloadsIconsGraphic.swift
-//  WidgetsExtension
-//
-//  Created by 256 Arts Developer on 2023-10-28.
-//
-
 import SwiftUI
 
 struct DownloadsIconsGraphic: View {

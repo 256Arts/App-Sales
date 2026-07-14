@@ -1,8 +1,3 @@
-//
-//  ACData.swift
-//  AC Widget by NO-COMMENT
-//
-
 import Foundation
 import SwiftUI
 

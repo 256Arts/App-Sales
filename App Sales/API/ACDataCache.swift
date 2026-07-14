@@ -1,8 +1,3 @@
-//
-//  ACDataCache.swift
-//  AC Widget by NO-COMMENT
-//
-
 import Foundation
 #if canImport(WidgetKit)
 import WidgetKit

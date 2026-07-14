@@ -1,8 +1,3 @@
-//
-//  ErrorWidget.swift
-//  AC Widget by NO-COMMENT
-//
-
 #if canImport(WidgetKit)
 import SwiftUI
 import WidgetKit

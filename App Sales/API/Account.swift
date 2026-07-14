@@ -1,8 +1,3 @@
-//
-//  Account.swift
-//  AC Widget by NO-COMMENT
-//
-
 import SwiftUI
 import AppIntents
 

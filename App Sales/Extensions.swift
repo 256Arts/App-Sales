@@ -1,8 +1,3 @@
-//
-//  Extensions.swift
-//  AC Widget by NO-COMMENT
-//
-
 import Foundation
 import SwiftUI
 #if canImport(WidgetKit)

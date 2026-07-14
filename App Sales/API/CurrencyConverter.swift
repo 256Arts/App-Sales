@@ -1,8 +1,3 @@
-//
-//  CurrencyConverter.swift
-//  AC Widget by NO-COMMENT
-//
-
 import Foundation
 
 //  Created by Thiago Martins on 26/03/19.

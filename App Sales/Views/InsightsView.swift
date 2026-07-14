@@ -1,8 +1,3 @@
-//
-//  InsightsView.swift
-//  AC Widget by NO-COMMENT
-//
-
 import SwiftUI
 #if canImport(FoundationModels)
 import FoundationModels

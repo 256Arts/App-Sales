@@ -1,8 +1,3 @@
-//
-//  AppSalesApp.swift
-//  AC Widget by NO-COMMENT
-//
-
 import SwiftUI
 import StoreKit
 

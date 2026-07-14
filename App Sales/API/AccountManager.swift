@@ -1,10 +1,3 @@
-//
-//  AccountManager.swift
-//  App Sales
-//
-//  Created by Jayden Irwin on 2024-01-16.
-//
-
 import SwiftUI
 #if canImport(WidgetKit)
 import WidgetKit

@@ -1,8 +1,3 @@
-//
-//  APIError.swift
-//  AC Widget by NO-COMMENT
-//
-
 import Foundation
 
 enum APIError: LocalizedError {

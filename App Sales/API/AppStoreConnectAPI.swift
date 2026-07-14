@@ -1,8 +1,3 @@
-//
-//  AppStoreConnectAPI.swift
-//  AC Widget by NO-COMMENT
-//
-
 import Foundation
 import AppStoreConnect_Swift_SDK
 import Gzip

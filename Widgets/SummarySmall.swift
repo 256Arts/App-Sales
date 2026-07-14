@@ -1,8 +1,3 @@
-//
-//  SummarySmall.swift
-//  AC Widget by NO-COMMENT
-//
-
 import SwiftUI
 import WidgetKit
 

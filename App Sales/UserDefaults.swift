@@ -1,10 +1,3 @@
-//
-//  UserDefaults.swift
-//  App Sales
-//
-//  Created by Jayden Irwin on 2024-01-16.
-//
-
 import Foundation
 
 extension UserDefaults {

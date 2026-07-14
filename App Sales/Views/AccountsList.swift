@@ -1,8 +1,3 @@
-//
-//  AccountsList.swift
-//  AC Widget by NO-COMMENT
-//
-
 import SwiftUI
 
 struct AccountsList: View {

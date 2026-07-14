@@ -1,8 +1,3 @@
-//
-//  Widgets.swift
-//  AC Widget by NO-COMMENT
-//
-
 import WidgetKit
 import SwiftUI
 import AppIntents
