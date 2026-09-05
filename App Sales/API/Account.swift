@@ -25,7 +25,20 @@ struct Account: Codable, Identifiable, Hashable, AppEntity {
     static var defaultQuery = AccountQuery()
     
     static let demoAccount = Account(name: "Demo", issuerID: "demo", privateKeyID: "demo", privateKey: "demo", vendorNumber: "demo")
-            
+
+    /// A demo account under another name, for the several a screenshot run seeds.
+    static func demoAccount(named name: String, id: String) -> Account {
+        Account(name: name, issuerID: demoAccount.issuerID, privateKeyID: id, privateKey: "demo", vendorNumber: "demo")
+    }
+
+    /// Whether the fetch pipeline should serve `ACData.example` instead of reaching App Store
+    /// Connect. Keyed on the issuer ID rather than the account's own, so the extra accounts a
+    /// screenshot run seeds are covered too; a real issuer ID is a UUID and cannot collide.
+    var isDemo: Bool {
+        issuerID == Account.demoAccount.issuerID
+    }
+
+
     var displayRepresentation: DisplayRepresentation {
         DisplayRepresentation(title: "\(name)")
     }

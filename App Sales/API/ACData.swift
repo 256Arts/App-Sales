@@ -151,27 +151,43 @@ struct ACData: Codable {
     
     static let example = createMockData(60)
 
+    /// Mock sales for the Demo account, and so for the App Store screenshots taken from it.
+    ///
+    /// Seeded rather than freely random: the same numbers on every launch, and the same chart in
+    /// every screenshot run. Days are offsets from today rather than fixed dates, so the shots do
+    /// not drift with the month they were taken in either.
     private static func createMockData(_ days: Int) -> ACData {
         var entries: [Event] = []
         let apps: [ACApp] = [.demo1, .demo2, .demo3, .demo4]
         let countries = ["US", "DE", "ES", "UK", "IN", "CA", "SE", "NZ"]
         let devices = ["Desktop", "iPhone", "iPad"]
+        var generator = SeededGenerator(seed: 20260904)
 
         for day in -days...0 {
-            let app = apps.randomElement()!
-            let multiplier = (5 - (Float(app.id) ?? 1)) * (day < -days/2 ? 0.88 : 1)
-            entries.append(Event(
-                appTitle: app.name,
-                appSKU: app.sku,
-                units: Int(multiplier * Float.random(in: 1...20)),
-                proceeds: multiplier * Float.random(in: 0...0.2),
-                date: Calendar.current.date(byAdding: .day, value: day, to: .now)!,
-                countryCode: countries.randomElement()!,
-                device: devices.randomElement()!,
-                appIdentifier: app.appleID,
-                type: .download))
+            // Every app on every day, so no app can lose its bar in the chart to an unlucky draw.
+            for (index, app) in apps.enumerated() {
+                // The first app is the strongest seller and the last the weakest, which is also the
+                // order `getAppSummaries()` will sort them into.
+                let popularity = Float(apps.count - index)
+                // The older half sells less than the recent half, so the summary's change arrows
+                // point up.
+                let growth: Float = day < -days/2 ? 0.82 : 1
+                guard let date = Calendar.current.date(byAdding: .day, value: day, to: .now),
+                      let countryCode = countries.randomElement(using: &generator),
+                      let device = devices.randomElement(using: &generator) else { continue }
+                entries.append(Event(
+                    appTitle: app.name,
+                    appSKU: app.sku,
+                    units: Int((popularity * growth * Float.random(in: 8...14, using: &generator)).rounded()),
+                    proceeds: Float(app.price) * Float.random(in: 0.5...0.9, using: &generator),
+                    date: date,
+                    countryCode: countryCode,
+                    device: device,
+                    appIdentifier: app.appleID,
+                    type: .download))
+            }
         }
-        
+
         for app in apps {
             Task {
                 await app.saveIcon()
@@ -179,6 +195,24 @@ struct ACData: Codable {
         }
         
         return ACData(entries: entries, currency: .USD, apps: apps)
+    }
+}
+
+/// A reproducible generator, so `ACData.example` is the same dataset on every launch.
+/// SplitMix64: short enough to read, and more than good enough for demo numbers.
+private struct SeededGenerator: RandomNumberGenerator {
+    private var state: UInt64
+
+    init(seed: UInt64) {
+        state = seed
+    }
+
+    mutating func next() -> UInt64 {
+        state &+= 0x9E37_79B9_7F4A_7C15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+        return z ^ (z >> 31)
     }
 }
 

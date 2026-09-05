@@ -28,12 +28,12 @@ final class AppStoreConnectAPI {
     }
 
     public func getData(numOfDays: Int = 60, useCache: Bool = true) async throws -> ACData {
-        if account.id == Account.demoAccount.id { return ACData.example }
+        if account.isDemo { return ACData.example }
         return try await getData(currency: Currency(rawValue: Locale.autoupdatingCurrent.currency?.identifier ?? ""), numOfDays: numOfDays, useCache: useCache)
     }
 
     public func getData(currency: Currency? = nil, numOfDays: Int = 60, useCache: Bool = true, useMemoization: Bool = true) async throws -> ACData {
-        if account.id == Account.demoAccount.id { return ACData.example }
+        if account.isDemo { return ACData.example }
 
         if useMemoization {
             if let last = AppStoreConnectAPI.lastData[account] {

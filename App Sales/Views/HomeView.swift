@@ -58,6 +58,9 @@ struct HomeView: View {
                             if let summary {
                                 HStack {
                                     Text(currencyFormatter.string(from: NSNumber(value: summary.proceeds)) ?? "")
+                                        // The screenshot walk waits on this before its first shot,
+                                        // so a capture cannot beat the fetched data onto the screen.
+                                        .accessibilityIdentifier("Summary.Proceeds")
                                     Text("\(Image(systemName: summary.proceedsPercentageChange < 0 ? "arrow.down.forward" : "arrow.up.forward"))\(percentFormatter.string(from: NSNumber(value: summary.proceedsPercentageChange)) ?? "")")
                                         .foregroundStyle(summary.proceedsPercentageChange < 0 ? Color.red : Color.green)
                                 }
@@ -115,6 +118,7 @@ struct HomeView: View {
                                 Link(destination: app.url) {
                                     Image("logo.appstore")
                                 }
+                                .accessibilityLabel("View \(app.name) on the App Store")
                             }
                         }
                     }

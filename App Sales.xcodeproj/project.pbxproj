@@ -28,6 +28,13 @@
 			remoteGlobalIDString = 45E8C4932612531D007F9B0E;
 			remoteInfo = WidgetsExtension;
 		};
+		1BA55A000000000000000006 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 45E8C4752612512E007F9B0E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 45E8C47C2612512E007F9B0E;
+			remoteInfo = "App Sales";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -50,6 +57,7 @@
 		45E8C4982612531D007F9B0E /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		45E8C4A62612531E007F9B0E /* WidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WidgetsExtension.entitlements; sourceTree = "<group>"; };
 		45FD5192261915F200603D8A /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
+		1BA55A000000000000000002 /* App Sales UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "App Sales UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -87,6 +95,13 @@
 			);
 			target = 45E8C4932612531D007F9B0E /* WidgetsExtension */;
 		};
+		1BA55A000000000000000004 /* Exceptions for "App Sales UITests" folder in "App Sales UITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				UITests.entitlements,
+			);
+			target = 1BA55A000000000000000001 /* App Sales UITests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -108,9 +123,24 @@
 			path = Widgets;
 			sourceTree = "<group>";
 		};
+		1BA55A000000000000000003 /* App Sales UITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1BA55A000000000000000004 /* Exceptions for "App Sales UITests" folder in "App Sales UITests" target */,
+			);
+			path = "App Sales UITests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1BA55A000000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		45E8C47A2612512E007F9B0E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
@@ -140,6 +170,7 @@
 				45E8C4A62612531E007F9B0E /* WidgetsExtension.entitlements */,
 				1B7DF8A62E24173D0071B353 /* App Sales */,
 				1B7DF8E12E2417540071B353 /* Widgets */,
+				1BA55A000000000000000003 /* App Sales UITests */,
 				45E8C4952612531D007F9B0E /* Frameworks */,
 				45E8C47E2612512E007F9B0E /* Products */,
 			);
@@ -150,6 +181,7 @@
 			children = (
 				45E8C47D2612512E007F9B0E /* App Sales.app */,
 				45E8C4942612531D007F9B0E /* WidgetsExtension.appex */,
+				1BA55A000000000000000002 /* App Sales UITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -221,6 +253,29 @@
 			productReference = 45E8C4942612531D007F9B0E /* WidgetsExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		1BA55A000000000000000001 /* App Sales UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BA55A00000000000000000A /* Build configuration list for PBXNativeTarget "App Sales UITests" */;
+			buildPhases = (
+				1BA55A000000000000000007 /* Sources */,
+				1BA55A000000000000000008 /* Frameworks */,
+				1BA55A000000000000000009 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1BA55A000000000000000005 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1BA55A000000000000000003 /* App Sales UITests */,
+			);
+			name = "App Sales UITests";
+			packageProductDependencies = (
+			);
+			productName = "App Sales UITests";
+			productReference = 1BA55A000000000000000002 /* App Sales UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -236,6 +291,10 @@
 					};
 					45E8C4932612531D007F9B0E = {
 						CreatedOnToolsVersion = 12.5;
+					};
+					1BA55A000000000000000001 = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = 45E8C47C2612512E007F9B0E;
 					};
 				};
 			};
@@ -260,11 +319,19 @@
 			targets = (
 				45E8C47C2612512E007F9B0E /* App Sales */,
 				45E8C4932612531D007F9B0E /* WidgetsExtension */,
+				1BA55A000000000000000001 /* App Sales UITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		1BA55A000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		45E8C47B2612512E007F9B0E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
@@ -278,6 +345,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		1BA55A000000000000000007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		45E8C4792612512E007F9B0E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
@@ -295,6 +369,11 @@
 			isa = PBXTargetDependency;
 			target = 45E8C4932612531D007F9B0E /* WidgetsExtension */;
 			targetProxy = 45E8C4A32612531E007F9B0E /* PBXContainerItemProxy */;
+		};
+		1BA55A000000000000000005 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 45E8C47C2612512E007F9B0E /* App Sales */;
+			targetProxy = 1BA55A000000000000000006 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -581,6 +660,67 @@
 			};
 			name = Release;
 		};
+		1BA55A00000000000000000B /* Debug configuration for PBXNativeTarget "App Sales UITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_ENTITLEMENTS = "App Sales UITests/UITests.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=xros*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jaydenirwin.appsales.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = "App Sales";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		1BA55A00000000000000000C /* Release configuration for PBXNativeTarget "App Sales UITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_ENTITLEMENTS = "App Sales UITests/UITests.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=xros*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jaydenirwin.appsales.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = "App Sales";
+				XROS_DEPLOYMENT_TARGET = 27.0;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -606,6 +746,15 @@
 				45E8C4A82612531E007F9B0E /* Debug configuration for PBXNativeTarget "WidgetsExtension" */,
 				45E8C4A92612531E007F9B0E /* Release configuration for PBXNativeTarget "WidgetsExtension" */,
 			);
+			defaultConfigurationName = Release;
+		};
+		1BA55A00000000000000000A /* Build configuration list for PBXNativeTarget "App Sales UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BA55A00000000000000000B /* Debug configuration for PBXNativeTarget "App Sales UITests" */,
+				1BA55A00000000000000000C /* Release configuration for PBXNativeTarget "App Sales UITests" */,
+			);
+			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */

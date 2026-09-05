@@ -11,11 +11,39 @@ struct InsightsView: View {
     let summary: PerformanceSummary
 
     var body: some View {
-        #if canImport(FoundationModels)
-        if #available(iOS 26, macOS 26, visionOS 26, *) {
-            AppleIntelligenceInsights(summary: summary)
+        if ScreenshotMode.isActive {
+            // A screenshot run shows a fixed insight: the model is unavailable in the simulator, so
+            // the section would not render there at all, and on the Mac it writes something
+            // different every run. Neither makes a repeatable shot.
+            InsightsSection {
+                Text(ScreenshotMode.insight)
+            }
+        } else {
+            #if canImport(FoundationModels)
+            if #available(iOS 26, macOS 26, visionOS 26, *) {
+                AppleIntelligenceInsights(summary: summary)
+            }
+            #endif
         }
-        #endif
+    }
+}
+
+/// The Insights section's chrome, shared by the generated insight and the screenshot run's fixed one.
+private struct InsightsSection<Content: View>: View {
+
+    var showsDisclaimer = true
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        Section {
+            content
+        } header: {
+            Label("Insights", systemImage: "apple.intelligence")
+        } footer: {
+            if showsDisclaimer {
+                Text("Generated on-device by Apple Intelligence. May contain mistakes.")
+            }
+        }
     }
 }
 
@@ -32,7 +60,7 @@ private struct AppleIntelligenceInsights: View {
 
     var body: some View {
         if case .available = model.availability {
-            Section {
+            InsightsSection(showsDisclaimer: !insight.isEmpty) {
                 if failed {
                     Label("Couldn't generate insights right now.", systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.secondary)
@@ -45,12 +73,6 @@ private struct AppleIntelligenceInsights: View {
                 } else {
                     Text(insight)
                         .textSelection(.enabled)
-                }
-            } header: {
-                Label("Insights", systemImage: "apple.intelligence")
-            } footer: {
-                if !insight.isEmpty {
-                    Text("Generated on-device by Apple Intelligence. May contain mistakes.")
                 }
             }
             .task(id: regenerationKey) {
