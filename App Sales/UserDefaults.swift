@@ -6,6 +6,7 @@ extension UserDefaults {
         static let appLaunchCount = "appLaunchCount"
         static let includeRedownloads = "includeRedownloads"
         static let homeSelectedKey = "homeSelectedKey"
+        static let appListSort = "appListSort"
     }
     
     func register() {

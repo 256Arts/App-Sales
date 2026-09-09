@@ -109,11 +109,11 @@ private struct AppleIntelligenceInsights: View {
     }
 
     private var prompt: String {
-        let currency = currencyFormatter
+        let currency = NumberFormatter.currency
         let proceeds = currency.string(from: NSNumber(value: summary.proceeds)) ?? "\(summary.proceeds)"
         let prevProceeds = currency.string(from: NSNumber(value: summary.prevProceeds)) ?? "\(summary.prevProceeds)"
 
-        let appLines = summary.apps
+        let appLines = summary.topApps
             .map { app in
                 let appProceeds = currency.string(from: NSNumber(value: app.proceeds)) ?? "\(app.proceeds)"
                 return "- \(app.name): \(app.downloads) downloads, \(appProceeds) proceeds"
@@ -129,12 +129,6 @@ private struct AppleIntelligenceInsights: View {
         Top apps over the last 30 days:
         \(appLines.isEmpty ? "- (no app breakdown available)" : appLines)
         """
-    }
-
-    private var currencyFormatter: NumberFormatter {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        return formatter
     }
 }
 #endif

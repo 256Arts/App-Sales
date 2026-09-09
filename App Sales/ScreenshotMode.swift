@@ -44,6 +44,14 @@ enum ScreenshotMode {
         obvious place to spend your next update.
         """
 
+    /// Puts the preferences a shot can see back to their defaults.
+    ///
+    /// The app list's sort order is remembered between launches, so a simulator that has been driven
+    /// by hand would otherwise photograph whichever order was left behind.
+    static func resetPreferences() {
+        UserDefaults.shared?.removeObject(forKey: UserDefaults.Key.appListSort)
+    }
+
     #if os(macOS)
     /// Forgets the window size AppKit would otherwise restore.
     ///

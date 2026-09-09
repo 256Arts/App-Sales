@@ -130,7 +130,7 @@ struct ACData: Codable {
             prevDownloads: prevDownloads,
             proceeds: proceeds,
             prevProceeds: prevProceeds,
-            apps: Array(getAppSummaries().prefix(6)))
+            apps: getAppSummaries())
     }
     
     // MARK: Get by app
@@ -140,7 +140,7 @@ struct ACData: Codable {
         })
         return appsAndDownloads.sorted(by: { $0.1 > $1.1 }).map({
             let proceeds = Double(getRawData(for: .proceeds, lastNDays: 30, filteredApps: [$0.0]).reduce(0.0, { $0 + $1.0 }))
-            return AppPerformanceSummary(appleID: $0.0.appleID, name: $0.0.name, iconURL: $0.0.iconURL100, downloads: $0.1, proceeds: proceeds)
+            return AppPerformanceSummary(appleID: $0.0.appleID, name: $0.0.name, iconURL: $0.0.iconURL100, downloads: $0.1, proceeds: proceeds, price: $0.0.price)
         })
     }
 

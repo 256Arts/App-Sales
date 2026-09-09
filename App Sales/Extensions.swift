@@ -79,6 +79,16 @@ extension UserDefaults {
     }
 }
 
+// MARK: Formatting
+extension NumberFormatter {
+    /// Proceeds and prices, in the reader's own locale.
+    static let currency: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        return formatter
+    }()
+}
+
 // MARK: Editing Strings
 extension String {
     func removeCharacters(from set: CharacterSet) -> String {

@@ -1,10 +1,12 @@
 import XCTest
 
-/// Drives the app through the screens that become App Store screenshots and attaches each one to the
-/// result bundle, where the shared `screenshots` runner collects them.
+/// Drives the app to the screen that becomes an App Store screenshot and attaches it to the result
+/// bundle, where the shared `screenshots` runner collects it.
 ///
-/// One test rather than one per screen: the shots are a walk through a single launch, and splitting
-/// them would pay the launch — and the reseed — every time.
+/// One shot per platform, and it is the last slot on the listing: the ones before it are hand-made
+/// marketing images, kept in "Raw Assets/Screenshots" under the low numbers the runner never writes
+/// (see IPHONE_MANUAL_SHOTS and friends in .screenshots.conf). This one carries the real thing —
+/// the summary and its chart over the seeded account — so the listing ends on the actual app.
 @MainActor
 final class ScreenshotTests: XCTestCase {
 
@@ -25,21 +27,6 @@ final class ScreenshotTests: XCTestCase {
         }
         settle()
         capture("01-home")
-
-        // The bottom of the list: Apple Intelligence's read on the numbers, and the per-app rows.
-        // Framed by scrolling to the *last* app rather than to the Insights header, which would stop
-        // with the section clipped against the bottom edge.
-        scroll(to: element("Sunset Seeker"), description: "the bottom of the list")
-        settle()
-        capture("02-insights")
-
-        // Skipped on the Mac, where `screencapture -l` photographs one window and a sheet is its
-        // own — the shot would arrive without the app around it.
-        #if !os(macOS)
-        activate(element("Accounts"), "the Accounts button")
-        settle()
-        capture("03-accounts")
-        #endif
     }
 
     // MARK: - Driving
@@ -58,62 +45,6 @@ final class ScreenshotTests: XCTestCase {
         }
         // Nothing matched yet — the screen may not be up. Hand back the query the caller waits on.
         return app.staticTexts.matching(predicate).element(boundBy: 0)
-    }
-
-    private func activate(_ element: XCUIElement, _ description: String) {
-        guard element.waitForExistence(timeout: 15) else {
-            attach(XCTAttachment(string: app.debugDescription), named: "element-tree")
-            return XCTFail("never found \(description)")
-        }
-        #if os(macOS)
-        element.click()
-        #else
-        element.tap()
-        #endif
-    }
-
-    /// Scrolls the home list until `element` is inside the rectangle the shot will show.
-    ///
-    /// Framing is measured rather than asked for: `isHittable` is false for the static text in a
-    /// `List` row on the Mac whether it is on screen or not, so it cannot answer this. A blind swipe
-    /// also travels a different distance on every device, hence stepping and re-checking. The second
-    /// half of the budget scrolls the other way, because a scroll wheel's sign is not worth guessing
-    /// at and the wrong guess only costs the steps that walk back to where it began.
-    private func scroll(to element: XCUIElement, description: String) {
-        // Deliberately not waiting on the element first: a `List` on iOS is lazy, so a row below the
-        // fold does not exist until something scrolls it into being.
-        let steps = 8
-        for step in 0 ..< (steps * 2) {
-            if element.exists && visibleFrame.contains(element.frame) { return }
-            scrollList(down: step < steps)
-        }
-        attach(XCTAttachment(string: app.debugDescription), named: "element-tree")
-        XCTFail("never scrolled \(description) into view (it sits at \(element.frame), the shot shows \(visibleFrame))")
-    }
-
-    /// The rectangle a shot will actually show: the app's window on the Mac, the screen elsewhere.
-    private var visibleFrame: CGRect {
-        #if os(macOS)
-        return app.windows.element(boundBy: 0).frame
-        #else
-        return app.frame
-        #endif
-    }
-
-    private func scrollList(down: Bool) {
-        #if os(macOS)
-        // The scroll view itself, not the window: a wheel event delivered to the window is ignored.
-        // `scroll(to:description:)` sorts out the sign.
-        let scrollView = app.scrollViews.element(boundBy: 0)
-        let scrollable = scrollView.exists ? scrollView : app.windows.element(boundBy: 0)
-        scrollable.scroll(byDeltaX: 0, deltaY: down ? -160 : 160)
-        #else
-        if down {
-            app.swipeUp()
-        } else {
-            app.swipeDown()
-        }
-        #endif
     }
 
     /// Animations and async content have no element to wait on, so the shots pause instead.

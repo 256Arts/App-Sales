@@ -46,7 +46,7 @@ struct ACApp: Codable, Identifiable {
         name: "Forest Explorer",
         sku: "1",
         version: "1.0",
-        price: 0.99,
+        price: 1.49,
         currentVersionReleaseDate: "",
         iconURL100: Bundle.main.url(forResource: "Demo Icon 1", withExtension: "png")!,
         iconURL512: Bundle.main.url(forResource: "Demo Icon 1", withExtension: "png")!)
@@ -56,7 +56,7 @@ struct ACApp: Codable, Identifiable {
         name: "Ocean Journal",
         sku: "2",
         version: "1.0",
-        price: 0.99,
+        price: 1.29,
         currentVersionReleaseDate: "",
         iconURL100: Bundle.main.url(forResource: "Demo Icon 2", withExtension: "png")!,
         iconURL512: Bundle.main.url(forResource: "Demo Icon 2", withExtension: "png")!)
@@ -76,7 +76,7 @@ struct ACApp: Codable, Identifiable {
         name: "Sunset Seeker",
         sku: "4",
         version: "1.0",
-        price: 0.99,
+        price: 0.49,
         currentVersionReleaseDate: "",
         iconURL100: Bundle.main.url(forResource: "Demo Icon 4", withExtension: "png")!,
         iconURL512: Bundle.main.url(forResource: "Demo Icon 4", withExtension: "png")!)

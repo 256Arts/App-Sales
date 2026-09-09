@@ -7,11 +7,13 @@ struct AppSalesApp: App {
     init() {
         UserDefaults.standard.register()
 
-        #if os(macOS)
         if ScreenshotMode.isActive {
+            ScreenshotMode.resetPreferences()
+
+            #if os(macOS)
             ScreenshotMode.clearSavedWindowLayout()
+            #endif
         }
-        #endif
     }
     
     @AppStorage(UserDefaults.Key.appLaunchCount) var appLaunchCount = 0
