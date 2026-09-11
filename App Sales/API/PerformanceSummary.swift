@@ -15,14 +15,19 @@ struct PerformanceSummary {
     }
     
     var downloadsPercentageChange: Double {
-        guard prevDownloads > 0 else { return downloads == 0 ? 0 : 9.99 }
-        
-        return min(Double(downloads) / Double(prevDownloads) - 1, 9.99)
+        PerformanceSummary.percentageChange(from: Double(prevDownloads), to: Double(downloads))
     }
     var proceedsPercentageChange: Double {
-        guard prevProceeds > 0 else { return proceeds == 0 ? 0 : 9.99 }
-        
-        return min((proceeds / prevProceeds) - 1, 9.99)
+        PerformanceSummary.percentageChange(from: prevProceeds, to: proceeds)
+    }
+
+    /// Fractional change between two windows, capped at +999% so a first sale out of nothing cannot
+    /// print an arrow the width of the row. Shared with the intents, which report metrics this
+    /// summary does not carry.
+    static func percentageChange(from previous: Double, to current: Double) -> Double {
+        guard previous > 0 else { return current == 0 ? 0 : 9.99 }
+
+        return min(current / previous - 1, 9.99)
     }
 }
 

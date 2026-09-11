@@ -36,6 +36,7 @@ The data flow is a one-way pipeline from the App Store Connect API to SwiftUI vi
 
 **App targets**
 - `App Sales/` — the main app. `AppSalesApp` is the `@main` entry; `HomeView` is the root, with `Views/` holding the account management UI (`AccountsList`, `NewAccountView`, `AccountDetailView`) and charts (`DownloadsAndProceedsChart`).
+- `App Sales/Intents/` — App Intents and App Shortcuts (`GetPerformanceSummaryIntent`, `GetAppSummariesIntent`, `AppSalesShortcuts`), so Siri, Spotlight, and `shortcuts run` can read sales without the UI. Main app target only: the folder is listed in the `WidgetsExtension` membership exceptions so the extension does not register a second copy of the shortcuts. `SalesIntentData` is the one place an intent resolves an account and fetches, and `SalesPeriod` supplies the reported window plus the window it is compared against.
 - `Widgets/` — the WidgetKit extension. `Widgets.swift` defines the `@main` widget, its `AppIntentTimelineProvider`, and `WidgetPreferences` (the configuration intent that selects an `Account`). Timeline refresh cadence is tuned to when App Store Connect reports become available (~5am in each region). Widget views (`SummarySmall`, `SummaryWithChart`, `ErrorWidget`) render a `PerformanceSummary`.
 
 ### Key cross-cutting conventions

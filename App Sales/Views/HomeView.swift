@@ -219,15 +219,7 @@ private struct AppRow: View {
 
     var body: some View {
         HStack {
-            AsyncImage(url: app.iconURL) { image in
-                image
-                    .resizable()
-                    .clipShape(RoundedRectangle(cornerRadius: iconLength / 4))
-            } placeholder: {
-                Color.secondary
-                    .clipShape(RoundedRectangle(cornerRadius: iconLength / 4))
-            }
-            .frame(width: iconLength, height: iconLength)
+            AppIconView(app: app, length: iconLength)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(app.name)

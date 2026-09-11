@@ -116,32 +116,52 @@ struct ACData: Codable {
         return nf.string(from: change) ?? "-"
     }
     
+    /// One metric summed over a window: proceeds in the display currency, or a count of units.
+    func getTotal(for type: InfoType, in range: Range<Date>, filteredApps: [ACApp] = []) -> Double {
+        Double(getRawData(for: type, startDate: range.lowerBound, endDate: range.upperBound, filteredApps: filteredApps).reduce(0, { $0 + $1.0 }))
+    }
+
+    /// The 30-day-vs-previous-30-day rollup the home screen and the widget show.
     func getPerformanceSummary() -> PerformanceSummary {
-        let thirtyDaysAgo = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -30, to: .now)!
-        let sixtyDaysAgo = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -60, to: .now)!
-        
-        let downloads = Int(getRawData(for: .downloads, startDate: thirtyDaysAgo).reduce(0, { $0 + $1.0 }))
-        let prevDownloads = Int(getRawData(for: .downloads, startDate: sixtyDaysAgo, endDate: thirtyDaysAgo).reduce(0, { $0 + $1.0 }))
-        let proceeds = Double(getRawData(for: .proceeds, startDate: thirtyDaysAgo).reduce(0, { $0 + $1.0 }))
-        let prevProceeds = Double(getRawData(for: .proceeds, startDate: sixtyDaysAgo, endDate: thirtyDaysAgo).reduce(0, { $0 + $1.0 }))
-        
-        return PerformanceSummary(
-            downloads: downloads,
-            prevDownloads: prevDownloads,
-            proceeds: proceeds,
-            prevProceeds: prevProceeds,
-            apps: getAppSummaries())
+        let thirtyDaysAgo = ACData.date(daysAgo: 30)
+
+        return getPerformanceSummary(in: thirtyDaysAgo..<Date.now, comparedWith: ACData.date(daysAgo: 60)..<thirtyDaysAgo)
+    }
+
+    /// Totals over `range`, compared against `previousRange`. Both windows are passed in rather than
+    /// one being derived from the other, so a caller reporting a single day stays on calendar days
+    /// instead of drifting an hour across a daylight-saving boundary.
+    func getPerformanceSummary(in range: Range<Date>, comparedWith previousRange: Range<Date>) -> PerformanceSummary {
+        PerformanceSummary(
+            downloads: Int(getTotal(for: .downloads, in: range)),
+            prevDownloads: Int(getTotal(for: .downloads, in: previousRange)),
+            proceeds: getTotal(for: .proceeds, in: range),
+            prevProceeds: getTotal(for: .proceeds, in: previousRange),
+            apps: getAppSummaries(in: range))
     }
     
     // MARK: Get by app
     func getAppSummaries() -> [AppPerformanceSummary] {
-        let appsAndDownloads: [(ACApp, Int)] = apps.map({
-            ($0, getRawData(for: .downloads, lastNDays: 30, filteredApps: [$0]).reduce(0, { $0 + Int($1.0) }))
-        })
-        return appsAndDownloads.sorted(by: { $0.1 > $1.1 }).map({
-            let proceeds = Double(getRawData(for: .proceeds, lastNDays: 30, filteredApps: [$0.0]).reduce(0.0, { $0 + $1.0 }))
-            return AppPerformanceSummary(appleID: $0.0.appleID, name: $0.0.name, iconURL: $0.0.iconURL100, downloads: $0.1, proceeds: proceeds, price: $0.0.price)
-        })
+        getAppSummaries(in: ACData.date(daysAgo: 30)..<Date.now)
+    }
+
+    /// Every app's downloads and proceeds over a window, best-selling first.
+    func getAppSummaries(in range: Range<Date>) -> [AppPerformanceSummary] {
+        apps
+            .map { app in
+                AppPerformanceSummary(
+                    appleID: app.appleID,
+                    name: app.name,
+                    iconURL: app.iconURL100,
+                    downloads: Int(getTotal(for: .downloads, in: range, filteredApps: [app])),
+                    proceeds: getTotal(for: .proceeds, in: range, filteredApps: [app]),
+                    price: app.price)
+            }
+            .sorted(by: { $0.downloads > $1.downloads })
+    }
+
+    private static func date(daysAgo days: Int) -> Date {
+        Calendar.autoupdatingCurrent.date(byAdding: .day, value: -days, to: .now) ?? .now
     }
 
     // MARK: Getting Dates
@@ -216,7 +236,9 @@ private struct SeededGenerator: RandomNumberGenerator {
     }
 }
 
-enum InfoType {
+// `Sendable` and the `String` raw value are declared here rather than alongside the `AppEnum`
+// conformance in the Intents folder, which Swift requires to be in the type's own file.
+enum InfoType: String, CaseIterable, Sendable {
     case proceeds, downloads, updates, iap
 
     var systemImage: String {
