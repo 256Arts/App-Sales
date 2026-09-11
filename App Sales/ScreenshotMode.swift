@@ -44,12 +44,30 @@ enum ScreenshotMode {
         obvious place to spend your next update.
         """
 
+    /// What every one of the app's entry points does at launch, on all five platforms.
+    ///
+    /// Both `AppSalesApp` and `AppSalesWatchApp` call this, so a screenshot run behaves the same
+    /// whichever of them is being photographed.
+    static func prepareLaunch() {
+        UserDefaults.standard.register()
+
+        guard isActive else { return }
+
+        resetPreferences()
+
+        #if os(macOS)
+        clearSavedWindowLayout()
+        #endif
+    }
+
     /// Puts the preferences a shot can see back to their defaults.
     ///
-    /// The app list's sort order is remembered between launches, so a simulator that has been driven
-    /// by hand would otherwise photograph whichever order was left behind.
+    /// The app list's sort order and the chosen account are remembered between launches, so a
+    /// simulator that has been driven by hand would otherwise photograph whichever order — or
+    /// whichever of the seeded accounts — was left behind.
     static func resetPreferences() {
         UserDefaults.shared?.removeObject(forKey: UserDefaults.Key.appListSort)
+        UserDefaults.shared?.removeObject(forKey: UserDefaults.Key.homeSelectedKey)
     }
 
     #if os(macOS)

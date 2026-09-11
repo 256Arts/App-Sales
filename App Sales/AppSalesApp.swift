@@ -5,15 +5,7 @@ import StoreKit
 struct AppSalesApp: App {
     
     init() {
-        UserDefaults.standard.register()
-
-        if ScreenshotMode.isActive {
-            ScreenshotMode.resetPreferences()
-
-            #if os(macOS)
-            ScreenshotMode.clearSavedWindowLayout()
-            #endif
-        }
+        ScreenshotMode.prepareLaunch()
     }
     
     @AppStorage(UserDefaults.Key.appLaunchCount) var appLaunchCount = 0

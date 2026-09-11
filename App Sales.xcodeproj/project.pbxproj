@@ -18,6 +18,16 @@
 		45E8C4A52612531E007F9B0E /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 45E8C4942612531D007F9B0E /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		45E8C4BD261267FB007F9B0E /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 45E8C4BC261267FB007F9B0E /* Gzip */; };
 		45E8C4C0261268D4007F9B0E /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 45E8C4BF261268D4007F9B0E /* SwiftCSV */; };
+		1BC0FFEE0000000000000010 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000C /* Gzip */; };
+		1BC0FFEE0000000000000011 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000D /* SwiftCSV */; };
+		1BC0FFEE0000000000000012 /* AppStoreConnect-Swift-SDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000E /* AppStoreConnect-Swift-SDK */; };
+		1BC0FFEE0000000000000013 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000F /* KeychainAccess */; };
+		1BC0FFEE0000000000000015 /* App Sales Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 1BC0FFEE0000000000000002 /* App Sales Watch App.app */; platformFilters = (ios, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		1BC0FFEE0000000000000028 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE0000000000000024 /* Gzip */; };
+		1BC0FFEE0000000000000029 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE0000000000000025 /* SwiftCSV */; };
+		1BC0FFEE000000000000002A /* AppStoreConnect-Swift-SDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE0000000000000026 /* AppStoreConnect-Swift-SDK */; };
+		1BC0FFEE000000000000002B /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE0000000000000027 /* KeychainAccess */; };
+		1BC0FFEE000000000000002D /* Watch Widgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1BC0FFEE0000000000000019 /* Watch Widgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +45,27 @@
 			remoteGlobalIDString = 45E8C47C2612512E007F9B0E;
 			remoteInfo = "App Sales";
 		};
+		1BC0FFEE0000000000000017 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 45E8C4752612512E007F9B0E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1BC0FFEE0000000000000001;
+			remoteInfo = "App Sales Watch App";
+		};
+		1BC0FFEE000000000000002F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 45E8C4752612512E007F9B0E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1BC0FFEE0000000000000018;
+			remoteInfo = "Watch Widgets";
+		};
+		1BC0FFEE000000000000003A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 45E8C4752612512E007F9B0E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1BC0FFEE0000000000000001;
+			remoteInfo = "App Sales Watch App";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,6 +78,26 @@
 			);
 			name = "Embed Foundation Extensions";
 		};
+		1BC0FFEE0000000000000014 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				1BC0FFEE0000000000000015 /* App Sales Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BC0FFEE000000000000002C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				1BC0FFEE000000000000002D /* Watch Widgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +109,9 @@
 		45E8C4A62612531E007F9B0E /* WidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WidgetsExtension.entitlements; sourceTree = "<group>"; };
 		45FD5192261915F200603D8A /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
 		1BA55A000000000000000002 /* App Sales UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "App Sales UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BC0FFEE0000000000000002 /* App Sales Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "App Sales Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BC0FFEE0000000000000019 /* Watch Widgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Watch Widgets.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BC0FFEE0000000000000031 /* App Sales Watch UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "App Sales Watch UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -107,6 +161,80 @@
 			);
 			target = 1BA55A000000000000000001 /* App Sales UITests */;
 		};
+		1BC0FFEE0000000000000005 /* Exceptions for "App Sales" folder in "App Sales Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AppSalesApp.swift,
+				Info.plist,
+				"Intents/AppSalesShortcuts.swift",
+				"Intents/GetAppSummariesIntent.swift",
+				"Intents/GetPerformanceSummaryIntent.swift",
+				"Intents/SalesIntentSupport.swift",
+				"Intents/SalesSnippetViews.swift",
+				Views/AccountDetailView.swift,
+				Views/AccountsList.swift,
+				Views/DownloadsAndProceedsChart.swift,
+				Views/HomeView.swift,
+				Views/InsightsView.swift,
+				Views/NewAccountView.swift,
+			);
+			target = 1BC0FFEE0000000000000001 /* App Sales Watch App */;
+		};
+		1BC0FFEE0000000000000004 /* Exceptions for "App Sales Watch App" folder in "App Sales Watch App" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"App Sales Watch App.entitlements",
+				Info.plist,
+			);
+			target = 1BC0FFEE0000000000000001 /* App Sales Watch App */;
+		};
+		1BC0FFEE000000000000001C /* Exceptions for "App Sales" folder in "Watch Widgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				App.icon,
+				AppSalesApp.swift,
+				Info.plist,
+				"Intents/AppSalesShortcuts.swift",
+				"Intents/GetAppSummariesIntent.swift",
+				"Intents/GetPerformanceSummaryIntent.swift",
+				"Intents/SalesIntentSupport.swift",
+				"Intents/SalesSnippetViews.swift",
+				Views/AccountDetailView.swift,
+				Views/AccountsList.swift,
+				Views/DownloadsAndProceedsChart.swift,
+				Views/HomeView.swift,
+				Views/InsightsView.swift,
+				Views/NewAccountView.swift,
+			);
+			target = 1BC0FFEE0000000000000018 /* Watch Widgets */;
+		};
+		1BC0FFEE000000000000001D /* Exceptions for "Widgets" folder in "Watch Widgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				DownloadsIconsGraphic.swift,
+				ErrorWidget.swift,
+				Info.plist,
+				SummarySmall.swift,
+				SummaryWithChart.swift,
+				Widgets.swift,
+			);
+			target = 1BC0FFEE0000000000000018 /* Watch Widgets */;
+		};
+		1BC0FFEE000000000000001B /* Exceptions for "Watch Widgets" folder in "Watch Widgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				"Watch Widgets.entitlements",
+			);
+			target = 1BC0FFEE0000000000000018 /* Watch Widgets */;
+		};
+		1BC0FFEE0000000000000032 /* Exceptions for "App Sales UITests" folder in "App Sales Watch UITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				UITests.entitlements,
+			);
+			target = 1BC0FFEE0000000000000030 /* App Sales Watch UITests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -115,6 +243,8 @@
 			exceptions = (
 				1B7DF8D92E24173D0071B353 /* Exceptions for "App Sales" folder in "App Sales" target */,
 				1B7DF8DA2E24173D0071B353 /* Exceptions for "App Sales" folder in "WidgetsExtension" target */,
+				1BC0FFEE0000000000000005 /* Exceptions for "App Sales" folder in "App Sales Watch App" target */,
+				1BC0FFEE000000000000001C /* Exceptions for "App Sales" folder in "Watch Widgets" target */,
 			);
 			path = "App Sales";
 			sourceTree = "<group>";
@@ -124,6 +254,7 @@
 			exceptions = (
 				1B7DF8E92E2417540071B353 /* Exceptions for "Widgets" folder in "App Sales" target */,
 				1B7DF8EA2E2417540071B353 /* Exceptions for "Widgets" folder in "WidgetsExtension" target */,
+				1BC0FFEE000000000000001D /* Exceptions for "Widgets" folder in "Watch Widgets" target */,
 			);
 			path = Widgets;
 			sourceTree = "<group>";
@@ -132,8 +263,25 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				1BA55A000000000000000004 /* Exceptions for "App Sales UITests" folder in "App Sales UITests" target */,
+				1BC0FFEE0000000000000032 /* Exceptions for "App Sales UITests" folder in "App Sales Watch UITests" target */,
 			);
 			path = "App Sales UITests";
+			sourceTree = "<group>";
+		};
+		1BC0FFEE0000000000000003 /* App Sales Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1BC0FFEE0000000000000004 /* Exceptions for "App Sales Watch App" folder in "App Sales Watch App" target */,
+			);
+			path = "App Sales Watch App";
+			sourceTree = "<group>";
+		};
+		1BC0FFEE000000000000001A /* Watch Widgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1BC0FFEE000000000000001B /* Exceptions for "Watch Widgets" folder in "Watch Widgets" target */,
+			);
+			path = "Watch Widgets";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -166,6 +314,35 @@
 				45CAC10B2615CBC200FF63E7 /* Gzip in Frameworks */,
 			);
 		};
+		1BC0FFEE0000000000000007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BC0FFEE0000000000000011 /* SwiftCSV in Frameworks */,
+				1BC0FFEE0000000000000013 /* KeychainAccess in Frameworks */,
+				1BC0FFEE0000000000000010 /* Gzip in Frameworks */,
+				1BC0FFEE0000000000000012 /* AppStoreConnect-Swift-SDK in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BC0FFEE000000000000001F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BC0FFEE0000000000000029 /* SwiftCSV in Frameworks */,
+				1BC0FFEE000000000000002B /* KeychainAccess in Frameworks */,
+				1BC0FFEE0000000000000028 /* Gzip in Frameworks */,
+				1BC0FFEE000000000000002A /* AppStoreConnect-Swift-SDK in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BC0FFEE0000000000000034 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -175,6 +352,8 @@
 				45E8C4A62612531E007F9B0E /* WidgetsExtension.entitlements */,
 				1B7DF8A62E24173D0071B353 /* App Sales */,
 				1B7DF8E12E2417540071B353 /* Widgets */,
+				1BC0FFEE0000000000000003 /* App Sales Watch App */,
+				1BC0FFEE000000000000001A /* Watch Widgets */,
 				1BA55A000000000000000003 /* App Sales UITests */,
 				45E8C4952612531D007F9B0E /* Frameworks */,
 				45E8C47E2612512E007F9B0E /* Products */,
@@ -186,6 +365,9 @@
 			children = (
 				45E8C47D2612512E007F9B0E /* App Sales.app */,
 				45E8C4942612531D007F9B0E /* WidgetsExtension.appex */,
+				1BC0FFEE0000000000000002 /* App Sales Watch App.app */,
+				1BC0FFEE0000000000000019 /* Watch Widgets.appex */,
+				1BC0FFEE0000000000000031 /* App Sales Watch UITests.xctest */,
 				1BA55A000000000000000002 /* App Sales UITests.xctest */,
 			);
 			name = Products;
@@ -213,11 +395,13 @@
 				45E8C47A2612512E007F9B0E /* Frameworks */,
 				45E8C47B2612512E007F9B0E /* Resources */,
 				45E8C4AA2612531E007F9B0E /* Embed Foundation Extensions */,
+				1BC0FFEE0000000000000014 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				45E8C4A42612531E007F9B0E /* PBXTargetDependency */,
+				1BC0FFEE0000000000000016 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				1B7DF8A62E24173D0071B353 /* App Sales */,
@@ -281,6 +465,86 @@
 			productReference = 1BA55A000000000000000002 /* App Sales UITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		1BC0FFEE0000000000000001 /* App Sales Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BC0FFEE0000000000000009 /* Build configuration list for PBXNativeTarget "App Sales Watch App" */;
+			buildPhases = (
+				1BC0FFEE0000000000000006 /* Sources */,
+				1BC0FFEE0000000000000007 /* Frameworks */,
+				1BC0FFEE0000000000000008 /* Resources */,
+				1BC0FFEE000000000000002C /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1BC0FFEE000000000000002E /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1B7DF8A62E24173D0071B353 /* App Sales */,
+				1BC0FFEE0000000000000003 /* App Sales Watch App */,
+			);
+			name = "App Sales Watch App";
+			packageProductDependencies = (
+				1BC0FFEE000000000000000C /* Gzip */,
+				1BC0FFEE000000000000000D /* SwiftCSV */,
+				1BC0FFEE000000000000000E /* AppStoreConnect-Swift-SDK */,
+				1BC0FFEE000000000000000F /* KeychainAccess */,
+			);
+			productName = "App Sales Watch App";
+			productReference = 1BC0FFEE0000000000000002 /* App Sales Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1BC0FFEE0000000000000018 /* Watch Widgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BC0FFEE0000000000000021 /* Build configuration list for PBXNativeTarget "Watch Widgets" */;
+			buildPhases = (
+				1BC0FFEE000000000000001E /* Sources */,
+				1BC0FFEE000000000000001F /* Frameworks */,
+				1BC0FFEE0000000000000020 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				1B7DF8A62E24173D0071B353 /* App Sales */,
+				1B7DF8E12E2417540071B353 /* Widgets */,
+				1BC0FFEE000000000000001A /* Watch Widgets */,
+			);
+			name = "Watch Widgets";
+			packageProductDependencies = (
+				1BC0FFEE0000000000000024 /* Gzip */,
+				1BC0FFEE0000000000000025 /* SwiftCSV */,
+				1BC0FFEE0000000000000026 /* AppStoreConnect-Swift-SDK */,
+				1BC0FFEE0000000000000027 /* KeychainAccess */,
+			);
+			productName = "Watch Widgets";
+			productReference = 1BC0FFEE0000000000000019 /* Watch Widgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		1BC0FFEE0000000000000030 /* App Sales Watch UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BC0FFEE0000000000000036 /* Build configuration list for PBXNativeTarget "App Sales Watch UITests" */;
+			buildPhases = (
+				1BC0FFEE0000000000000033 /* Sources */,
+				1BC0FFEE0000000000000034 /* Frameworks */,
+				1BC0FFEE0000000000000035 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1BC0FFEE0000000000000039 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1BA55A000000000000000003 /* App Sales UITests */,
+			);
+			name = "App Sales Watch UITests";
+			packageProductDependencies = (
+			);
+			productName = "App Sales Watch UITests";
+			productReference = 1BC0FFEE0000000000000031 /* App Sales Watch UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -300,6 +564,16 @@
 					1BA55A000000000000000001 = {
 						CreatedOnToolsVersion = 27.0;
 						TestTargetID = 45E8C47C2612512E007F9B0E;
+					};
+					1BC0FFEE0000000000000001 = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					1BC0FFEE0000000000000018 = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					1BC0FFEE0000000000000030 = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = 1BC0FFEE0000000000000001;
 					};
 				};
 			};
@@ -324,7 +598,10 @@
 			targets = (
 				45E8C47C2612512E007F9B0E /* App Sales */,
 				45E8C4932612531D007F9B0E /* WidgetsExtension */,
+				1BC0FFEE0000000000000001 /* App Sales Watch App */,
+				1BC0FFEE0000000000000018 /* Watch Widgets */,
 				1BA55A000000000000000001 /* App Sales UITests */,
+				1BC0FFEE0000000000000030 /* App Sales Watch UITests */,
 			);
 		};
 /* End PBXProject section */
@@ -347,6 +624,27 @@
 			files = (
 			);
 		};
+		1BC0FFEE0000000000000008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BC0FFEE0000000000000020 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BC0FFEE0000000000000035 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -367,6 +665,27 @@
 			files = (
 			);
 		};
+		1BC0FFEE0000000000000006 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BC0FFEE000000000000001E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BC0FFEE0000000000000033 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -379,6 +698,24 @@
 			isa = PBXTargetDependency;
 			target = 45E8C47C2612512E007F9B0E /* App Sales */;
 			targetProxy = 1BA55A000000000000000006 /* PBXContainerItemProxy */;
+		};
+		1BC0FFEE0000000000000016 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilters = (
+				ios,
+			);
+			target = 1BC0FFEE0000000000000001 /* App Sales Watch App */;
+			targetProxy = 1BC0FFEE0000000000000017 /* PBXContainerItemProxy */;
+		};
+		1BC0FFEE000000000000002E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1BC0FFEE0000000000000018 /* Watch Widgets */;
+			targetProxy = 1BC0FFEE000000000000002F /* PBXContainerItemProxy */;
+		};
+		1BC0FFEE0000000000000039 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1BC0FFEE0000000000000001 /* App Sales Watch App */;
+			targetProxy = 1BC0FFEE000000000000003A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -726,6 +1063,156 @@
 			};
 			name = Release;
 		};
+		1BC0FFEE000000000000000A /* Debug configuration for PBXNativeTarget "App Sales Watch App" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = App;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = "App Sales Watch App/App Sales Watch App.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "App Sales Watch App/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jaydenirwin.appsales.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		1BC0FFEE000000000000000B /* Release configuration for PBXNativeTarget "App Sales Watch App" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = App;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = "App Sales Watch App/App Sales Watch App.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "App Sales Watch App/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jaydenirwin.appsales.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		1BC0FFEE0000000000000022 /* Debug configuration for PBXNativeTarget "Watch Widgets" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Watch Widgets/Watch Widgets.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Watch Widgets/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jaydenirwin.appsales.watchkitapp.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		1BC0FFEE0000000000000023 /* Release configuration for PBXNativeTarget "Watch Widgets" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Watch Widgets/Watch Widgets.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Watch Widgets/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jaydenirwin.appsales.watchkitapp.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		1BC0FFEE0000000000000037 /* Debug configuration for PBXNativeTarget "App Sales Watch UITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jaydenirwin.appsales.watchuitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "App Sales Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		1BC0FFEE0000000000000038 /* Release configuration for PBXNativeTarget "App Sales Watch UITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jaydenirwin.appsales.watchuitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "App Sales Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -758,6 +1245,33 @@
 			buildConfigurations = (
 				1BA55A00000000000000000B /* Debug configuration for PBXNativeTarget "App Sales UITests" */,
 				1BA55A00000000000000000C /* Release configuration for PBXNativeTarget "App Sales UITests" */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1BC0FFEE0000000000000009 /* Build configuration list for PBXNativeTarget "App Sales Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BC0FFEE000000000000000A /* Debug */,
+				1BC0FFEE000000000000000B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1BC0FFEE0000000000000021 /* Build configuration list for PBXNativeTarget "Watch Widgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BC0FFEE0000000000000022 /* Debug */,
+				1BC0FFEE0000000000000023 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1BC0FFEE0000000000000036 /* Build configuration list for PBXNativeTarget "App Sales Watch UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BC0FFEE0000000000000037 /* Debug */,
+				1BC0FFEE0000000000000038 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -839,6 +1353,46 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */;
 			productName = SwiftCSV;
+		};
+		1BC0FFEE000000000000000C /* Gzip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */;
+			productName = Gzip;
+		};
+		1BC0FFEE000000000000000D /* SwiftCSV */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */;
+			productName = SwiftCSV;
+		};
+		1BC0FFEE000000000000000E /* AppStoreConnect-Swift-SDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */;
+			productName = "AppStoreConnect-Swift-SDK";
+		};
+		1BC0FFEE000000000000000F /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+		1BC0FFEE0000000000000024 /* Gzip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */;
+			productName = Gzip;
+		};
+		1BC0FFEE0000000000000025 /* SwiftCSV */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */;
+			productName = SwiftCSV;
+		};
+		1BC0FFEE0000000000000026 /* AppStoreConnect-Swift-SDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */;
+			productName = "AppStoreConnect-Swift-SDK";
+		};
+		1BC0FFEE0000000000000027 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

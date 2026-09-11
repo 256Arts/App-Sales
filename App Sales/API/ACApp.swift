@@ -1,4 +1,4 @@
-import CoreImage
+import Foundation
 
 struct ACApp: Codable, Identifiable {
     var id: String { return sku }

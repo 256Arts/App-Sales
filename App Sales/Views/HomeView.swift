@@ -1,13 +1,8 @@
 import SwiftUI
-import AppStoreConnect_Swift_SDK
-#if canImport(WidgetKit)
-import WidgetKit
-#endif
 
 struct HomeView: View {
     
-    @State var data: ACData?
-    @State var error: APIError?
+    @State var loader = SalesDataLoader()
 
     @State var showingAccountsList = false
 
@@ -18,9 +13,6 @@ struct HomeView: View {
     
     private var selectedKey: Account? {
         return accountManager.getApiKey(apiKeyId: keyID) ?? accountManager.accounts.first
-    }
-    private var summary: PerformanceSummary? {
-        data?.getPerformanceSummary()
     }
     private let percentFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -52,11 +44,11 @@ struct HomeView: View {
             if accountManager.accounts.isEmpty {
                 Text("No Account")
                     .foregroundStyle(.secondary)
-            } else if let data {
+            } else if let data = loader.data {
                 List {
                     Section {
                         VStack(alignment: .leading) {
-                            if let summary {
+                            if let summary = loader.summary {
                                 HStack {
                                     Text(NumberFormatter.currency.string(from: NSNumber(value: summary.proceeds)) ?? "")
                                         // The screenshot walk waits on this before its first shot,
@@ -88,7 +80,7 @@ struct HomeView: View {
                         }
                     }
 
-                    if let summary {
+                    if let summary = loader.summary {
                         InsightsView(summary: summary)
 
                         Section {
@@ -120,7 +112,7 @@ struct HomeView: View {
                 .refreshable {
                     await fetchData(useMemoization: false)
                 }
-            } else if let error {
+            } else if let error = loader.error {
                 VStack(spacing: 20) {
                     Text(error.localizedDescription)
                         .foregroundStyle(.secondary)
@@ -183,18 +175,7 @@ struct HomeView: View {
     private let relativeDateFormatter = RelativeDateTimeFormatter()
 
     private func fetchData(useMemoization: Bool = true) async {
-        guard let apiKey = selectedKey else { return }
-        let api = AppStoreConnectAPI(apiKey: apiKey)
-        do {
-            self.data = try await api.getData(currency: Currency(rawValue: Locale.autoupdatingCurrent.currency?.identifier ?? ""), useMemoization: useMemoization)
-            self.error = nil
-            #if canImport(WidgetKit)
-            WidgetCenter.shared.reloadAllTimelines()
-            #endif
-        } catch let err as APIError {
-            self.data = nil
-            self.error = err
-        } catch { }
+        await loader.load(account: selectedKey, useMemoization: useMemoization)
     }
     
     private func updatedDateString(lastRefreshDate: Date) -> String {
@@ -273,5 +254,5 @@ private struct AppRow: View {
 }
 
 #Preview {
-    HomeView(data: ACData.example)
+    HomeView(loader: SalesDataLoader(data: .example))
 }
