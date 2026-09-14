@@ -18,6 +18,10 @@ final class ScreenshotTests: XCTestCase {
         app.launchArguments = ["-screenshotMode"]
         app.launch()
 
+        #if os(macOS)
+        openWindowIfNeeded()
+        #endif
+
         // The 30-day proceeds total, the first thing the seeded account puts on screen. Waiting on
         // it means a capture cannot beat the summary and its chart onto the screen.
         let proceeds = element("Summary.Proceeds")
@@ -28,6 +32,23 @@ final class ScreenshotTests: XCTestCase {
         settle()
         capture("01-home")
     }
+
+    #if os(macOS)
+    /// Opens a window when the launch came up without one.
+    ///
+    /// macOS restores an app to the windows it was last quit with, and that state can hold none: the
+    /// app then launches as a menu bar and nothing else, every lookup in the walk comes back empty,
+    /// and the run dies on the first wait with the seed sitting in a store no window is showing. The
+    /// runner cannot clear the state from outside — the app is sandboxed, so its saved state lives in
+    /// a container the script has no access to — so the walk opens the window itself, with the app's
+    /// own New Window.
+    private func openWindowIfNeeded() {
+        if app.windows.firstMatch.waitForExistence(timeout: 10) { return }
+        app.typeKey("n", modifierFlags: .command)
+        XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: 15),
+                      "the app launched with no window and ⌘N opened none")
+    }
+    #endif
 
     // MARK: - Driving
 
