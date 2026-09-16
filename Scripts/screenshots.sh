@@ -5,7 +5,8 @@
 #
 #   Scripts/screenshots.sh              # every platform
 #   Scripts/screenshots.sh mac iphone   # only the named ones
-#   Scripts/screenshots.sh --upload     # capture, then send the results to App Store Connect
+#   Scripts/screenshots.sh --upload     # capture, then publish: App Store Connect, and the
+#                                     # app's page on the 256 Arts site if it has one
 #
 # Every shot comes from the seeded demo data in `ACData.example`, so two runs a month apart produce
 # the same numbers. To shop for a different look, change the seed there.
