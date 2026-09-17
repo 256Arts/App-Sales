@@ -113,6 +113,8 @@ struct HomeView: View {
                                 .menuIndicator(.hidden)
                             }
                         }
+
+                        AIUsageSection()
                     }
                 }
                 .refreshable {

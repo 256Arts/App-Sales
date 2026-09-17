@@ -33,7 +33,16 @@ struct WidgetsEntryView: View {
     }
 }
 
+/// Everything this extension offers: the sales summary, and the AI usage widget the two extensions
+/// share.
 @main
+struct AppSalesWidgets: WidgetBundle {
+    var body: some Widget {
+        Widgets()
+        AIUsageWidget()
+    }
+}
+
 struct Widgets: Widget {
     let kind: String = "Widgets"
 

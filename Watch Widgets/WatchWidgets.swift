@@ -3,7 +3,16 @@ import SwiftUI
 
 /// The watch face complications. The views are `AccessorySummary`, shared with the Lock Screen
 /// widgets on iPhone; only the family list differs, because `.accessoryCorner` is watchOS's alone.
+/// Everything the watch offers: the sales complications, and the AI usage complications the two
+/// extensions share.
 @main
+struct AppSalesWatchWidgets: WidgetBundle {
+    var body: some Widget {
+        WatchWidgets()
+        AIUsageWidget()
+    }
+}
+
 struct WatchWidgets: Widget {
     let kind: String = "WatchWidgets"
 

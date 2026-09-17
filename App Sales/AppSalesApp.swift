@@ -16,6 +16,10 @@ struct AppSalesApp: App {
     
     @State private var showingEvent = false
 
+    #if os(macOS)
+    @AppStorage(UserDefaults.Key.aiUsageMenuBarExtra, store: UserDefaults.shared) private var showsMenuBarExtra = false
+    #endif
+
     var body: some Scene {
         WindowGroup {
             NavigationStack {
@@ -45,6 +49,17 @@ struct AppSalesApp: App {
                 AppSalesApp.links()
             }
         }
+
+        #if os(macOS)
+        // Off until the reader turns it on in the AI Usage options — a menu bar item that installs
+        // itself is one nobody asked for.
+        MenuBarExtra(isInserted: $showsMenuBarExtra) {
+            AIUsageMenuBar()
+        } label: {
+            AIUsageMenuBarLabel()
+        }
+        .menuBarExtraStyle(.window)
+        #endif
     }
     
     @ViewBuilder
