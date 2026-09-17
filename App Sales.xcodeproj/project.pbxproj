@@ -135,8 +135,10 @@
 				"Intents/SalesSnippetViews.swift",
 				Views/AccountDetailView.swift,
 				Views/AccountsList.swift,
+				Views/AppStoreAnalyticsSection.swift,
 				Views/HomeView.swift,
 				Views/NewAccountView.swift,
+				Views/WebsiteTrafficSection.swift,
 			);
 			target = 45E8C4932612531D007F9B0E /* WidgetsExtension */;
 		};
@@ -173,10 +175,12 @@
 				"Intents/SalesSnippetViews.swift",
 				Views/AccountDetailView.swift,
 				Views/AccountsList.swift,
+				Views/AppStoreAnalyticsSection.swift,
 				Views/DownloadsAndProceedsChart.swift,
 				Views/HomeView.swift,
 				Views/InsightsView.swift,
 				Views/NewAccountView.swift,
+				Views/WebsiteTrafficSection.swift,
 			);
 			target = 1BC0FFEE0000000000000001 /* App Sales Watch App */;
 		};
@@ -201,10 +205,12 @@
 				"Intents/SalesSnippetViews.swift",
 				Views/AccountDetailView.swift,
 				Views/AccountsList.swift,
+				Views/AppStoreAnalyticsSection.swift,
 				Views/DownloadsAndProceedsChart.swift,
 				Views/HomeView.swift,
 				Views/InsightsView.swift,
 				Views/NewAccountView.swift,
+				Views/WebsiteTrafficSection.swift,
 			);
 			target = 1BC0FFEE0000000000000018 /* Watch Widgets */;
 		};
@@ -1292,7 +1298,7 @@
 			repositoryURL = "https://github.com/AvdLee/appstoreconnect-swift-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.4.0;
+				minimumVersion = 4.4.3;
 			};
 		};
 		45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */ = {

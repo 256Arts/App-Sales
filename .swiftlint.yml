@@ -7,7 +7,6 @@ opt_in_rules:
   - force_unwrapping
   - empty_string
   - convenience_type
-  - file_header
 
 line_length:
   warning: 250
@@ -21,9 +20,3 @@ force_unwrapping:
 trailing_comma:
   mandatory_comma: true
 
-file_header:
-  required_pattern: |
-                    \/\/
-                    \/\/  .*?\.swift
-                    \/\/  AC Widget by NO-COMMENT
-                    \/\/

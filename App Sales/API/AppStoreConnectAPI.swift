@@ -12,8 +12,6 @@ final class AppStoreConnectAPI {
         self.account = apiKey
     }
 
-    private var issuerID: String { account.issuerID }
-    private var privateKeyID: String { account.privateKeyID }
     private var privateKey: String { account.privateKey }
     private var vendorNumber: String { account.vendorNumber }
 
@@ -68,9 +66,7 @@ final class AppStoreConnectAPI {
             throw APIError.invalidCredentials
         }
 
-        let configuration = APIConfiguration(issuerID: self.issuerID, privateKeyID: self.privateKeyID, privateKey: self.privateKey)
-
-        let provider: APIProvider = APIProvider(configuration: configuration)
+        let provider = try account.apiProvider()
 
         var entries: [Event] = []
 
@@ -94,7 +90,7 @@ final class AppStoreConnectAPI {
             for date in missingDates {
                 group.addTask {
                     do {
-                        return try await self.apiSalesAndTrendsWrapped(provider: provider, vendorNumber: self.vendorNumber, date: date)
+                        return try await self.salesReport(provider: provider, date: date)
                     } catch APIError.noDataAvailable {
                         return nil
                     }
@@ -196,56 +192,17 @@ final class AppStoreConnectAPI {
         }
     }
 
-    private func apiSalesAndTrendsWrapped(provider: APIProvider, vendorNumber: String, date: String) async throws -> Data {
+    private func salesReport(provider: APIProvider, date: String) async throws -> Data {
         print("Loading data for: \(date)")
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(APIEndpoint.downloadSalesAndTrendsReports(filter: [
-                .frequency([.DAILY]),
-                .reportSubType([.SUMMARY]),
-                .reportType([.SALES]),
-                .vendorNumber([vendorNumber]),
-                .reportDate([date]),
-            ]), completion: { result in
-                switch result {
-                case .success(let value):
-                    continuation.resume(returning: value)
-                case .failure(let error):
-                    if let apiError = error as? AppStoreConnect_Swift_SDK.APIProvider.Error {
-                        switch apiError {
-                        case .requestFailure(let statusCode, let errData):
-                            switch statusCode {
-                            case 401:
-                                continuation.resume(throwing: APIError.invalidCredentials)
-                            case 429:
-                                continuation.resume(throwing: APIError.exceededLimit)
-                            case 403:
-                                continuation.resume(throwing: APIError.wrongPermissions)
-                            case 404:
-                                guard let errData = errData else {
-                                    continuation.resume(throwing: APIError.unknown)
-                                    break
-                                }
-
-                                let resp = String(decoding: errData, as: UTF8.self)
-                                if resp.contains("The request expected results but none were found") {
-                                    continuation.resume(throwing: APIError.noDataAvailable)
-                                } else {
-                                    continuation.resume(throwing: APIError.unknown)
-                                }
-                            default:
-                                print(statusCode)
-                                continuation.resume(throwing: APIError.unknown)
-                            }
-                        case .requestGeneration:
-                            continuation.resume(throwing: APIError.invalidCredentials)
-                        default:
-                            continuation.resume(throwing: APIError.unknown)
-                        }
-                    } else {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            })
+        do {
+            return try await provider.request(APIEndpoint.v1.salesReports.get(parameters: .init(
+                filterVendorNumber: [vendorNumber],
+                filterReportType: [.sales],
+                filterReportSubType: [.summary],
+                filterFrequency: [.daily],
+                filterReportDate: [date])))
+        } catch {
+            throw APIError(error)
         }
     }
 
@@ -268,42 +225,75 @@ final class AppStoreConnectAPI {
         let sku: String
     }
 
+    // Icons come from the public iTunes lookup rather than App Store Connect. The ASC API only exposes
+    // icons per build (`Build.iconAssetToken`, via /v1/builds?filter[app]=…), which needs a Developer,
+    // App Manager, or Admin key — Sales/Finance keys can read reports but not builds.
+    // Known gap: this lookup throws for removed, unreleased, or non-US apps (no `country` param), and
+    // `getApps` then drops the app entirely. If fixing, fall back to the latest build's icon, then a placeholder.
     private func iTunesLookup(appRequest: ITunesAppRequest) async throws -> ACApp {
-        guard let url = URL(string: "http://itunes.apple.com/lookup?id=" + appRequest.appleID) else {
+        guard let url = URL(string: "https://itunes.apple.com/lookup?id=" + appRequest.appleID) else {
             throw APIError.unknown
         }
 
-        if let data = try? Data(contentsOf: url) {
-            let decoder = JSONDecoder()
-            let result = try? decoder.decode(ITunesResponse.self, from: data)
-            guard let appData = result?.results.first else {
-                throw APIError.unknown
-            }
-
-            let app = ACApp(
-                appleID: appRequest.appleID,
-                name: appRequest.name,
-                sku: appRequest.sku,
-                version: appData.version,
-                price: appData.price,
-                currentVersionReleaseDate: appData.currentVersionReleaseDate,
-                iconURL100: URL(string: appData.artworkUrl100)!,
-                iconURL512: URL(string: appData.artworkUrl512)!)
-            Task {
-                await app.saveIcon()
-            }
-            
-            return app
-        } else {
+        let (data, _) = try await URLSession.shared.data(from: url)
+        guard let appData = try? JSONDecoder().decode(ITunesResponse.self, from: data).results.first,
+              let iconURL100 = URL(string: appData.artworkUrl100),
+              let iconURL512 = URL(string: appData.artworkUrl512) else {
             throw APIError.unknown
+        }
+
+        let app = ACApp(
+            appleID: appRequest.appleID,
+            name: appRequest.name,
+            sku: appRequest.sku,
+            version: appData.version,
+            price: appData.price,
+            currentVersionReleaseDate: appData.currentVersionReleaseDate,
+            iconURL100: iconURL100,
+            iconURL512: iconURL512)
+        Task {
+            await app.saveIcon()
+        }
+
+        return app
+    }
+}
+
+extension Account {
+    /// A client for this account's key. A key that is not a valid .p8 is reported as bad credentials,
+    /// the same as one App Store Connect rejects.
+    func apiProvider() throws -> APIProvider {
+        do {
+            return APIProvider(configuration: try APIConfiguration(issuerID: issuerID, privateKeyID: privateKeyID, privateKey: privateKey))
+        } catch {
+            throw APIError.invalidCredentials
         }
     }
+}
 
-    private func apiAppsWrapped(provider: APIProvider) async throws -> AppsResponse {
-        return try await withCheckedThrowingContinuation { continuation in
-            provider.request(APIEndpoint.apps(select: [.apps([.name, .sku])]), completion: { result in
-                continuation.resume(with: result)
-            })
+extension APIError {
+    /// The app's reading of an App Store Connect SDK failure.
+    init(_ error: Error) {
+        if let error = error as? APIError {
+            self = error
+            return
+        }
+        guard let error = error as? APIProvider.Error else {
+            self = .unknown
+            return
+        }
+
+        switch error {
+        case .requestFailure(401, _, _), .requestGeneration:
+            self = .invalidCredentials
+        case .requestFailure(403, _, _):
+            self = .wrongPermissions
+        case .requestFailure(429, _, _):
+            self = .exceededLimit
+        case .requestFailure(404, let response, _) where response?.errors?.contains(where: { $0.detail?.contains("The request expected results but none were found") == true }) == true:
+            self = .noDataAvailable
+        default:
+            self = .unknown
         }
     }
 }

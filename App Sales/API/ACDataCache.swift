@@ -112,6 +112,7 @@ class ACDataCache {
         cacheObjects.removeAll(where: { $0.apiKeyId == apiKey.id })
         let collection = CacheObjectCollection(objects: cacheObjects)
         saveCollection(collection)
+        AnalyticsCache.clear(account: apiKey)
     }
 
     public static func clearCache() {

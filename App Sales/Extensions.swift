@@ -15,61 +15,6 @@ extension Date {
         calendar.timeZone = TimeZone(abbreviation: "CET") ?? .current
         return calendar.component(.hour, from: self)
     }
-
-    func getPSTHour() -> Int {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(abbreviation: "PST") ?? .current
-        return calendar.component(.hour, from: self)
-    }
-
-    func getJSTHour() -> Int {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "JST") ?? .current
-        return calendar.component(.hour, from: self)
-    }
-
-    func getMinutes() -> Int {
-        return Calendar(identifier: .gregorian).component(.minute, from: self)
-    }
-
-    func nextFullHour() -> Date {
-        if let next = Calendar.current.date(bySetting: .minute, value: 0, of: self) {
-            return next.addingTimeInterval(60 * 60) // next hour
-        }
-
-        return self
-    }
-
-    func nextDateWithMinute(_ minute: Int) -> Date {
-        if let next = Calendar.current.date(bySetting: .minute, value: 30, of: self) {
-            return next
-        }
-
-        return self
-    }
-
-    func dateToMonthNumber() -> Int {
-        return Int(Calendar.current.component(.day, from: self))
-    }
-
-    static var appInstallDate: Date {
-        if let documentsFolder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last {
-            if let installDate = try? FileManager.default.attributesOfItem(atPath: documentsFolder.path)[.creationDate] as? Date {
-                return installDate
-            }
-        }
-        return .now // Should never execute
-    }
-}
-
-extension Calendar {
-    func numberOfDaysBetween(_ from: Date, and to: Date) -> Int {
-        let fromDate = startOfDay(for: from)
-        let toDate = startOfDay(for: to)
-        let numberOfDays = dateComponents([.day], from: fromDate, to: toDate)
-
-        return numberOfDays.day ?? 0
-    }
 }
 
 // MARK: User Defaults

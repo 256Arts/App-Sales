@@ -83,6 +83,12 @@ struct HomeView: View {
                     if let summary = loader.summary {
                         InsightsView(summary: summary)
 
+                        if let selectedKey {
+                            AppStoreAnalyticsSection(account: selectedKey, data: data, apps: summary.apps)
+                        }
+
+                        WebsiteTrafficSection(apps: summary.apps)
+
                         Section {
                             ForEach(appListSort.sort(summary.apps)) { app in
                                 AppRow(app: app, iconLength: appListIconLength)

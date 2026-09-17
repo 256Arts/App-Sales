@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-App Sales is a multiplatform SwiftUI app (iOS, macOS, visionOS) that displays App Store Connect sales/proceeds data, plus a standalone watchOS app and two WidgetKit extensions showing the same summaries. It's a fork of "AC Widget by NO-COMMENT" (MIT, see the `AC Widget by NO-COMMENT` file header that SwiftLint enforces), now maintained by 256 Arts.
+App Sales is a multiplatform SwiftUI app (iOS, macOS, visionOS) that displays App Store Connect sales/proceeds data, plus a standalone watchOS app and two WidgetKit extensions showing the same summaries. It's a fork of "AC Widget by NO-COMMENT" (MIT; attribution lives in `LICENSE`), now maintained by 256 Arts.
 
 ## Build & Test
 
@@ -18,7 +18,7 @@ xcodebuild -project "App Sales.xcodeproj" -scheme "App Sales" build
 xcodebuild -project "App Sales.xcodeproj" -scheme "WidgetsExtension" build
 ```
 
-There is **no test target** — do not look for or invent `xcodebuild test` workflows. Verify changes by building and running. SwiftLint is configured (`.swiftlint.yml`) and runs as a build phase if installed; note `force_unwrapping` is an **error**, not a warning, and every `.swift` file must start with the `//  <name>.swift` / `//  AC Widget by NO-COMMENT` header.
+There are **no unit tests** — don't invent them. The only tests are the UI screenshot walk (`App Sales UITests`, `App Sales Watch UITests`), run via `Scripts/screenshots.sh`. Verify other changes by building and running. SwiftLint is configured (`.swiftlint.yml`) and runs as a build phase if installed; note `force_unwrapping` is an **error**, not a warning. Swift files have no header comments.
 
 Schemes: `App Sales` (main app), `WidgetsExtension` (widget), `App Sales Watch App` (watch app + its complications), `Screenshots` / `Screenshots Watch` (the App Store screenshot runs). Platforms: iOS, macOS, visionOS, watchOS.
 
@@ -31,9 +31,11 @@ The data flow is a one-way pipeline from the App Store Connect API to SwiftUI vi
 **`API/` — networking and the data model (shared by app + widget)**
 - `Account` — credentials for one App Store Connect API key (issuerID, privateKeyID, privateKey, vendorNumber). `id` is the privateKeyID. Also conforms to `AppEntity` so the widget configuration intent can pick an account. `Account.demoAccount` short-circuits the whole pipeline to return `ACData.example` mock data.
 - `AccountManager` — `@Observable` singleton (`AccountManager.shared`) that persists `[Account]` in the **Keychain** (service `com.jaydenirwin.appsales`, iCloud-synchronizable), *not* UserDefaults despite some method-name wording. Injected into the view tree via `.environment(...)`. Mutations call `WidgetCenter.reloadAllTimelines()`.
-- `AppStoreConnectAPI` — the core fetcher. `getData(...)` is the entry point. It uses `AvdLee/appstoreconnect-swift-sdk` to download **daily SALES summary reports** (one request per missing day, gzipped TSV), gunzips them (`GzipSwift`), parses the TSV (`SwiftCSV`) into `[Event]`, converts currency, then enriches with app metadata via the public **iTunes lookup API** (`itunes.apple.com/lookup`). Has two layers of caching: in-memory memoization (`lastData`, 5-min TTL, keyed by `Account`) and on-disk cache via `ACDataCache`. HTTP status codes are mapped to `APIError` cases (401→invalidCredentials, 429→exceededLimit, 403→wrongPermissions, 404→noDataAvailable).
+- `AppStoreConnectAPI` — the core fetcher. `getData(...)` is the entry point. It uses `AvdLee/appstoreconnect-swift-sdk` (4.x; `Account.apiProvider()` builds the client and `APIError.init(_:)` maps its failures, shared with `AnalyticsReportsAPI`) to download **daily SALES summary reports** (one request per missing day, gzipped TSV), gunzips them (`GzipSwift`), parses the TSV (`SwiftCSV`) into `[Event]`, converts currency, then enriches with app metadata via the public **iTunes lookup API** (`itunes.apple.com/lookup`). Has two layers of caching: in-memory memoization (`lastData`, 5-min TTL, keyed by `Account`) and on-disk cache via `ACDataCache`. HTTP status codes map to `APIError` cases (401→invalidCredentials, 429→exceededLimit, 403→wrongPermissions, 404 with no results→noDataAvailable).
 - `ACData` — the parsed dataset: `[Event]` + `[ACApp]` + a `displayCurrency`. All the aggregation/analytics logic lives here as `getRawData`/`getDevices`/`getChange`/`getPerformanceSummary`/`getAppSummaries`, sliced by `InfoType` (`.proceeds`, `.downloads`, `.updates`, `.iap`). Currency conversion is non-destructive via `changeCurrency(to:)`.
 - `ACDataCache` — JSON file (`cache.json`) in the **App Group container** (`group.com.jaydenirwin.appsales`), which is how the app and widget share fetched data. Merges new entries with cached ones and prunes to the last ~35 days.
+- `AnalyticsReportsAPI` — App Store impressions, page views, sessions, and active devices from the Analytics Reports API. Asynchronous: the first fetch per app creates an `ONGOING` report request (Admin keys only) and reports arrive a day or two later; summarized daily instances are cached in `analytics-cache.json` (`AnalyticsCache`), each day taken from its latest instance. `AppStoreAnalytics` is the result; `AppStoreAnalyticsSection` (main app only) shows it on the home screen.
+- `GoogleAnalytics` — `@Observable` singleton for the optional Google Analytics 4 link: OAuth (PKCE, iOS-type client, no secret), the chosen property, and a page URL per app, all in the synchronizable Keychain (key `google-analytics`). `traffic()` returns each app's 30-day page views; `WebsiteTrafficSection` (main app only) shows them beside downloads. **Hidden while `GoogleAnalytics.clientID` is empty.**
 - `Event` — one row of a sales report. `ACApp` — app metadata + icon caching. `CurrencyConverter` — exchange-rate fetch/convert. `PerformanceSummary` — the 30-day-vs-prior-30-day rollup the widget displays.
 
 **App targets**
