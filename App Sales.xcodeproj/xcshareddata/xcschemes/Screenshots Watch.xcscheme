@@ -29,8 +29,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
-            skipped = "NO"
-            parallelizable = "NO">
+            skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1BC0FFEE0000000000000030"
@@ -57,7 +56,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1BC0FFEE0000000000000001"
             BuildableName = "App Sales Watch App.app"
-            BlueprintName = "App Sales Watch App"
             ReferencedContainer = "container:App Sales.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -80,7 +78,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1BC0FFEE0000000000000001"
             BuildableName = "App Sales Watch App.app"
-            BlueprintName = "App Sales Watch App"
             ReferencedContainer = "container:App Sales.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

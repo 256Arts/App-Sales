@@ -27,6 +27,8 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -44,7 +46,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1BC0FFEE0000000000000001"
             BuildableName = "App Sales Watch App.app"
-            BlueprintName = "App Sales Watch App"
             ReferencedContainer = "container:App Sales.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -61,7 +62,6 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1BC0FFEE0000000000000001"
             BuildableName = "App Sales Watch App.app"
-            BlueprintName = "App Sales Watch App"
             ReferencedContainer = "container:App Sales.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
