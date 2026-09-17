@@ -37,13 +37,16 @@ enum AIAssistant: String, Codable, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// Where the terminal keeps this assistant's sign-in, under the home folder.
+    /// The file the terminal keeps this assistant's sign-in in, under the home folder — `nil` for
+    /// an assistant that does not keep one.
     ///
-    /// Only the Mac's sign-in sheet uses this, and only to point the file picker somewhere useful:
-    /// a sandboxed app cannot reach either path until the reader hands it the file.
-    var credentialsPath: String {
+    /// Claude Code puts its sign-in in the login Keychain rather than on disk, in an item only it
+    /// can open, so there is no file to offer and `signInCommand` is the whole story. Only the Mac's
+    /// sign-in sheet reads this, and only to point the file picker somewhere useful: a sandboxed app
+    /// cannot reach the path until the reader hands it the file.
+    var credentialsFile: String? {
         switch self {
-        case .claude: ".claude/.credentials.json"
+        case .claude: nil
         case .codex: ".codex/auth.json"
         }
     }

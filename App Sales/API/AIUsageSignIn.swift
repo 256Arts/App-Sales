@@ -60,7 +60,10 @@ extension AIUsageSignIn {
         }
     }
 
-    /// `~/.claude/.credentials.json`, and the same shape Claude Code keeps in the login Keychain.
+    /// The shape Claude Code keeps in its login Keychain item — which is where it puts the sign-in
+    /// on a Mac, rather than in a file. Pasting a copy of that works, though `claude setup-token` is
+    /// the path the sheet offers: taking the terminal's own sign-in means refreshing it here can
+    /// rotate the terminal's out from under it.
     private static func claude(_ json: [String: Any]) -> AIUsageSignIn? {
         guard let oauth = json["claudeAiOauth"] as? [String: Any],
               let accessToken = oauth["accessToken"] as? String, !accessToken.isEmpty else { return nil }

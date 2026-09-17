@@ -226,12 +226,16 @@ private struct AIUsageSignInSheet: View {
                 }
 
                 #if os(macOS)
-                Section {
-                    Button("Choose Sign-In File…", systemImage: "folder") {
-                        choosingFile = true
+                // Only for an assistant that keeps its sign-in in a file. Claude Code keeps its own
+                // in a Keychain item nothing else can open, so `signInCommand` is the only way in.
+                if let credentialsFile = assistant.credentialsFile {
+                    Section {
+                        Button("Choose Sign-In File…", systemImage: "folder") {
+                            choosingFile = true
+                        }
+                    } footer: {
+                        Text("Reads the sign-in your terminal is already using, at ~/\(credentialsFile). App Sales keeps its own copy and never writes to the file.")
                     }
-                } footer: {
-                    Text("Reads the sign-in your terminal is already using, at ~/\(assistant.credentialsPath). App Sales keeps its own copy and never writes to the file.")
                 }
                 #endif
 
@@ -280,10 +284,11 @@ private struct AIUsageSignInSheet: View {
     /// from the account record. Only the picker's starting point depends on this — nothing is read
     /// until the reader chooses a file.
     private var defaultDirectory: URL? {
-        guard let home = getpwuid(getuid())?.pointee.pw_dir, let path = String(validatingCString: home) else { return nil }
+        guard let credentialsFile = assistant.credentialsFile,
+              let home = getpwuid(getuid())?.pointee.pw_dir, let path = String(validatingCString: home) else { return nil }
 
         let directory = URL(filePath: path)
-            .appending(path: assistant.credentialsPath)
+            .appending(path: credentialsFile)
             .deletingLastPathComponent()
         return FileManager.default.fileExists(atPath: directory.path()) ? directory : nil
     }
