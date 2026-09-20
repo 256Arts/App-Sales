@@ -48,47 +48,42 @@ private struct InsightsSection<Content: View>: View {
 }
 
 #if canImport(FoundationModels)
+/// Holds the generated insight outside the view hierarchy.
+///
+/// The section sits in the home screen's `List`, so scrolling it off screen tears the row's state
+/// down and cancels anything a `.task` was running. Kept in the view, that meant every scroll back
+/// threw the paragraph away and spent the model writing it again. The text and the generating task
+/// live here instead, keyed by the numbers they describe, so a second look is free and a stream
+/// that started before the row scrolled away finishes into the same place.
 @available(iOS 26, macOS 26, visionOS 26, *)
-private struct AppleIntelligenceInsights: View {
+@MainActor
+@Observable
+final class InsightsStore {
 
-    let summary: PerformanceSummary
+    static let shared = InsightsStore()
 
-    @State private var insight: String = ""
-    @State private var failed = false
+    private(set) var insight = ""
+    private(set) var failed = false
 
-    private let model = SystemLanguageModel.default
+    /// The numbers `insight` describes. Generation only restarts when they change.
+    private var key: String?
+    private var task: Task<Void, Never>?
 
-    var body: some View {
-        if case .available = model.availability {
-            InsightsSection(showsDisclaimer: !insight.isEmpty) {
-                if failed {
-                    Label("Couldn't generate insights right now.", systemImage: "exclamationmark.triangle")
-                        .foregroundStyle(.secondary)
-                } else if insight.isEmpty {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                        Text("Analyzing…")
-                            .foregroundStyle(.secondary)
-                    }
-                } else {
-                    Text(insight)
-                        .textSelection(.enabled)
-                }
-            }
-            .task(id: regenerationKey) {
-                await generate()
-            }
-        }
-    }
+    private init() {}
 
-    /// Re-runs generation whenever the underlying numbers change.
-    private var regenerationKey: String {
-        "\(summary.downloads)-\(summary.prevDownloads)-\(Int(summary.proceeds))-\(Int(summary.prevProceeds))"
-    }
+    /// Starts generating for `summary`, unless the insight on hand already describes it.
+    func generate(for summary: PerformanceSummary) {
+        let key = Self.key(for: summary)
+        guard key != self.key else { return }
 
-    private func generate() async {
-        failed = false
+        self.key = key
+        task?.cancel()
         insight = ""
+        failed = false
+        task = Task { await self.write(key: key, prompt: Self.prompt(for: summary)) }
+    }
+
+    private func write(key: String, prompt: String) async {
         do {
             let session = LanguageModelSession {
                 """
@@ -101,14 +96,27 @@ private struct AppleIntelligenceInsights: View {
             }
             // Stream so takeaways appear as they're written, rather than after the full response.
             for try await snapshot in session.streamResponse(to: prompt) {
+                // Newer numbers arrived and took over; this run's output is stale.
+                guard key == self.key else { return }
+
                 insight = snapshot.content
             }
         } catch {
+            guard key == self.key else { return }
+
             failed = true
+            // Forget the key so the next look tries again rather than showing the failure forever.
+            self.key = nil
         }
     }
 
-    private var prompt: String {
+    /// Identifies a summary by the figures the prompt actually reports, so a refetch that returns
+    /// the same day's numbers does not rewrite the paragraph.
+    static func key(for summary: PerformanceSummary) -> String {
+        "\(summary.downloads)-\(summary.prevDownloads)-\(Int(summary.proceeds))-\(Int(summary.prevProceeds))"
+    }
+
+    private static func prompt(for summary: PerformanceSummary) -> String {
         let currency = NumberFormatter.currency
         let proceeds = currency.string(from: NSNumber(value: summary.proceeds)) ?? "\(summary.proceeds)"
         let prevProceeds = currency.string(from: NSNumber(value: summary.prevProceeds)) ?? "\(summary.prevProceeds)"
@@ -129,6 +137,41 @@ private struct AppleIntelligenceInsights: View {
         Top apps over the last 30 days:
         \(appLines.isEmpty ? "- (no app breakdown available)" : appLines)
         """
+    }
+}
+
+@available(iOS 26, macOS 26, visionOS 26, *)
+private struct AppleIntelligenceInsights: View {
+
+    let summary: PerformanceSummary
+
+    @State private var store = InsightsStore.shared
+
+    private let model = SystemLanguageModel.default
+
+    var body: some View {
+        if case .available = model.availability {
+            InsightsSection(showsDisclaimer: !store.insight.isEmpty) {
+                if store.failed {
+                    Label("Couldn't generate insights right now.", systemImage: "exclamationmark.triangle")
+                        .foregroundStyle(.secondary)
+                } else if store.insight.isEmpty {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                        Text("Analyzing…")
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    Text(store.insight)
+                        .textSelection(.enabled)
+                }
+            }
+            // Runs on appear and whenever the figures change; the store ignores a repeat
+            // of numbers it has already written about, which is what a scroll back looks like.
+            .task(id: InsightsStore.key(for: summary)) {
+                store.generate(for: summary)
+            }
+        }
     }
 }
 #endif
