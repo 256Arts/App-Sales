@@ -6,30 +6,59 @@ struct AccountsList: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AccountManager.self) var accountManager
 
+    @State private var assistants = AIAssistants.shared
+    @State private var connectingAssistant: AIAssistant?
+
     @State private var showingAddAccount: Bool = false
     @State private var cachedEntries: Int = 0
     @State private var updateSheetVisible = false
 
     var body: some View {
         List {
-            ForEach(accountManager.accounts) { account in
-                NavigationLink(destination: AccountDetailView(account)) {
-                    LabeledContent(account.name) {
-                        AccountStatusSymbol(account: account)
+            Section("App Store Connect") {
+                ForEach(accountManager.accounts) { account in
+                    NavigationLink(destination: AccountDetailView(account)) {
+                        LabeledContent(account.name) {
+                            AccountStatusSymbol(account: account)
+                        }
                     }
                 }
-            }
-            .onDelete(perform: deleteKey)
+                .onDelete(perform: deleteKey)
 
-            Button("Add", systemImage: "plus") {
-                showingAddAccount.toggle()
-            }
-            .contextMenu {
-                if accountManager.getApiKey(apiKeyId: "demo") == nil {
-                    Button("Add Demo Account") {
-                        try? accountManager.addApiKey(apiKey: Account.demoAccount)
+                Button("Add", systemImage: "plus") {
+                    showingAddAccount.toggle()
+                }
+                .contextMenu {
+                    if accountManager.getApiKey(apiKeyId: "demo") == nil {
+                        Button("Add Demo Account") {
+                            try? accountManager.addApiKey(apiKey: Account.demoAccount)
+                        }
                     }
                 }
+            }
+
+            Section {
+                ForEach(assistants.connected) { assistant in
+                    Label(assistant.name, systemImage: assistant.systemImage)
+                        .contextMenu {
+                            Button("Disconnect", systemImage: "xmark", role: .destructive) {
+                                assistants.disconnect(assistant)
+                            }
+                        }
+                }
+                .onDelete { offsets in
+                    offsets.map { assistants.connected[$0] }.forEach(assistants.disconnect)
+                }
+
+                ForEach(AIAssistant.allCases.filter { !assistants.connected.contains($0) }) { assistant in
+                    Button("Connect \(assistant.name)", systemImage: "plus") {
+                        connectingAssistant = assistant
+                    }
+                }
+            } header: {
+                Text("AI Assistants")
+            } footer: {
+                Text("Shows how much of each assistant's limits you have left, on the home screen, in widgets, and on Apple Watch.")
             }
             
 //            Section {
@@ -59,6 +88,9 @@ struct AccountsList: View {
             NavigationStack {
                 NewAccountView()
             }
+        }
+        .sheet(item: $connectingAssistant) { assistant in
+            AIUsageSignInSheet(assistant: assistant)
         }
     }
 

@@ -14,7 +14,6 @@ struct AIUsageSection: View {
     @State private var assistants = AIAssistants.shared
     @State private var usage: [AIAssistant: AIUsage] = [:]
     @State private var errors: [AIAssistant: String] = [:]
-    @State private var connecting: AIAssistant?
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
@@ -29,18 +28,12 @@ struct AIUsageSection: View {
     var body: some View {
         Section {
             if connected.isEmpty {
-                Text("Connect Claude or Codex to see how much of each one's limits you have left, beside the day's sales.")
+                Text("Connect Claude or Codex in Accounts to see how much of each one's limits you have left, beside the day's sales.")
                     .foregroundStyle(.secondary)
             }
 
             ForEach(connected) { assistant in
                 AIUsageRow(assistant: assistant, usage: usage[assistant], error: errors[assistant], display: display)
-            }
-
-            ForEach(AIAssistant.allCases.filter { !connected.contains($0) }) { assistant in
-                Button("Connect \(assistant.name)", systemImage: assistant.systemImage) {
-                    connecting = assistant
-                }
             }
         } header: {
             HStack {
@@ -69,9 +62,6 @@ struct AIUsageSection: View {
         }
         .task(id: connected) {
             await load()
-        }
-        .sheet(item: $connecting) { assistant in
-            AIUsageSignInSheet(assistant: assistant)
         }
     }
 
@@ -198,7 +188,8 @@ struct AIUsageOptions: View {
 
 /// Connecting an assistant: sign in to it in a browser, or — where it has no sign-in an app can
 /// drive — paste what its command line tool prints, or on a Mac hand over the file it keeps.
-private struct AIUsageSignInSheet: View {
+/// Presented from Accounts, beside the App Store Connect keys.
+struct AIUsageSignInSheet: View {
 
     let assistant: AIAssistant
 
