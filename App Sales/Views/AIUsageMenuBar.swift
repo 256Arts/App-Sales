@@ -94,9 +94,15 @@ struct AIUsageMenuBar: View {
 
 /// What sits in the menu bar itself: the window closest to running out, so the figure on screen is
 /// always the one about to stop the next job.
+///
+/// This is also what keeps the figure fresh with no window open. The label exists only while the
+/// extra is inserted, so its task is the refresh that lives exactly as long as the menu bar item —
+/// App Sales opening at login and sitting up here all day would otherwise show whatever the last
+/// widget timeline happened to fetch, which on a Mac with no widget placed could be hours old.
 struct AIUsageMenuBarLabel: View {
 
     @State private var usage: [AIUsage] = AIUsageCache.all()
+    @State private var lastRefresh: Date = .distantPast
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
 
@@ -113,14 +119,32 @@ struct AIUsageMenuBarLabel: View {
                 Image(systemName: "gauge.with.dots.needle.33percent")
             }
         }
-        // The cache is what the app, the widgets, and the menu bar window all write into, so
-        // re-reading it is how the figure up here keeps up without asking either assistant anything
-        // itself — this view has no business spending a fetch.
+        // Re-reading the cache every minute picks up whatever the app, the widgets, and the menu bar
+        // window fetched; asking the assistants happens at most once per `freshness`, so a sign-in
+        // that keeps failing is retried on that cadence rather than every minute.
         .task {
             while !Task.isCancelled {
+                if lastRefresh.timeIntervalSinceNow < -AIUsageCache.freshness {
+                    lastRefresh = .now
+                    await refresh()
+                }
                 usage = AIUsageCache.all()
                 try? await Task.sleep(for: .seconds(60))
             }
+        }
+    }
+
+    /// Through `AIAssistants.shared.usage(for:)` like every other surface, so a reading another
+    /// process saved in the last `freshness` is used as it is, and there is never a second fetch of
+    /// the same assistant in flight — a refresh token used twice gets its family revoked, which
+    /// would sign the reader's terminal out. Failures are left to the window, which can explain
+    /// them; up here the last good reading stays on screen.
+    private func refresh() async {
+        let assistants = AIAssistants.shared
+
+        // In turn, not at once, for the same reason.
+        for assistant in assistants.connected {
+            _ = try? await assistants.usage(for: assistant)
         }
     }
 }
