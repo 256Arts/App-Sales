@@ -1,4 +1,5 @@
 import Foundation
+import CryptoKit
 
 /// The two assistants' usage endpoints, and the token refresh that keeps reaching them.
 ///
@@ -89,6 +90,132 @@ enum AIUsageAPI {
         return AIUsageLimit(used: percent / 100, resetsAt: number(window["reset_at"]).map(Date.init(timeIntervalSince1970:)))
     }
 
+    // MARK: Signing In
+
+    /// Claude Code's own public client — the one every Claude token here is issued to and refreshed
+    /// against.
+    private static let claudeClientID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
+    private static let codexClientID = "app_EMoamEEZ73f0CkXaXp7hrann"
+    private static let claudeTokenURL = "https://platform.claude.com/v1/oauth/token"
+    /// Where Claude sends the code: its own page, which prints it for the reader to carry back.
+    ///
+    /// An app would rather be redirected straight back into itself, but the redirect addresses this
+    /// client accepts are Claude's own page and a loopback port — not a scheme belonging to App
+    /// Sales. The page is the half of that pair a phone can reach.
+    private static let claudeRedirectURI = "https://platform.claude.com/oauth/code/callback"
+
+    /// A sign-in part way through: the page to send the reader to, and the secrets that finish it.
+    struct SignInRequest {
+        let url: URL
+        /// The PKCE secret proving the code came back to whoever asked for it.
+        let verifier: String
+        /// Round-trips through Claude, so a code pasted from some other sign-in is caught.
+        let state: String
+    }
+
+    /// Starts Claude's OAuth sign-in — the only route to a token that can read usage.
+    ///
+    /// The long-lived token `claude setup-token` prints carries `user:inference` and nothing else,
+    /// and the usage endpoint refuses it; only a full sign-in grants `user:profile`. Doing the sign-in
+    /// here also gives App Sales a token family of its own, so refreshing one never rotates the
+    /// terminal's out from under it.
+    static func claudeSignInRequest() -> SignInRequest {
+        let verifier = randomKey(bytes: 32)
+        let state = randomKey(bytes: 16)
+
+        var components = URLComponents(string: "https://claude.com/cai/oauth/authorize")
+        components?.queryItems = [
+            URLQueryItem(name: "code", value: "true"),
+            URLQueryItem(name: "client_id", value: claudeClientID),
+            URLQueryItem(name: "response_type", value: "code"),
+            URLQueryItem(name: "redirect_uri", value: claudeRedirectURI),
+            // `user:profile` is what the usage endpoint reads; `user:inference` is the scope the
+            // client always carries. Nothing here asks to spend the limits it reports.
+            URLQueryItem(name: "scope", value: "user:profile user:inference"),
+            URLQueryItem(name: "code_challenge", value: Data(SHA256.hash(data: Data(verifier.utf8))).base64URLEncoded),
+            URLQueryItem(name: "code_challenge_method", value: "S256"),
+            URLQueryItem(name: "state", value: state),
+        ]
+        return SignInRequest(url: components?.url ?? url("https://claude.com"), verifier: verifier, state: state)
+    }
+
+    /// Finishes Claude's sign-in with what the reader brought back from that page.
+    static func claudeSignIn(code pasted: String, request: SignInRequest) async throws -> AIUsageSignIn {
+        guard let (code, state) = authorizationCode(in: pasted), state == nil || state == request.state else {
+            throw AIUsageError.unreadableSignIn(.claude)
+        }
+
+        var tokenRequest = URLRequest(url: url(claudeTokenURL))
+        tokenRequest.httpMethod = "POST"
+        tokenRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        tokenRequest.httpBody = try JSONSerialization.data(withJSONObject: [
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": claudeRedirectURI,
+            "client_id": claudeClientID,
+            "code_verifier": request.verifier,
+            "state": state ?? request.state,
+        ])
+
+        let json: [String: Any]
+        do {
+            json = try await send(tokenRequest, as: .claude)
+        } catch AIUsageError.signInExpired {
+            // A code is refused the same way a stale token is, but nothing has expired yet: it was
+            // mistyped, or it was already spent on an earlier attempt.
+            throw AIUsageError.assistant(String(localized: "That code did not work. Sign in again to get a new one."))
+        }
+        guard let accessToken = json["access_token"] as? String, !accessToken.isEmpty else {
+            throw AIUsageError.unreadableSignIn(.claude)
+        }
+
+        let signIn = AIUsageSignIn(
+            assistant: .claude,
+            accessToken: accessToken,
+            refreshToken: json["refresh_token"] as? String,
+            // A minute's grace, so a token cannot expire between the check and the request.
+            expires: number(json["expires_in"]).map { .now.addingTimeInterval($0 - 60) },
+            label: (json["account"] as? [String: Any])?["email_address"] as? String)
+        return await claudeProfile(signIn)
+    }
+
+    /// Reads the code out of whatever was pasted: the `code#state` Claude's page prints, the whole
+    /// callback address copied from the browser, or the code by itself.
+    private static func authorizationCode(in pasted: String) -> (code: String, state: String?)? {
+        let pasted = pasted.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !pasted.isEmpty else { return nil }
+
+        if pasted.contains("://"), let items = URLComponents(string: pasted)?.queryItems {
+            guard let code = items.first(where: { $0.name == "code" })?.value, !code.isEmpty else { return nil }
+
+            return (code, items.first(where: { $0.name == "state" })?.value)
+        }
+
+        let halves = pasted.split(separator: "#", maxSplits: 1, omittingEmptySubsequences: false)
+        guard let code = halves.first.map(String.init), !code.isEmpty else { return nil }
+
+        return (code, halves.count > 1 ? String(halves[1]) : nil)
+    }
+
+    /// Who signed in and what they pay for — neither of which the token itself says, and neither of
+    /// which is worth failing a sign-in over.
+    private static func claudeProfile(_ signIn: AIUsageSignIn) async -> AIUsageSignIn {
+        var request = URLRequest(url: url("https://api.anthropic.com/api/oauth/profile"))
+        request.setValue("Bearer \(signIn.accessToken)", forHTTPHeaderField: "Authorization")
+        guard let json = try? await send(request, as: .claude) else { return signIn }
+
+        var signIn = signIn
+        signIn.label = (json["account"] as? [String: Any])?["email"] as? String ?? signIn.label
+        // `claude_pro` is the organization's type; `Pro` is the subscription a person recognizes.
+        let organizationType = (json["organization"] as? [String: Any])?["organization_type"] as? String
+        signIn.plan = AIUsageSignIn.planName(organizationType?.replacingOccurrences(of: "claude_", with: "")) ?? signIn.plan
+        return signIn
+    }
+
+    private static func randomKey(bytes: Int) -> String {
+        Data((0..<bytes).map { _ in UInt8.random(in: .min ... .max) }).base64URLEncoded
+    }
+
     // MARK: Refreshing the Sign-In
 
     /// Swaps a refresh token for a working access token.
@@ -99,30 +226,22 @@ enum AIUsageAPI {
     static func refresh(_ signIn: AIUsageSignIn) async throws -> AIUsageSignIn {
         guard let refreshToken = signIn.refreshToken else { throw AIUsageError.signInExpired }
 
-        var request: URLRequest
+        var body: [String: Any] = ["grant_type": "refresh_token", "refresh_token": refreshToken]
+        let endpoint: String
         switch signIn.assistant {
         case .claude:
-            // Claude Code's own public client — the one that issued the token being refreshed.
-            request = URLRequest(url: url("https://platform.claude.com/v1/oauth/token"))
-            var components = URLComponents()
-            components.queryItems = [
-                URLQueryItem(name: "grant_type", value: "refresh_token"),
-                URLQueryItem(name: "refresh_token", value: refreshToken),
-                URLQueryItem(name: "client_id", value: "9d1c250a-e61b-44d9-88ed-5944d1962f5e"),
-            ]
-            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-            request.httpBody = Data((components.percentEncodedQuery ?? "").utf8)
+            endpoint = claudeTokenURL
+            body["client_id"] = claudeClientID
         case .codex:
-            request = URLRequest(url: url("https://auth.openai.com/oauth/token"))
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try JSONSerialization.data(withJSONObject: [
-                "client_id": "app_EMoamEEZ73f0CkXaXp7hrann",
-                "grant_type": "refresh_token",
-                "refresh_token": refreshToken,
-                "scope": "openid profile email",
-            ])
+            endpoint = "https://auth.openai.com/oauth/token"
+            body["client_id"] = codexClientID
+            body["scope"] = "openid profile email"
         }
+
+        var request = URLRequest(url: url(endpoint))
         request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let json = try await send(request, as: signIn.assistant)
         var refreshed = signIn
@@ -136,6 +255,9 @@ enum AIUsageAPI {
         }
         if let idToken = json["id_token"] as? String {
             refreshed.label = AIUsageSignIn.email(ofJWT: idToken) ?? refreshed.label
+        }
+        if let account = json["account"] as? [String: Any] {
+            refreshed.label = account["email_address"] as? String ?? refreshed.label
         }
         return refreshed
     }

@@ -3,10 +3,10 @@ import Foundation
 /// One assistant's saved sign-in: enough to ask it for usage, and to keep asking after the token it
 /// arrived with has expired.
 ///
-/// Neither assistant offers a web sign-in an app can drive — both hand their tokens out through a
-/// command line tool — so App Sales takes a copy of one instead, pasted or read from the file the
-/// terminal keeps it in. The copy is App Sales' own: refreshing it never writes back to the
-/// terminal's file.
+/// Claude's sign-in App Sales does itself, over OAuth, so the token is its own — see
+/// `AIUsageAPI.claudeSignInRequest()`. Codex hands its tokens out through a command line tool alone,
+/// so that one is a copy of the terminal's, pasted or read from the file it lives in. The copy is
+/// App Sales' own: refreshing it never writes back to the terminal's file.
 struct AIUsageSignIn: Codable, Hashable, Identifiable, Sendable {
 
     let assistant: AIAssistant
@@ -47,41 +47,19 @@ extension AIUsageSignIn {
 
     /// Reads whatever the reader pasted or picked: the assistant's credentials file, or a bare
     /// token. `nil` when it is neither.
+    ///
+    /// A token copied out of a terminal arrives wrapped across lines as often as not, and no token
+    /// contains whitespace, so the bare-token readings see it with every space and return taken out
+    /// rather than refusing a paste that is only badly shaped.
     static func read(_ text: String, for assistant: AIAssistant) -> AIUsageSignIn? {
+        // Claude signs in over OAuth instead, so nothing it prints is a sign-in worth pasting.
+        guard assistant == .codex else { return nil }
+
         let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return nil }
 
         let json = (try? JSONSerialization.jsonObject(with: Data(text.utf8))) as? [String: Any]
-        switch assistant {
-        case .claude:
-            return json.flatMap(claude) ?? bareClaudeToken(text)
-        case .codex:
-            return json.flatMap(codex) ?? bareCodexToken(text)
-        }
-    }
-
-    /// The shape Claude Code keeps in its login Keychain item — which is where it puts the sign-in
-    /// on a Mac, rather than in a file. Pasting a copy of that works, though `claude setup-token` is
-    /// the path the sheet offers: taking the terminal's own sign-in means refreshing it here can
-    /// rotate the terminal's out from under it.
-    private static func claude(_ json: [String: Any]) -> AIUsageSignIn? {
-        guard let oauth = json["claudeAiOauth"] as? [String: Any],
-              let accessToken = oauth["accessToken"] as? String, !accessToken.isEmpty else { return nil }
-
-        return AIUsageSignIn(
-            assistant: .claude,
-            accessToken: accessToken,
-            refreshToken: oauth["refreshToken"] as? String,
-            // Milliseconds, unlike every other timestamp either assistant reports.
-            expires: (oauth["expiresAt"] as? Double).map { Date(timeIntervalSince1970: $0 / 1000) },
-            plan: planName(oauth["subscriptionType"] as? String))
-    }
-
-    /// What `claude setup-token` prints: a token with no refresh token, good for about a year.
-    private static func bareClaudeToken(_ text: String) -> AIUsageSignIn? {
-        guard text.hasPrefix("sk-ant-"), !text.contains(where: \.isWhitespace) else { return nil }
-
-        return AIUsageSignIn(assistant: .claude, accessToken: text)
+        return json.flatMap(codex) ?? bareCodexToken(text.filter { !$0.isWhitespace })
     }
 
     /// `~/.codex/auth.json`, in either of the two shapes the Codex CLI writes.

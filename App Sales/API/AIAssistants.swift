@@ -46,7 +46,13 @@ final class AIAssistants {
             throw AIUsageError.unreadableSignIn(assistant)
         }
 
+        connect(signIn)
+    }
+
+    /// Connects an assistant from a sign-in the app negotiated itself.
+    func connect(_ signIn: AIUsageSignIn) {
         save(signIn)
+        AIUsageCache.clear(signIn.assistant)
     }
 
     func disconnect(_ assistant: AIAssistant) {

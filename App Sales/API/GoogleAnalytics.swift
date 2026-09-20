@@ -297,7 +297,7 @@ final class GoogleAnalytics {
     }
 }
 
-private extension Data {
+extension Data {
     /// Base64 without padding, and URL-safe, as PKCE requires.
     var base64URLEncoded: String {
         base64EncodedString()

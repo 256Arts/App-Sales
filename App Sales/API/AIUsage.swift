@@ -25,14 +25,15 @@ enum AIAssistant: String, Codable, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// The terminal command that prints a sign-in to paste in.
+    /// The terminal command that prints a sign-in to paste in — `nil` for an assistant App Sales can
+    /// sign into itself.
     ///
-    /// Claude issues a long-lived token made for exactly this, which is the one path that never
-    /// expires and never touches the sign-in the terminal is using. Codex has no equivalent, so its
-    /// sign-in is the file itself.
-    var signInCommand: String {
+    /// Claude has an OAuth sign-in the app can drive, which works the same on a phone as on a Mac
+    /// and asks the terminal for nothing. Codex's tokens only come out of its own command, so its
+    /// sign-in is a copy of the file the CLI keeps.
+    var signInCommand: String? {
         switch self {
-        case .claude: "claude setup-token"
+        case .claude: nil
         case .codex: "cat ~/.codex/auth.json"
         }
     }

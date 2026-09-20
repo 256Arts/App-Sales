@@ -196,48 +196,82 @@ struct AIUsageOptions: View {
     }
 }
 
-/// Connecting an assistant: paste the sign-in its command line tool prints, or — on a Mac — hand
-/// over the file the terminal already keeps it in.
+/// Connecting an assistant: sign in to it in a browser, or — where it has no sign-in an app can
+/// drive — paste what its command line tool prints, or on a Mac hand over the file it keeps.
 private struct AIUsageSignInSheet: View {
 
     let assistant: AIAssistant
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
 
     @State private var text = ""
     @State private var error: String?
     @State private var choosingFile = false
+    @State private var connecting = false
+    /// The sign-in the reader is part way through, holding the secrets that finish it. Non-`nil`
+    /// once the browser has been opened, which is also what brings the code field out.
+    @State private var signInRequest: AIUsageAPI.SignInRequest?
 
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    TextField("Sign-in", text: $text, axis: .vertical)
-                        .lineLimit(3...8)
-                        .font(.footnote.monospaced())
-                        #if canImport(UIKit)
-                        .textInputAutocapitalization(.never)
-                        #endif
-                        .autocorrectionDisabled()
-                } header: {
-                    Text("Paste Sign-In")
-                } footer: {
-                    Text("Run `\(assistant.signInCommand)` in a terminal and paste what it prints.")
-                }
-
-                #if os(macOS)
-                // Only for an assistant that keeps its sign-in in a file. Claude Code keeps its own
-                // in a Keychain item nothing else can open, so `signInCommand` is the only way in.
-                if let credentialsFile = assistant.credentialsFile {
+                if let signInCommand = assistant.signInCommand {
                     Section {
-                        Button("Choose Sign-In File…", systemImage: "folder") {
-                            choosingFile = true
+                        TextField("Sign-in", text: $text, axis: .vertical)
+                            .lineLimit(3...8)
+                            .font(.footnote.monospaced())
+                            #if canImport(UIKit)
+                            .textInputAutocapitalization(.never)
+                            #endif
+                            .autocorrectionDisabled()
+                    } header: {
+                        Text("Paste Sign-In")
+                    } footer: {
+                        Text("Run `\(signInCommand)` in a terminal and paste what it prints.")
+                    }
+
+                    #if os(macOS)
+                    // Only for an assistant that keeps its sign-in in a file. Claude Code keeps its
+                    // own in a Keychain item nothing else can open, and signs in here anyway.
+                    if let credentialsFile = assistant.credentialsFile {
+                        Section {
+                            Button("Choose Sign-In File…", systemImage: "folder") {
+                                choosingFile = true
+                            }
+                        } footer: {
+                            Text("Reads the sign-in your terminal is already using, at ~/\(credentialsFile). App Sales keeps its own copy and never writes to the file.")
+                        }
+                    }
+                    #endif
+                } else {
+                    Section {
+                        Button("Sign In with \(assistant.name)", systemImage: "person.badge.key") {
+                            let request = AIUsageAPI.claudeSignInRequest()
+                            withAnimation {
+                                signInRequest = request
+                            }
+                            openURL(request.url)
                         }
                     } footer: {
-                        Text("Reads the sign-in your terminal is already using, at ~/\(credentialsFile). App Sales keeps its own copy and never writes to the file.")
+                        Text("Opens \(assistant.name) in your browser. App Sales asks only to read your limits — the sign-in is its own, and leaves the one your terminal uses alone.")
+                    }
+
+                    if signInRequest != nil {
+                        Section {
+                            TextField("Code", text: code)
+                                .font(.footnote.monospaced())
+                                #if canImport(UIKit)
+                                .textInputAutocapitalization(.never)
+                                #endif
+                                .autocorrectionDisabled()
+                        } header: {
+                            Text("Paste Code")
+                        } footer: {
+                            Text("\(assistant.name) shows a code once you approve. Copy it and paste it here.")
+                        }
                     }
                 }
-                #endif
 
                 if let error {
                     Section {
@@ -256,15 +290,17 @@ private struct AIUsageSignInSheet: View {
                     Button("Cancel", role: .cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Connect") { connect(text) }
-                        .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    Button("Connect") {
+                        Task { await connect() }
+                    }
+                    .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || connecting)
                 }
             }
             #if os(macOS)
             .fileImporter(isPresented: $choosingFile, allowedContentTypes: [.json]) { result in
                 switch result {
                 case .success(let url):
-                    connect(contentsOf: url)
+                    read(contentsOf: url)
                 case .failure(let failure):
                     error = failure.localizedDescription
                 }
@@ -275,6 +311,16 @@ private struct AIUsageSignInSheet: View {
         #if os(macOS)
         .frame(minWidth: 420, minHeight: 320)
         #endif
+    }
+
+    /// A code copied off a web page brings a line break with it as often as not, and no code
+    /// contains whitespace — so take it out as it arrives rather than leaving it to be hunted for.
+    private var code: Binding<String> {
+        Binding {
+            text
+        } set: { newValue in
+            text = newValue.filter { !$0.isWhitespace }
+        }
     }
 
     /// The folder the sign-in lives in, so the picker opens on it rather than somewhere a name
@@ -294,7 +340,9 @@ private struct AIUsageSignInSheet: View {
     }
 
     #if os(macOS)
-    private func connect(contentsOf url: URL) {
+    /// Fills the field with the file the reader picked, so connecting is the same one step it is
+    /// for a paste — and so what was read is on screen if it turns out not to be a sign-in.
+    private func read(contentsOf url: URL) {
         // A file the reader picked is only readable while its security scope is held open.
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
@@ -303,13 +351,21 @@ private struct AIUsageSignInSheet: View {
             error = AIUsageError.unreadableSignIn(assistant).localizedDescription
             return
         }
-        connect(contents)
+        text = contents
     }
     #endif
 
-    private func connect(_ text: String) {
+    private func connect() async {
+        error = nil
+        connecting = true
+        defer { connecting = false }
+
         do {
-            try AIAssistants.shared.connect(assistant, with: text)
+            if let signInRequest {
+                AIAssistants.shared.connect(try await AIUsageAPI.claudeSignIn(code: text, request: signInRequest))
+            } else {
+                try AIAssistants.shared.connect(assistant, with: text)
+            }
             dismiss()
         } catch {
             self.error = error.localizedDescription
