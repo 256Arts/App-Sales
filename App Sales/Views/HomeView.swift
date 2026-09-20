@@ -106,6 +106,7 @@ struct HomeView: View {
                                                 .tag(sort)
                                         }
                                     }
+                                    .pickerStyle(.inline)
                                 } label: {
                                     Label("Sort By", systemImage: "arrow.up.arrow.down")
                                         .labelStyle(.iconOnly)
