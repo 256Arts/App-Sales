@@ -29,5 +29,16 @@ struct AppSalesShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Sales by App",
             systemImageName: "square.grid.2x2")
+
+        AppShortcut(
+            intent: GetAIUsageIntent(),
+            phrases: [
+                "Get my \(.applicationName) AI usage",
+                "How much Claude have I got left in \(.applicationName)",
+                "How much AI usage is left in \(.applicationName)",
+                "Check my AI limits in \(.applicationName)",
+            ],
+            shortTitle: "AI Usage",
+            systemImageName: "gauge.with.dots.needle.33percent")
     }
 }
