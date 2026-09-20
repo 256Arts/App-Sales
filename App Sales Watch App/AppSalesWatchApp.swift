@@ -15,6 +15,7 @@ struct AppSalesWatchApp: App {
                 WatchHomeView()
             }
             .environment(accountManager)
+            .screenshotModeStatus()
         }
     }
 }

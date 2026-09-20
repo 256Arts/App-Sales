@@ -1,4 +1,7 @@
 import XCTest
+#if canImport(UIKit) && !os(watchOS)
+import UIKit
+#endif
 
 /// Drives the app to the screen that becomes an App Store screenshot and attaches it to the result
 /// bundle, where the shared `screenshots` runner collects it.
@@ -22,15 +25,81 @@ final class ScreenshotTests: XCTestCase {
         openWindowIfNeeded()
         #endif
 
+        checkSeedIsThrowaway()
+
         // The 30-day proceeds total, the first thing the seeded account puts on screen. Waiting on
         // it means a capture cannot beat the summary and its chart onto the screen.
         let proceeds = element("Summary.Proceeds")
-        guard proceeds.waitForExistence(timeout: 30) else {
-            attach(XCTAttachment(string: app.debugDescription), named: "element-tree")
-            return XCTFail("seeded content never appeared")
-        }
+        guard waitFor(proceeds, "the seeded proceeds summary") else { return }
         settle()
         capture("01-home")
+    }
+
+    // MARK: - The seed
+
+    /// What the app said it prepared, read out of the accessibility tree.
+    ///
+    /// The app hangs `ScreenshotMode.status` on its root view (`.screenshotModeStatus()`). A walk
+    /// that cannot find it is running against a build that has not adopted that modifier, which is
+    /// worth saying plainly rather than reporting as an empty seed.
+    private var seedStatus: String {
+        let label = app.descendants(matching: .any)["ScreenshotMode.Status"]
+        guard label.waitForExistence(timeout: 30) else {
+            return "no ScreenshotMode.Status element — add .screenshotModeStatus() to the app's root view"
+        }
+        // A SwiftUI `Text` reaches XCUITest as the element's *value* on macOS and as its *label* on
+        // iOS, so take whichever is filled in rather than betting on one.
+        if let value = label.value as? String, !value.isEmpty { return value }
+        return label.label
+    }
+
+    /// Stops the walk when the app did not seed its throwaway accounts.
+    ///
+    /// `ScreenshotMode.prepareLaunch` reports what it prepared, or nothing if a screenshot run never
+    /// activated. The walk that followed would then photograph an empty app and fail on a missing
+    /// row, which says nothing about why. Read the reason instead, before the first shot.
+    private func checkSeedIsThrowaway() {
+        let status = seedStatus
+        print("SCREENSHOT MODE: \(status)")
+        guard status.hasPrefix("ready") else {
+            attach(XCTAttachment(string: app.debugDescription), named: "element-tree")
+            return XCTFail("the app did not seed a throwaway store, so there is nothing to photograph — \(status)")
+        }
+    }
+
+    private static var platform: String {
+        #if os(macOS)
+        "macOS"
+        #elseif os(watchOS)
+        "watchOS"
+        #elseif targetEnvironment(macCatalyst)
+        "Mac Catalyst"
+        #elseif os(visionOS)
+        "visionOS"
+        #else
+        UIDevice.current.userInterfaceIdiom == .pad ? "iPadOS" : "iOS"
+        #endif
+    }
+
+    /// Which simulator this was, for a failure read days after the run's own log is gone.
+    private static var device: String {
+        ProcessInfo.processInfo.environment["SIMULATOR_MODEL_IDENTIFIER"] ?? "this machine"
+    }
+
+    /// Waits for `element`, and on a miss names the platform, the device, what it was waiting for,
+    /// and what the app reported about its own seed — so a failure explains itself instead of just
+    /// saying content never appeared.
+    private func waitFor(_ element: XCUIElement, _ description: String, timeout: TimeInterval = 30) -> Bool {
+        guard element.waitForExistence(timeout: timeout) else {
+            attach(XCTAttachment(string: app.debugDescription), named: "element-tree")
+            XCTFail("""
+                never found \(description) in \(Int(timeout))s on \(Self.platform), \(Self.device).
+                The app reported: \(seedStatus)
+                The screen at the time is attached as element-tree.
+                """)
+            return false
+        }
+        return true
     }
 
     #if os(macOS)

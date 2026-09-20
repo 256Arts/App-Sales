@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 /// Deterministic demo state for App Store screenshots, switched on by the `-screenshotMode` launch
 /// argument the UI test passes.
@@ -58,6 +59,23 @@ enum ScreenshotMode {
         #if os(macOS)
         clearSavedWindowLayout()
         #endif
+
+        report("ready — in-memory accounts, no Keychain; seeded \(accounts.count) accounts")
+    }
+
+    // MARK: - Saying what happened
+
+    /// What this launch prepared, in one line, for the walk and for the shared runner.
+    ///
+    /// A failed walk otherwise reports only "seeded content never appeared", which is equally true
+    /// of a run that never prepared, a screen that never opened, and an identifier renamed last
+    /// week. The walk reads this out of the accessibility tree before its first shot and prints it
+    /// on any miss, and the fixed prefix makes it greppable in the build log.
+    private(set) static var status = "the seed has not run"
+
+    private static func report(_ line: String) {
+        status = line
+        print("SCREENSHOT MODE: \(line)")
     }
 
     /// Puts the preferences a shot can see back to their defaults.
@@ -85,4 +103,29 @@ enum ScreenshotMode {
         }
     }
     #endif
+}
+
+extension View {
+
+    /// Carries `ScreenshotMode.status` into the accessibility tree, where the walk reads it.
+    ///
+    /// Nothing on a normal launch; on a screenshot run, a one-point transparent label — present to
+    /// XCUITest, invisible in the shot. It is how the walk can tell a run that never prepared from a
+    /// screen that never opened, neither of which the app can report any other way: a simulator
+    /// app's `print` does not reach the build log, and there is no file path both the app and the
+    /// runner can write.
+    @ViewBuilder
+    func screenshotModeStatus() -> some View {
+        if ScreenshotMode.isActive {
+            overlay(alignment: .topLeading) {
+                Text(ScreenshotMode.status)
+                    .font(.system(size: 1))
+                    .opacity(0.001)
+                    .accessibilityIdentifier("ScreenshotMode.Status")
+                    .allowsHitTesting(false)
+            }
+        } else {
+            self
+        }
+    }
 }

@@ -42,6 +42,7 @@ struct AppSalesApp: App {
                     showingEvent = true
                 }
             }
+            .screenshotModeStatus()
         }
         .defaultSize(CGSize(width: 500, height: 700))
         .commands {
