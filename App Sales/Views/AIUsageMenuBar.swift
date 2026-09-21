@@ -68,25 +68,25 @@ struct AIUsageMenuBar: View {
                 Spacer()
 
                 Menu {
-                    AIUsageOptions()
-
-                    Picker("Menu Bar Progress", selection: $style) {
-                        ForEach(AIUsageMenuBarStyle.allCases) { style in
-                            Text(style.name)
-                                .tag(style)
+                    AIUsageOptions {
+                        Picker("Progress", selection: $style) {
+                            ForEach(AIUsageMenuBarStyle.allCases) { style in
+                                Text(style.name)
+                                    .tag(style)
+                            }
                         }
+
+                        Toggle("Hide Irrelevant Limits", isOn: $hidesUnreachable)
+
+                        // Here and not in the app's options: opening at login is only worth it for the
+                        // menu bar extra, and without it is a window in the reader's face every morning.
+                        Toggle("Open at Login", isOn: Binding {
+                            opensAtLogin
+                        } set: { newValue in
+                            // System Settings can refuse, so the toggle follows what the status ended up as.
+                            opensAtLogin = LoginItem.setEnabled(newValue)
+                        })
                     }
-
-                    Toggle("Hide Irrelevant Limits", isOn: $hidesUnreachable)
-
-                    // Here and not in the app's options: opening at login is only worth it for the
-                    // menu bar extra, and without it is a window in the reader's face every morning.
-                    Toggle("Open at Login", isOn: Binding {
-                        opensAtLogin
-                    } set: { newValue in
-                        // System Settings can refuse, so the toggle follows what the status ended up as.
-                        opensAtLogin = LoginItem.setEnabled(newValue)
-                    })
 
                     Divider()
 
