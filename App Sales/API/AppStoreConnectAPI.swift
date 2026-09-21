@@ -279,7 +279,7 @@ extension APIError {
             return
         }
         guard let error = error as? APIProvider.Error else {
-            self = .unknown
+            self = .failed(error.localizedDescription)
             return
         }
 
@@ -292,8 +292,11 @@ extension APIError {
             self = .exceededLimit
         case .requestFailure(404, let response, _) where response?.errors?.contains(where: { $0.detail?.contains("The request expected results but none were found") == true }) == true:
             self = .noDataAvailable
+        case .requestFailure(let status, let response, _):
+            let detail = response?.errors?.compactMap { $0.detail ?? $0.title }.first
+            self = .failed("App Store Connect returned an error (\(status))" + (detail.map { ": \($0)" } ?? "."))
         default:
-            self = .unknown
+            self = .failed(error.localizedDescription)
         }
     }
 }

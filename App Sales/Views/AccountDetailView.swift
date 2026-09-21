@@ -103,7 +103,7 @@ struct AccountDetailView: View {
                 try await account.checkKey()
                 try await loadApps()
             } catch let err {
-                status = (err as? APIError) ?? .unknown
+                status = APIError(err)
             }
         }
         .navigationTitle("Account")

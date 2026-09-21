@@ -42,10 +42,12 @@ final class SalesDataLoader {
             #if canImport(WidgetKit)
             WidgetCenter.shared.reloadAllTimelines()
             #endif
-        } catch let err as APIError {
+        } catch is CancellationError {
+        } catch let err as URLError where err.code == .cancelled {
+        } catch let err {
             data = nil
             summary = nil
-            error = err
-        } catch { }
+            error = APIError(err)
+        }
     }
 }

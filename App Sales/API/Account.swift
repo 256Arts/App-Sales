@@ -101,10 +101,8 @@ extension Account {
                 _ = try await api.getData(numOfDays: 1, useCache: false)
             } catch APIError.noDataAvailable {
                 return
-            } catch let error as APIError {
-                throw error
             } catch {
-                throw APIError.unknown
+                throw APIError(error)
             }
             return
         }

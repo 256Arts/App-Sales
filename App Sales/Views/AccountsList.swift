@@ -203,7 +203,7 @@ struct AccountStatusSymbol: View {
             do {
                 try await account.checkKey()
             } catch let err {
-                status = (err as? APIError) ?? .unknown
+                status = APIError(err)
             }
             loading = false
         }

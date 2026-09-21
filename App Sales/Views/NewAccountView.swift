@@ -143,7 +143,7 @@ struct NewAccountView: View {
                 let api = AppStoreConnectAPI(apiKey: apiKey)
                 _ = try? await api.getData(useCache: true, useMemoization: false)
             } catch let err {
-                let apiErr: APIError = (err as? APIError) ?? .unknown
+                let apiErr = APIError(err)
                 if apiErr == .invalidCredentials {
                     alert = .invalidKey
                 }

@@ -1,11 +1,13 @@
 import Foundation
 
-enum APIError: LocalizedError {
+enum APIError: LocalizedError, Equatable {
     case invalidCredentials
     case wrongPermissions
     case exceededLimit
     case noDataAvailable
     case unknown
+    /// A failure none of the cases above describe, carrying its own explanation so it can be diagnosed.
+    case failed(String)
 
     var errorDescription: String? {
         switch self {
@@ -19,6 +21,8 @@ enum APIError: LocalizedError {
             return "Data is not yet available."
         case .unknown:
             return "An unknown error occurred. Please file a bug report."
+        case .failed(let reason):
+            return reason
         }
     }
 }
