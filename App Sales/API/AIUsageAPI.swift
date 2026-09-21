@@ -121,7 +121,9 @@ enum AIUsageAPI {
     /// terminal's out from under it.
     static func claudeSignInRequest() -> SignInRequest {
         let verifier = randomKey(bytes: 32)
-        let state = randomKey(bytes: 16)
+        // 32 bytes, the length `claude` sends. The authorize page answered a 16-byte state with
+        // "Invalid request format".
+        let state = randomKey(bytes: 32)
 
         var components = URLComponents(string: "https://claude.com/cai/oauth/authorize")
         components?.queryItems = [
