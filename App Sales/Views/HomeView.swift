@@ -5,6 +5,7 @@ struct HomeView: View {
     @State var loader = SalesDataLoader()
 
     @State var showingAccountsList = false
+    @State private var editingWebsitePage: AppPerformanceSummary?
 
     @Environment(AccountManager.self) var accountManager
 
@@ -87,7 +88,7 @@ struct HomeView: View {
                             AppStoreAnalyticsSection(account: selectedKey, data: data, apps: summary.apps)
                         }
 
-                        WebsiteTrafficSection(apps: summary.apps)
+                        WebsiteTrafficSection(apps: summary.apps, editingApp: $editingWebsitePage)
 
                         Section {
                             ForEach(appListSort.sort(summary.apps)) { app in
@@ -121,6 +122,7 @@ struct HomeView: View {
                 .refreshable {
                     await fetchData(useMemoization: false)
                 }
+                .websitePageEditor(for: $editingWebsitePage)
             } else if let error = loader.error {
                 VStack(spacing: 20) {
                     Text(error.localizedDescription)

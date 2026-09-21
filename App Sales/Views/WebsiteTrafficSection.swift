@@ -8,12 +8,21 @@ import SwiftUI
 struct WebsiteTrafficSection: View {
 
     let apps: [AppPerformanceSummary]
+    /// Owned by the list, which presents the page editor: an alert inside a `List` section is
+    /// handed to every row, and none of them present it.
+    @Binding var editingApp: AppPerformanceSummary?
 
     @State private var googleAnalytics = GoogleAnalytics.shared
     @State private var traffic: [String: WebPageTraffic] = [:]
     @State private var error: Error?
-    @State private var editingApp: AppPerformanceSummary?
-    @State private var pageURLText = ""
+
+    private var appsWithPages: [AppPerformanceSummary] {
+        apps.filter { googleAnalytics.pageURLs[$0.appleID] != nil }
+    }
+
+    private var appsWithoutPages: [AppPerformanceSummary] {
+        apps.filter { googleAnalytics.pageURLs[$0.appleID] == nil }
+    }
 
     var body: some View {
         if GoogleAnalytics.isAvailable {
@@ -25,14 +34,44 @@ struct WebsiteTrafficSection: View {
                     Text("Choose your website in Accounts to see how many people read about each app on it.")
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(apps) { app in
+                    ForEach(appsWithPages) { app in
                         Button {
                             editingApp = app
-                            pageURLText = googleAnalytics.pageURLs[app.appleID]?.absoluteString ?? ""
                         } label: {
-                            WebsiteTrafficRow(app: app, traffic: traffic[app.appleID], hasPage: googleAnalytics.pageURLs[app.appleID] != nil)
+                            WebsiteTrafficRow(app: app, traffic: traffic[app.appleID])
                         }
                         .buttonStyle(.plain)
+                        .contextMenu {
+                            if let url = googleAnalytics.pageURLs[app.appleID] {
+                                Link(destination: url) {
+                                    Label("Open Page", systemImage: "safari")
+                                }
+                            }
+                            Button("Edit Page", systemImage: "pencil") {
+                                editingApp = app
+                            }
+                            Button("Remove Page", systemImage: "trash", role: .destructive) {
+                                googleAnalytics.setPageURL(nil, for: app.appleID)
+                            }
+                        }
+                        .swipeActions {
+                            Button("Remove", systemImage: "trash", role: .destructive) {
+                                googleAnalytics.setPageURL(nil, for: app.appleID)
+                            }
+                        }
+                    }
+
+                    if !appsWithoutPages.isEmpty {
+                        Menu {
+                            ForEach(appsWithoutPages) { app in
+                                Button(app.name) {
+                                    editingApp = app
+                                }
+                            }
+                        } label: {
+                            Label("Add App Page", systemImage: "plus")
+                        }
+                        .menuIndicator(.hidden)
                     }
                 }
 
@@ -43,31 +82,12 @@ struct WebsiteTrafficSection: View {
             } header: {
                 Label("Website", systemImage: "safari")
             } footer: {
-                if let property = googleAnalytics.property {
-                    Text("Page views over the last 30 days, from \(property.name). Select an app to set its page.")
+                if let property = googleAnalytics.property, !appsWithPages.isEmpty {
+                    Text("Page views over the last 30 days, from \(property.name), beside downloads.")
                 }
             }
             .task(id: TrafficQuery(property: googleAnalytics.property, pageURLs: googleAnalytics.pageURLs)) {
                 await loadTraffic()
-            }
-            .alert("App Page", isPresented: Binding(get: { editingApp != nil }, set: { if !$0 { editingApp = nil } }), presenting: editingApp) { app in
-                TextField("https://example.com/app", text: $pageURLText)
-                    .textContentType(.URL)
-                    #if canImport(UIKit)
-                    .keyboardType(.URL)
-                    .textInputAutocapitalization(.never)
-                    #endif
-                Button("Save") {
-                    googleAnalytics.setPageURL(pageURL, for: app.appleID)
-                }
-                if googleAnalytics.pageURLs[app.appleID] != nil {
-                    Button("Remove", role: .destructive) {
-                        googleAnalytics.setPageURL(nil, for: app.appleID)
-                    }
-                }
-                Button("Cancel", role: .cancel) { }
-            } message: { app in
-                Text("The page about \(app.name) on your website.")
             }
         }
     }
@@ -76,14 +96,6 @@ struct WebsiteTrafficSection: View {
     private struct TrafficQuery: Equatable {
         let property: GoogleAnalyticsProperty?
         let pageURLs: [String: URL]
-    }
-
-    /// Typed without a scheme reads as a web address rather than a relative path.
-    private var pageURL: URL? {
-        let text = pageURLText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return nil }
-
-        return URL(string: text.contains("://") ? text : "https://" + text)
     }
 
     private func loadTraffic() async {
@@ -102,12 +114,11 @@ struct WebsiteTrafficSection: View {
     }
 }
 
-/// One app's page views against its downloads, or a prompt to set its page.
+/// One app's page views against its downloads.
 private struct WebsiteTrafficRow: View {
 
     let app: AppPerformanceSummary
     let traffic: WebPageTraffic?
-    let hasPage: Bool
 
     var body: some View {
         HStack {
@@ -118,10 +129,7 @@ private struct WebsiteTrafficRow: View {
             Spacer()
 
             Group {
-                if !hasPage {
-                    Text("Set Page")
-                        .foregroundStyle(.tint)
-                } else if let traffic {
+                if let traffic {
                     HStack(spacing: 8) {
                         Label(traffic.views.formatted(), systemImage: "eye")
                             .accessibilityLabel("\(traffic.views) page views")
@@ -136,5 +144,50 @@ private struct WebsiteTrafficRow: View {
             .font(.footnote)
         }
         .contentShape(.rect)
+    }
+}
+
+extension View {
+    /// Asks for the web address of the page about `app`, the one `WebsiteTrafficSection` counts
+    /// views of. Attach it outside the `List` the section sits in.
+    func websitePageEditor(for app: Binding<AppPerformanceSummary?>) -> some View {
+        modifier(WebsitePageEditor(app: app))
+    }
+}
+
+private struct WebsitePageEditor: ViewModifier {
+
+    @Binding var app: AppPerformanceSummary?
+
+    @State private var googleAnalytics = GoogleAnalytics.shared
+    @State private var pageURLText = ""
+
+    func body(content: Content) -> some View {
+        content
+            .alert("App Page", isPresented: Binding(get: { app != nil }, set: { if !$0 { app = nil } }), presenting: app) { app in
+                TextField("https://example.com/app", text: $pageURLText)
+                    .textContentType(.URL)
+                    #if canImport(UIKit)
+                    .keyboardType(.URL)
+                    .textInputAutocapitalization(.never)
+                    #endif
+                Button("Save") {
+                    googleAnalytics.setPageURL(pageURL, for: app.appleID)
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: { app in
+                Text("The page about \(app.name) on your website.")
+            }
+            .onChange(of: app?.appleID) {
+                pageURLText = app.flatMap { googleAnalytics.pageURLs[$0.appleID]?.absoluteString } ?? ""
+            }
+    }
+
+    /// Typed without a scheme reads as a web address rather than a relative path.
+    private var pageURL: URL? {
+        let text = pageURLText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return nil }
+
+        return URL(string: text.contains("://") ? text : "https://" + text)
     }
 }
