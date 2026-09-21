@@ -18,9 +18,10 @@ struct AIUsageSection: View {
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
     @AppStorage(UserDefaults.Key.aiUsageGoal, store: UserDefaults.shared) private var goal: AIUsageGoal = .none
+    @AppStorage(UserDefaults.Key.aiUsageHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
 
     private var display: AIUsageDisplay {
-        AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal)
+        AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal, hidesUnreachable: hidesUnreachable)
     }
     private var connected: [AIAssistant] {
         ScreenshotMode.isActive ? AIUsage.examples.map(\.assistant) : assistants.connected
@@ -51,7 +52,7 @@ struct AIUsageSection: View {
 
                     AIUsageOptions()
                 } label: {
-                    Label("Options", systemImage: "ellipsis")
+                    Label("Options", systemImage: "switch.2")
                         .labelStyle(.iconOnly)
                 }
                 .menuIndicator(.hidden)
@@ -130,14 +131,17 @@ private struct AIUsageRow: View {
 /// The metric and the time style live in the App Group, which is how the widgets and the watch
 /// complications see them; changing either reloads the timelines, because a widget process will not
 /// notice a preference it is not watching.
-struct AIUsageOptions<MenuBarItems: View>: View {
+struct AIUsageOptions<StyleItems: View, MenuBarItems: View>: View {
 
-    /// Choices only the menu bar extra itself offers, filed under its section beside the toggle.
+    /// Choices only the menu bar extra itself offers, among the ones about how usage is drawn.
+    @ViewBuilder var styleItems: StyleItems
+    /// Choices only the menu bar extra itself offers, beside the toggle that shows it.
     @ViewBuilder var menuBarItems: MenuBarItems
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
     @AppStorage(UserDefaults.Key.aiUsageGoal, store: UserDefaults.shared) private var goal: AIUsageGoal = .none
+    @AppStorage(UserDefaults.Key.aiUsageHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
     #if os(macOS)
     @AppStorage(UserDefaults.Key.aiUsageMenuBarExtra, store: UserDefaults.shared) private var showsMenuBarExtra = false
     #endif
@@ -145,7 +149,7 @@ struct AIUsageOptions<MenuBarItems: View>: View {
     var body: some View {
         // Bindings rather than `.onChange`: these are menu contents, so a modifier on a wrapper
         // would be applied to every child and fire the reload once per picker.
-        Section("Usage") {
+        Section {
             Picker("Show", selection: binding($metric)) {
                 ForEach(AIUsageMetric.allCases) { metric in
                     Text(metric.name)
@@ -153,12 +157,14 @@ struct AIUsageOptions<MenuBarItems: View>: View {
                 }
             }
 
-            Picker("Reset Time", selection: binding($timeStyle)) {
+            Picker("Reset Time Style", selection: binding($timeStyle)) {
                 ForEach(AIUsageTimeStyle.allCases) { style in
                     Text(style.name)
                         .tag(style)
                 }
             }
+
+            styleItems
 
             Picker("Goal", selection: binding($goal)) {
                 ForEach(AIUsageGoal.allCases) { goal in
@@ -166,10 +172,12 @@ struct AIUsageOptions<MenuBarItems: View>: View {
                         .tag(goal)
                 }
             }
+
+            Toggle("Hide Irrelevant Limits", isOn: binding($hidesUnreachable))
         }
 
         #if os(macOS)
-        Section("Menu Bar") {
+        Section {
             Toggle("Show in Menu Bar", isOn: $showsMenuBarExtra)
 
             menuBarItems
@@ -191,9 +199,9 @@ struct AIUsageOptions<MenuBarItems: View>: View {
     }
 }
 
-extension AIUsageOptions where MenuBarItems == EmptyView {
+extension AIUsageOptions where StyleItems == EmptyView, MenuBarItems == EmptyView {
     init() {
-        self.init { EmptyView() }
+        self.init { EmptyView() } menuBarItems: { EmptyView() }
     }
 }
 

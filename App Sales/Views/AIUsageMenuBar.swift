@@ -20,8 +20,10 @@ struct AIUsageMenuBar: View {
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
     @AppStorage(UserDefaults.Key.aiUsageGoal, store: UserDefaults.shared) private var goal: AIUsageGoal = .none
     @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
-    @AppStorage(UserDefaults.Key.aiUsageMenuBarHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
+    @AppStorage(UserDefaults.Key.aiUsageHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
     @State private var opensAtLogin = LoginItem.isEnabled
+
+    @Environment(\.openWindow) private var openWindow
 
     /// The oldest reading on screen, since that is how stale the window as a whole is.
     private var lastRefresh: Date? {
@@ -40,7 +42,7 @@ struct AIUsageMenuBar: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 ForEach(usage) { usage in
-                    AIUsageColumn(usage: usage, display: AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal), showsMetric: true)
+                    AIUsageColumn(usage: usage, display: AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal, hidesUnreachable: hidesUnreachable), showsMetric: true)
                 }
             }
 
@@ -69,15 +71,13 @@ struct AIUsageMenuBar: View {
 
                 Menu {
                     AIUsageOptions {
-                        Picker("Progress", selection: $style) {
+                        Picker("Progress Style", selection: $style) {
                             ForEach(AIUsageMenuBarStyle.allCases) { style in
                                 Text(style.name)
                                     .tag(style)
                             }
                         }
-
-                        Toggle("Hide Irrelevant Limits", isOn: $hidesUnreachable)
-
+                    } menuBarItems: {
                         // Here and not in the app's options: opening at login is only worth it for the
                         // menu bar extra, and without it is a window in the reader's face every morning.
                         Toggle("Open at Login", isOn: Binding {
@@ -90,11 +90,19 @@ struct AIUsageMenuBar: View {
 
                     Divider()
 
+                    // With no window open there is no Dock icon to click, so this is the way back in.
+                    Button("Open App Sales") {
+                        if !DockIcon.hasWindow {
+                            openWindow(id: AppSalesApp.mainWindowID)
+                        }
+                        NSApplication.shared.activate()
+                    }
+
                     Button("Quit App Sales") {
                         NSApplication.shared.terminate(nil)
                     }
                 } label: {
-                    Label("Options", systemImage: "ellipsis")
+                    Label("Options", systemImage: "switch.2")
                 }
                 .menuIndicator(.hidden)
                 .fixedSize()
@@ -164,23 +172,12 @@ struct AIUsageMenuBarLabel: View {
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
     @AppStorage(UserDefaults.Key.aiUsageGoal, store: UserDefaults.shared) private var goal: AIUsageGoal = .none
     @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
-    @AppStorage(UserDefaults.Key.aiUsageMenuBarHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
+    @AppStorage(UserDefaults.Key.aiUsageHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
 
     @Environment(\.displayScale) private var displayScale
 
-    /// The limits the label draws — with `hidesUnreachable`, only the ones that can still run out
-    /// before the other does. Never both: with the week out of reach, the five hours are what bite.
     private var shown: [AIUsage] {
-        guard hidesUnreachable else { return usage }
-        return usage.map { usage in
-            let week = usage.canReachWeek() ? usage.week : nil
-            return AIUsage(
-                assistant: usage.assistant,
-                plan: usage.plan,
-                fiveHour: week == nil || usage.canReachFiveHour ? usage.fiveHour : nil,
-                week: week,
-                fetched: usage.fetched)
-        }
+        usage.map(display.relevant)
     }
 
     private var headline: AIUsage? {
@@ -188,7 +185,7 @@ struct AIUsageMenuBarLabel: View {
     }
 
     private var display: AIUsageDisplay {
-        AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal)
+        AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal, hidesUnreachable: hidesUnreachable)
     }
 
     /// A menu bar extra's label draws only text and images, so the rings and lines are rendered to a
@@ -373,6 +370,40 @@ private struct AIUsageMenuBarGlyph: View {
                     }
             }
         }
+    }
+}
+
+/// Keeps App Sales out of the Dock while the menu bar extra is all that is running, the way a menu
+/// bar utility behaves, and puts it back as soon as a window opens.
+@MainActor
+enum DockIcon {
+
+    private static var windows = 0
+    private static var showsMenuBarExtra = false
+
+    static var hasWindow: Bool { windows > 0 }
+
+    static func windowOpened() {
+        windows += 1
+        update()
+    }
+
+    static func windowClosed() {
+        windows = max(windows - 1, 0)
+        update()
+    }
+
+    static func menuBarExtra(isShown: Bool) {
+        showsMenuBarExtra = isShown
+        update()
+    }
+
+    /// With the extra off, the Dock icon stays whether or not a window is open — otherwise nothing
+    /// on screen would lead back to the app.
+    private static func update() {
+        let policy: NSApplication.ActivationPolicy = windows == 0 && showsMenuBarExtra ? .accessory : .regular
+        guard NSApplication.shared.activationPolicy() != policy else { return }
+        NSApplication.shared.setActivationPolicy(policy)
     }
 }
 

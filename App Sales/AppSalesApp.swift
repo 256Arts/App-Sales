@@ -20,8 +20,10 @@ struct AppSalesApp: App {
     @AppStorage(UserDefaults.Key.aiUsageMenuBarExtra, store: UserDefaults.shared) private var showsMenuBarExtra = false
     #endif
 
+    static let mainWindowID = "main"
+
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: Self.mainWindowID) {
             NavigationStack {
                 HomeView()
             }
@@ -43,6 +45,10 @@ struct AppSalesApp: App {
                 }
             }
             .screenshotModeStatus()
+            #if os(macOS)
+            .onAppear { DockIcon.windowOpened() }
+            .onDisappear { DockIcon.windowClosed() }
+            #endif
         }
         .defaultSize(CGSize(width: 500, height: 700))
         .commands {
@@ -60,6 +66,9 @@ struct AppSalesApp: App {
             AIUsageMenuBarLabel()
         }
         .menuBarExtraStyle(.window)
+        .onChange(of: showsMenuBarExtra, initial: true) {
+            DockIcon.menuBarExtra(isShown: showsMenuBarExtra)
+        }
         #endif
     }
     

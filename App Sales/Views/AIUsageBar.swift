@@ -21,7 +21,7 @@ struct AIUsageBar: View {
     var showsMetric = false
 
     var body: some View {
-        if let limit = usage[window] {
+        if let limit = display.relevant(usage)[window] {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(window.title)

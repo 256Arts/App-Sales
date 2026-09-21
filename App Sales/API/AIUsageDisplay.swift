@@ -89,6 +89,8 @@ struct AIUsageDisplay: Equatable, Sendable {
     var metric: AIUsageMetric
     var timeStyle: AIUsageTimeStyle
     var goal: AIUsageGoal
+    /// Whether a window that cannot run out before the other one does is left off.
+    var hidesUnreachable = false
 
     static let `default` = AIUsageDisplay(metric: .used, timeStyle: .relative, goal: .none)
 
@@ -102,7 +104,21 @@ struct AIUsageDisplay: Equatable, Sendable {
             timeStyle: defaults.string(forKey: UserDefaults.Key.aiUsageTimeStyle)
                 .flatMap(AIUsageTimeStyle.init(rawValue:)) ?? Self.default.timeStyle,
             goal: defaults.string(forKey: UserDefaults.Key.aiUsageGoal)
-                .flatMap(AIUsageGoal.init(rawValue:)) ?? Self.default.goal)
+                .flatMap(AIUsageGoal.init(rawValue:)) ?? Self.default.goal,
+            hidesUnreachable: defaults.bool(forKey: UserDefaults.Key.aiUsageHidesUnreachable))
+    }
+
+    /// The windows worth drawing — with `hidesUnreachable`, only the ones that can still run out
+    /// before the other does. Never neither: with the week out of reach, the five hours are what bite.
+    func relevant(_ usage: AIUsage) -> AIUsage {
+        guard hidesUnreachable else { return usage }
+        let week = usage.canReachWeek() ? usage.week : nil
+        return AIUsage(
+            assistant: usage.assistant,
+            plan: usage.plan,
+            fiveHour: week == nil || usage.canReachFiveHour ? usage.fiveHour : nil,
+            week: week,
+            fetched: usage.fetched)
     }
 
     /// The part of the window this reading is about, `0...1` — what a bar or a gauge fills to.
