@@ -48,7 +48,7 @@ final class GoogleAnalytics {
 
     /// The OAuth client, of Google Cloud's "iOS" type, which has no secret and redirects to a custom
     /// scheme. Empty hides the feature entirely, so a build without one never offers a broken sign-in.
-    static let clientID = ""
+    static let clientID = "1019038999237-h5sj3hoc6v80214172tkemuqvkhkcfnb.apps.googleusercontent.com"
     static var isAvailable: Bool { !clientID.isEmpty }
 
     private struct Connection: Codable {
