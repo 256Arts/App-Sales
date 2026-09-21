@@ -93,7 +93,11 @@ struct HomeView: View {
 
                         Section {
                             ForEach(appListSort.sort(summary.apps)) { app in
-                                AppRow(app: app, iconLength: appListIconLength, websiteTraffic: websiteTraffic[app.appleID])
+                                AppRow(
+                                    app: app,
+                                    iconLength: appListIconLength,
+                                    websiteTraffic: websiteTraffic[app.appleID],
+                                    widestWebsiteViews: websiteTraffic.values.map(\.views).max())
                                     .contextMenu {
                                         if googleAnalytics.property != nil {
                                             if let url = websiteTraffic[app.appleID]?.url {
@@ -244,6 +248,9 @@ private struct AppRow: View {
     let app: AppPerformanceSummary
     let iconLength: CGFloat
     let websiteTraffic: WebPageTraffic?
+    /// The most page views any row shows, which sizes the page view column in every row so the
+    /// stats after it line up. `nil` when no app has a page, and the column is left out.
+    let widestWebsiteViews: Int?
 
     var body: some View {
         HStack {
@@ -253,12 +260,11 @@ private struct AppRow: View {
                 Text(app.name)
 
                 HStack(spacing: 8) {
+                    if let widestWebsiteViews {
+                        websiteViews(widest: widestWebsiteViews)
+                    }
                     downloads
                     proceeds
-                    if let websiteTraffic {
-                        Label(websiteTraffic.views.formatted(), systemImage: "safari")
-                            .accessibilityLabel("\(websiteTraffic.views) website page views in the last 30 days")
-                    }
                     price
                     // Soaks up the width the row has spare, so the stats stay grouped
                     // at the leading edge rather than spreading across the row.
@@ -266,6 +272,7 @@ private struct AppRow: View {
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+                .labelStyle(StatLabelStyle())
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             }
@@ -279,6 +286,18 @@ private struct AppRow: View {
         }
     }
 
+    /// As wide as the widest row's figure whether or not this app has a page, so the column holds.
+    private func websiteViews(widest: Int) -> some View {
+        ZStack(alignment: .leading) {
+            Label(widest.formatted(), systemImage: "globe")
+                .hidden()
+            if let websiteTraffic {
+                Label(websiteTraffic.views.formatted(), systemImage: "globe")
+                    .accessibilityLabel("\(websiteTraffic.views) website page views in the last 30 days")
+            }
+        }
+        .accessibilityHidden(websiteTraffic == nil)
+    }
     /// Downloads and proceeds are both over the last 30 days, matching the summary above the list.
     private var downloads: some View {
         Label(app.downloads.formatted(), systemImage: "arrow.down.app")
@@ -301,6 +320,16 @@ private struct AppRow: View {
         guard app.price > 0 else { return String(localized: "Free") }
 
         return NumberFormatter.currency.string(from: NSNumber(value: app.price)) ?? ""
+    }
+}
+
+/// A stat's icon hard against its figure, so the gaps in the row fall between stats instead.
+private struct StatLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 1) {
+            configuration.icon
+            configuration.title
+        }
     }
 }
 

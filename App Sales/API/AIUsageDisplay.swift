@@ -165,18 +165,20 @@ struct AIUsageDisplay: Equatable, Sendable {
     ///
     /// Under a day a countdown keeps its minutes: a five-hour window always is, and "2h" rounds away
     /// most of what is worth knowing about it.
-    func countdown(to date: Date) -> String? {
+    ///
+    /// `now` is the moment the text is shown, which for a widget's future timeline entry is not yet.
+    func countdown(to date: Date, from now: Date = .now) -> String? {
         switch timeStyle {
         case .hidden:
             return nil
         case .relative:
-            let seconds = max(date.timeIntervalSinceNow, 0)
+            let seconds = max(date.timeIntervalSince(now), 0)
             return Duration.seconds(seconds).formatted(.units(
                 allowed: [.days, .hours, .minutes],
                 width: .narrow,
                 maximumUnitCount: seconds < 24 * 60 * 60 ? 2 : 1))
         case .absolute:
-            return Calendar.autoupdatingCurrent.isDateInToday(date)
+            return Calendar.autoupdatingCurrent.isDate(date, inSameDayAs: now)
                 ? date.formatted(.dateTime.hour().minute())
                 : date.formatted(.dateTime.weekday(.abbreviated).hour())
         }
@@ -237,7 +239,14 @@ extension AIUsage {
     /// The families with room for only one number show this rather than always showing the
     /// five-hour window: on a heavy week it is the weekly limit that bites first.
     var tightestLimit: AIUsageLimit? {
-        [fiveHour, week].compactMap { $0 }.max { $0.used < $1.used }
+        tightestWindow.flatMap { self[$0] }
+    }
+
+    /// Which window `tightestLimit` is, for the warning colour that depends on its length.
+    var tightestWindow: AIUsageWindow? {
+        [AIUsageWindow.fiveHour, .week]
+            .filter { self[$0] != nil }
+            .max { (self[$0]?.used ?? 0) < (self[$1]?.used ?? 0) }
     }
 
     /// When the reading can next change, if a window has run out: its reset, since nothing can be

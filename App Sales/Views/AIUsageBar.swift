@@ -19,12 +19,22 @@ struct AIUsageBar: View {
     /// Whether the figure says which way round it is — "39% left" rather than "39%" — where there is
     /// room, so a glance does not depend on remembering the setting.
     var showsMetric = false
+    /// Whether the reset time stands in for the window's name — "2h 15m" rather than "5 Hours" —
+    /// for the families with no room for both. The name stays while there is no time to show.
+    var titlesReset = false
+    /// The moment the bar is shown, which for a widget's future timeline entry is not yet.
+    var now: Date = .now
 
     var body: some View {
         if let limit = display.relevant(usage)[window] {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(window.title)
+                    if titlesReset, let resetsAt = limit.resetsAt, resetsAt > now, let countdown = display.countdown(to: resetsAt, from: now) {
+                        Text(countdown)
+                            .monospacedDigit()
+                    } else {
+                        Text(window.title)
+                    }
 
                     Spacer()
 

@@ -34,6 +34,11 @@ struct AIUsageEntry: TimelineEntry {
     var message: String?
     let configuration: AIUsagePreferences
 
+    /// This entry, drawn at a later moment.
+    func at(_ date: Date) -> AIUsageEntry {
+        AIUsageEntry(date: date, usage: usage, message: message, configuration: configuration)
+    }
+
     static let placeholder = AIUsageEntry(date: .now, usage: AIUsage.examples, configuration: AIUsagePreferences())
 }
 
@@ -49,7 +54,11 @@ struct AIUsageProvider: AppIntentTimelineProvider {
 
     func timeline(for configuration: AIUsagePreferences, in context: Context) async -> Timeline<AIUsageEntry> {
         let entry = await entry(for: configuration)
-        return Timeline(entries: [entry], policy: .after(nextUpdate(after: entry)))
+        let nextUpdate = nextUpdate(after: entry)
+        // The same figures redrawn every few minutes until the next fetch, so the reset countdowns
+        // the accessories show keep counting down between fetches.
+        let entries = stride(from: entry.date, to: nextUpdate, by: 5 * 60).map { entry.at($0) }
+        return Timeline(entries: entries, policy: .after(nextUpdate))
     }
 
     #if os(watchOS)
@@ -218,19 +227,37 @@ struct AIUsageWidgetView: View {
         }
     }
 
+    /// The tightest window's bar, with the assistant above it and when that window resets between.
     @ViewBuilder
     private var circular: some View {
-        if let usage = headline, let limit = usage.tightestLimit {
-            Gauge(value: display.fraction(of: limit)) {
+        if let usage = headline, let window = usage.tightestWindow, let limit = usage[window] {
+            VStack(spacing: 2) {
                 Image(systemName: usage.assistant.systemImage)
-            } currentValueLabel: {
-                Text(display.percentage(of: limit))
+                    .font(.body)
+                    .widgetAccentable()
+
+                Text(time(of: limit) ?? display.percentage(of: limit))
+                    .font(.caption.weight(.semibold))
+                    .monospacedDigit()
+                    .lineLimit(1)
                     .minimumScaleFactor(0.6)
+
+                AIUsageTrack(fraction: display.fraction(of: limit), tint: display.tint(for: limit, in: window))
+                    .frame(width: 36)
             }
-            .gaugeStyle(.accessoryCircular)
+            .padding(6)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(usage.assistant.name))
+            .accessibilityValue(Text(display.summary(of: limit)))
         } else {
             AIUsageUnavailable(message: nil)
         }
+    }
+
+    /// When the limit resets, as the reader asked times to read — `nil` without one to show.
+    private func time(of limit: AIUsageLimit) -> String? {
+        guard let resetsAt = limit.resetsAt, resetsAt > entry.date else { return nil }
+        return display.countdown(to: resetsAt, from: entry.date)
     }
 
     #if os(watchOS)
@@ -259,8 +286,8 @@ struct AIUsageWidgetView: View {
                     .font(.headline)
                     .widgetAccentable()
 
-                AIUsageBar(window: .fiveHour, usage: usage, display: display, showsReset: false)
-                AIUsageBar(window: .week, usage: usage, display: display, showsReset: false)
+                AIUsageBar(window: .fiveHour, usage: usage, display: display, showsReset: false, titlesReset: true, now: entry.date)
+                AIUsageBar(window: .week, usage: usage, display: display, showsReset: false, titlesReset: true, now: entry.date)
             }
             .font(.caption)
             .frame(maxWidth: .infinity, alignment: .leading)
