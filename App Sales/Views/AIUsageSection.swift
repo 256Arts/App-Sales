@@ -11,6 +11,9 @@ import WidgetKit
 /// the thing that stops a day's work — so they belong on the same screen, read the same way.
 struct AIUsageSection: View {
 
+    /// Bumped by the screen's pull to refresh, which fetches usage afresh along with the sales.
+    var refreshCount = 0
+
     @State private var assistants = AIAssistants.shared
     @State private var usage: [AIAssistant: AIUsage] = [:]
     @State private var errors: [AIAssistant: String] = [:]
@@ -44,12 +47,6 @@ struct AIUsageSection: View {
                 Spacer()
 
                 Menu {
-                    Button("Refresh", systemImage: "arrow.clockwise") {
-                        Task { await load(maxAge: 0) }
-                    }
-
-                    Divider()
-
                     AIUsageOptions()
                 } label: {
                     Label("Options", systemImage: "switch.2")
@@ -64,6 +61,9 @@ struct AIUsageSection: View {
         }
         .task(id: connected) {
             await load()
+        }
+        .onChange(of: refreshCount) {
+            Task { await load(maxAge: 0) }
         }
     }
 
@@ -156,6 +156,9 @@ struct AIUsageOptions<StyleItems: View, MenuBarItems: View>: View {
                         .tag(metric)
                 }
             }
+            // Submenus, as a Mac draws them anyway: laid inline, iOS drops the picker's name and
+            // leaves "Used" and "Left" with nothing to say what they choose.
+            .pickerStyle(.menu)
 
             Picker("Reset Time Style", selection: binding($timeStyle)) {
                 ForEach(AIUsageTimeStyle.allCases) { style in
@@ -163,6 +166,7 @@ struct AIUsageOptions<StyleItems: View, MenuBarItems: View>: View {
                         .tag(style)
                 }
             }
+            .pickerStyle(.menu)
 
             styleItems
 
@@ -172,6 +176,7 @@ struct AIUsageOptions<StyleItems: View, MenuBarItems: View>: View {
                         .tag(goal)
                 }
             }
+            .pickerStyle(.menu)
 
             Toggle("Hide Irrelevant Limits", isOn: binding($hidesUnreachable))
         }

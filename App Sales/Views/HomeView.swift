@@ -9,6 +9,8 @@ struct HomeView: View {
     /// Keyed by Apple ID; empty while Google Analytics is not connected.
     @State private var websiteTraffic: [String: WebPageTraffic] = [:]
     @State private var editingWebsitePage: AppPerformanceSummary?
+    /// Counts pulls to refresh, so the AI usage below the sales refreshes along with them.
+    @State private var refreshCount = 0
 
     @Environment(AccountManager.self) var accountManager
 
@@ -32,11 +34,6 @@ struct HomeView: View {
         #endif
     }
 
-    private var refreshButton: some View {
-        Button("Refresh", systemImage: "arrow.clockwise") {
-            Task { await fetchData(useMemoization: false) }
-        }
-    }
     private var accountsButton: some View {
         Button("Accounts", systemImage: "person.crop.circle") {
             showingAccountsList.toggle()
@@ -133,10 +130,11 @@ struct HomeView: View {
                             }
                         }
 
-                        AIUsageSection()
+                        AIUsageSection(refreshCount: refreshCount)
                     }
                 }
                 .refreshable {
+                    refreshCount += 1
                     await fetchData(useMemoization: false)
                 }
                 .websitePageEditor(for: $editingWebsitePage, currentURL: editingWebsitePage.flatMap { websiteTraffic[$0.appleID]?.url })
@@ -159,18 +157,6 @@ struct HomeView: View {
         }
         .navigationTitle("App Sales")
         .toolbar {
-            // Refresh stays in the bar under space pressure, overflowing last.
-            #if os(visionOS)
-            ToolbarItem(placement: .primaryAction) {
-                refreshButton
-            }
-            #else
-            ToolbarItem(placement: .primaryAction) {
-                refreshButton
-            }
-            .visibilityPriority(.high)
-            #endif
-
             #if os(macOS)
             ToolbarItem(placement: .primaryAction) {
                 accountsButton
