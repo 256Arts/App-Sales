@@ -26,9 +26,9 @@ enum GoogleAnalyticsError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notConnected:
-            "Google Analytics is not connected."
+            "You are not signed in to Google Analytics."
         case .signInExpired:
-            "Your Google sign-in has expired. Connect Google Analytics again."
+            "Your Google sign-in has expired. Sign in to Google Analytics again."
         case .google(let message):
             message
         }

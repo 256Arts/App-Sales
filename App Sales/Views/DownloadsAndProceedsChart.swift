@@ -30,13 +30,13 @@ struct DownloadsAndProceedsChart: View {
                             .widgetAccentedRenderingMode(.accentedDesaturated)
                     } placeholder: {
                         #if canImport(UIKit)
-                        if let path = apps[axis.index].cachedIconURL?.path(), let data = FileManager.default.contents(atPath: path), let uiImage = UIImage(data: data) {
+                        if let path = apps[axis.index].cachedIconURL?.path(percentEncoded: false), let data = FileManager.default.contents(atPath: path), let uiImage = UIImage(data: data) {
                             Image(uiImage: uiImage).resizable()
                         } else {
                             Color.secondary
                         }
                         #else
-                        if let path = apps[axis.index].cachedIconURL?.path(), let data = FileManager.default.contents(atPath: path), let nsImage = NSImage(data: data) {
+                        if let path = apps[axis.index].cachedIconURL?.path(percentEncoded: false), let data = FileManager.default.contents(atPath: path), let nsImage = NSImage(data: data) {
                             Image(nsImage: nsImage).resizable()
                         } else {
                             Color.secondary

@@ -2,8 +2,6 @@ import SwiftUI
 
 struct AccountDetailView: View {
     
-    @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
-    
     @Environment(\.dismiss) var dismiss
     @Environment(AccountManager.self) var accountManager
 
@@ -31,16 +29,6 @@ struct AccountDetailView: View {
 
     var body: some View {
         List {
-            Toggle(isOn: Binding(get: {
-                keyID == account.id
-            }, set: { newValue in
-                if newValue {
-                    keyID = account.id
-                }
-            })) {
-                Text("Current")
-            }
-            
             Section {
                 LabeledContent("Account Name") {
                     TextField("Account Name", text: $keyName)

@@ -21,7 +21,7 @@ enum AIAssistant: String, Codable, CaseIterable, Identifiable, Sendable {
     var systemImage: String {
         switch self {
         case .claude: "asterisk"
-        case .codex: "chevron.left.forwardslash.chevron.right"
+        case .codex: "seal"
         }
     }
 
@@ -62,7 +62,7 @@ extension AIAssistant: AppEnum {
     static var caseDisplayRepresentations: [AIAssistant: DisplayRepresentation] {
         [
             .claude: DisplayRepresentation(title: "Claude", image: .init(systemName: "asterisk")),
-            .codex: DisplayRepresentation(title: "Codex", image: .init(systemName: "chevron.left.forwardslash.chevron.right")),
+            .codex: DisplayRepresentation(title: "Codex", image: .init(systemName: "seal")),
         ]
     }
 }
@@ -103,7 +103,7 @@ enum AIUsageError: LocalizedError {
         case .notSignedIn:
             String(localized: "You are not connected to this assistant.")
         case .signInExpired:
-            String(localized: "The sign-in has expired. Connect the assistant again.")
+            String(localized: "The sign-in has expired. Sign in to the assistant again.")
         case .unreadableSignIn(let assistant):
             String(localized: "That is not a \(assistant.name) sign-in.")
         case .assistant(let message):

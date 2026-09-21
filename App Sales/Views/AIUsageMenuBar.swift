@@ -31,20 +31,23 @@ struct AIUsageMenuBar: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            if usage.isEmpty {
-                Text(message ?? String(localized: "Connect Claude or Codex in App Sales to see your limits here."))
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    // A Text in a menu bar window truncates to one line without this, however wide
-                    // the window is told to be.
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                ForEach(usage) { usage in
-                    AIUsageColumn(usage: usage, display: AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal, hidesUnreachable: hidesUnreachable), showsMetric: true)
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 12) {
+                if usage.isEmpty {
+                    Text(message ?? String(localized: "Sign in to Claude or Codex in App Sales to see your limits here."))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        // A Text in a menu bar window truncates to one line without this, however wide
+                        // the window is told to be.
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    ForEach(usage) { usage in
+                        AIUsageColumn(usage: usage, display: AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal, hidesUnreachable: hidesUnreachable), showsMetric: true)
+                    }
                 }
             }
+            .padding(12)
 
             Divider()
 
@@ -104,18 +107,24 @@ struct AIUsageMenuBar: View {
                 } label: {
                     Label("Options", systemImage: "switch.2")
                 }
+                // Drawn as a button, so it takes the accessory bar style and matches Refresh's height.
+                .menuStyle(.button)
                 .menuIndicator(.hidden)
                 .fixedSize()
             }
             .labelStyle(.iconOnly)
             .buttonStyle(.accessoryBar)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
         }
-        .padding(12)
         .frame(width: 260)
         .task { await load() }
     }
 
     private func load(maxAge: TimeInterval = AIUsageCache.freshness) async {
+        // A screenshot run has no sign-ins, so a fetch would clear the examples it started with.
+        guard !ScreenshotMode.isActive else { return }
+
         refreshing = true
         defer { refreshing = false }
 
@@ -286,7 +295,7 @@ struct AIUsageMenuBarLabel: View {
 /// The drawing the menu bar label renders: the assistant's symbol, then the five-hour window and the
 /// week, each as its progress and its countdown. Monochrome unless a window warns, since it becomes
 /// a template image.
-private struct AIUsageMenuBarGlyph: View {
+struct AIUsageMenuBarGlyph: View {
 
     let usage: AIUsage?
     let display: AIUsageDisplay

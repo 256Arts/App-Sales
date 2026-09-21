@@ -81,7 +81,7 @@ struct NewAccountView: View {
             }
             .scenePadding()
         }
-        .navigationTitle("New Account")
+        .navigationTitle("Sign In to App Store Connect")
         #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -97,7 +97,7 @@ struct NewAccountView: View {
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Add") {
+                Button("Sign In") {
                     if name.isEmpty || issuerID.isEmpty || keyID.isEmpty || key.isEmpty || vendor.isEmpty {
                         errorFields.removeAll()
                         if name.isEmpty { errorFields.insert(.name) }

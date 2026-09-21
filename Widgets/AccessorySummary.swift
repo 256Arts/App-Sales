@@ -62,7 +62,7 @@ struct AccessoryUnavailable: View {
 // MARK: - Families
 
 /// One line beside the time: proceeds and which way they moved.
-private struct InlineAccessory: View {
+struct InlineAccessory: View {
 
     let summary: PerformanceSummary
 
@@ -75,7 +75,7 @@ private struct InlineAccessory: View {
 
 /// A ring that fills as the last 30 days catch up to the 30 before them, wrapped around the
 /// proceeds figure — so a full ring means the period matched or beat the one before it.
-private struct CircularAccessory: View {
+struct CircularAccessory: View {
 
     let summary: PerformanceSummary
 
@@ -106,7 +106,7 @@ private struct CornerAccessory: View {
 #endif
 
 /// The one family with room for both metrics and both trends.
-private struct RectangularAccessory: View {
+struct RectangularAccessory: View {
 
     let summary: PerformanceSummary
 

@@ -26,6 +26,9 @@ enum AIUsageCache {
 
     /// Everything cached, however old — what a widget draws while its own fetch is still in flight.
     static func all() -> [AIUsage] {
+        // The menu bar extra reads nothing else, so this is where a screenshot run gets its figures.
+        if ScreenshotMode.isActive { return AIUsage.examples }
+
         guard let storageURL, let data = try? Data(contentsOf: storageURL) else { return [] }
 
         return (try? JSONDecoder().decode([AIUsage].self, from: data)) ?? []

@@ -50,7 +50,7 @@ struct AppPerformanceSummary: Identifiable {
     }
     
     var cachedIcon: Image? {
-        guard let path = cachedIconURL?.path(), let data = FileManager.default.contents(atPath: path) else { return nil }
+        guard let path = cachedIconURL?.path(percentEncoded: false), let data = FileManager.default.contents(atPath: path) else { return nil }
         
         #if canImport(UIKit)
         guard let uiImage = UIImage(data: data) else { return nil }
@@ -67,6 +67,8 @@ enum AppListSort: String, CaseIterable, Identifiable {
     case downloads
     case proceeds
     case price
+    case websiteViews
+    case appStoreViews
     case name
 
     var id: Self { self }
@@ -76,6 +78,8 @@ enum AppListSort: String, CaseIterable, Identifiable {
         case .downloads: "Downloads"
         case .proceeds: "Proceeds"
         case .price: "Price"
+        case .websiteViews: "Website Views"
+        case .appStoreViews: "App Store Views"
         case .name: "Name"
         }
     }
@@ -85,16 +89,28 @@ enum AppListSort: String, CaseIterable, Identifiable {
         case .downloads: "arrow.down.app"
         case .proceeds: "dollarsign.circle"
         case .price: "tag"
+        case .websiteViews: "globe"
+        case .appStoreViews: "doc.text.magnifyingglass"
         case .name: "textformat"
         }
     }
 
-    /// Highest first for the numbers, A–Z for the name.
-    func sort(_ apps: [AppPerformanceSummary]) -> [AppPerformanceSummary] {
-        switch self {
+    /// Highest first for the numbers, A–Z for the name. The view counts are keyed by Apple ID, and
+    /// apps tied on views — every app, while the views have not loaded — fall back to downloads.
+    func sort(_ apps: [AppPerformanceSummary], websiteViews: [String: Int] = [:], appStoreViews: [String: Int] = [:]) -> [AppPerformanceSummary] {
+        func byViews(_ views: [String: Int]) -> [AppPerformanceSummary] {
+            apps.sorted { a, b in
+                let (aViews, bViews) = (views[a.appleID] ?? 0, views[b.appleID] ?? 0)
+                return aViews == bViews ? a.downloads > b.downloads : aViews > bViews
+            }
+        }
+
+        return switch self {
         case .downloads: apps.sorted(by: { $0.downloads > $1.downloads })
         case .proceeds: apps.sorted(by: { $0.proceeds > $1.proceeds })
         case .price: apps.sorted(by: { $0.price > $1.price })
+        case .websiteViews: byViews(websiteViews)
+        case .appStoreViews: byViews(appStoreViews)
         case .name: apps.sorted(by: { $0.name.localizedStandardCompare($1.name) == .orderedAscending })
         }
     }

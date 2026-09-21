@@ -4,6 +4,7 @@ import AuthenticationServices
 struct AccountsList: View {
 
     @AppStorage(UserDefaults.Key.includeRedownloads, store: UserDefaults.shared) var includeRedownloads: Bool = false
+    @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
     @Environment(\.dismiss) private var dismiss
     @Environment(AccountManager.self) var accountManager
     @Environment(\.webAuthenticationSession) private var webAuthenticationSession
@@ -31,7 +32,15 @@ struct AccountsList: View {
                 }
                 .onDelete(perform: deleteKey)
 
-                Button("Add", systemImage: "plus") {
+                if accountManager.accounts.count > 1 {
+                    Picker("Current Account", selection: currentAccount) {
+                        ForEach(accountManager.accounts) { account in
+                            Text(account.name).tag(account.id)
+                        }
+                    }
+                }
+
+                Button("Sign In to App Store Connect", systemImage: "plus") {
                     showingAddAccount.toggle()
                 }
                 .contextMenu {
@@ -43,11 +52,40 @@ struct AccountsList: View {
                 }
             }
 
-            Section {
+            if GoogleAnalytics.isAvailable {
+                Section("Web Analytics") {
+                    // A ForEach of one, so the sign-in swipes to delete like every other account.
+                    ForEach(googleAnalytics.isConnected ? ["google"] : [], id: \.self) { _ in
+                        Label("Google Analytics", systemImage: "chart.bar.xaxis")
+                            .contextMenu {
+                                Button("Sign Out", systemImage: "xmark", role: .destructive, action: signOutOfGoogleAnalytics)
+                            }
+                    }
+                    .onDelete { _ in signOutOfGoogleAnalytics() }
+
+                    if googleAnalytics.isConnected {
+                        googleAnalyticsPropertyPicker
+                    } else {
+                        Button("Sign In to Google Analytics", systemImage: "plus") {
+                            Task { await connectGoogleAnalytics() }
+                        }
+                    }
+
+                    if let googleAnalyticsError {
+                        Text(googleAnalyticsError.localizedDescription)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .task(id: googleAnalytics.isConnected) {
+                    await loadGoogleAnalyticsProperties()
+                }
+            }
+
+            Section("AI Assistants") {
                 ForEach(assistants.connected) { assistant in
                     Label(assistant.name, systemImage: assistant.systemImage)
                         .contextMenu {
-                            Button("Disconnect", systemImage: "xmark", role: .destructive) {
+                            Button("Sign Out", systemImage: "xmark", role: .destructive) {
                                 assistants.disconnect(assistant)
                             }
                         }
@@ -57,42 +95,9 @@ struct AccountsList: View {
                 }
 
                 ForEach(AIAssistant.allCases.filter { !assistants.connected.contains($0) }) { assistant in
-                    Button("Connect \(assistant.name)", systemImage: "plus") {
+                    Button("Sign In to \(assistant.name)", systemImage: "plus") {
                         connectingAssistant = assistant
                     }
-                }
-            } header: {
-                Text("AI Assistants")
-            } footer: {
-                Text("Shows how much of each assistant's limits you have left, on the home screen, in widgets, and on Apple Watch.")
-            }
-
-            if GoogleAnalytics.isAvailable {
-                Section {
-                    if googleAnalytics.isConnected {
-                        googleAnalyticsPropertyPicker
-
-                        Button("Disconnect", systemImage: "xmark", role: .destructive) {
-                            googleAnalytics.disconnect()
-                            googleAnalyticsProperties = []
-                        }
-                    } else {
-                        Button("Connect Google Analytics", systemImage: "plus") {
-                            Task { await connectGoogleAnalytics() }
-                        }
-                    }
-
-                    if let googleAnalyticsError {
-                        Text(googleAnalyticsError.localizedDescription)
-                            .foregroundStyle(.secondary)
-                    }
-                } header: {
-                    Text("Google Analytics")
-                } footer: {
-                    Text("Shows how many people read about each app on your website, beside its downloads, on the home screen.")
-                }
-                .task(id: googleAnalytics.isConnected) {
-                    await loadGoogleAnalyticsProperties()
                 }
             }
 
@@ -127,6 +132,20 @@ struct AccountsList: View {
         .sheet(item: $connectingAssistant) { assistant in
             AIUsageSignInSheet(assistant: assistant)
         }
+    }
+
+    /// The account the home screen shows, which is the first one until the reader picks another.
+    private var currentAccount: Binding<String> {
+        Binding {
+            accountManager.getApiKey(apiKeyId: keyID)?.id ?? accountManager.accounts.first?.id ?? ""
+        } set: {
+            keyID = $0
+        }
+    }
+
+    private func signOutOfGoogleAnalytics() {
+        googleAnalytics.disconnect()
+        googleAnalyticsProperties = []
     }
 
     /// Which of the reader's Google Analytics properties is the website they write about their apps on.

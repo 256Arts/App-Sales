@@ -33,7 +33,7 @@ struct ACApp: Codable, Identifiable {
         }()
         
         if let imageData {
-            FileManager.default.createFile(atPath: cachedIconURL.path(), contents: imageData)
+            FileManager.default.createFile(atPath: cachedIconURL.path(percentEncoded: false), contents: imageData)
         }
     }
 

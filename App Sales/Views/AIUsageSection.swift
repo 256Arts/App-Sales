@@ -33,7 +33,7 @@ struct AIUsageSection: View {
     var body: some View {
         Section {
             if connected.isEmpty {
-                Text("Connect Claude or Codex in Accounts to see how much of each one's limits you have left, beside the day's sales.")
+                Text("Sign in to Claude or Codex in Accounts to see how much of each one's limits you have left, beside the day's sales.")
                     .foregroundStyle(.secondary)
             }
 
@@ -296,7 +296,7 @@ struct AIUsageSignInSheet: View {
                 }
             }
             .formStyle(.grouped)
-            .navigationTitle("Connect \(assistant.name)")
+            .navigationTitle("Sign In to \(assistant.name)")
             #if !os(macOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -305,7 +305,7 @@ struct AIUsageSignInSheet: View {
                     Button("Cancel", role: .cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Connect") {
+                    Button("Sign In") {
                         Task { await connect() }
                     }
                     .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || connecting)
@@ -351,7 +351,7 @@ struct AIUsageSignInSheet: View {
         let directory = URL(filePath: path)
             .appending(path: credentialsFile)
             .deletingLastPathComponent()
-        return FileManager.default.fileExists(atPath: directory.path()) ? directory : nil
+        return FileManager.default.fileExists(atPath: directory.path(percentEncoded: false)) ? directory : nil
     }
 
     #if os(macOS)

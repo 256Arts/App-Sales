@@ -6,6 +6,7 @@ struct AppSalesApp: App {
     
     init() {
         ScreenshotMode.prepareLaunch()
+        WidgetShots.renderIfRequested()
     }
     
     @AppStorage(UserDefaults.Key.appLaunchCount) var appLaunchCount = 0
@@ -59,8 +60,8 @@ struct AppSalesApp: App {
 
         #if os(macOS)
         // Off until the reader turns it on in the AI Usage options — a menu bar item that installs
-        // itself is one nobody asked for.
-        MenuBarExtra(isInserted: $showsMenuBarExtra) {
+        // itself is one nobody asked for. A screenshot run always shows it, since it is one of the shots.
+        MenuBarExtra(isInserted: ScreenshotMode.isActive ? .constant(true) : $showsMenuBarExtra) {
             AIUsageMenuBar()
         } label: {
             AIUsageMenuBarLabel()

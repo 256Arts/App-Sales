@@ -201,7 +201,7 @@ struct AIUsageWidgetView: View {
     // MARK: Home screen
 
     @ViewBuilder
-    private func system(showingAll: Bool) -> some View {
+    func system(showingAll: Bool) -> some View {
         if entry.usage.isEmpty {
             AIUsageUnavailable(message: entry.message)
         } else {
@@ -219,7 +219,7 @@ struct AIUsageWidgetView: View {
     // MARK: Accessories
 
     @ViewBuilder
-    private var inline: some View {
+    var inline: some View {
         if let usage = headline, let limit = usage.tightestLimit {
             Label("\(usage.assistant.name) \(display.summary(of: limit))", systemImage: usage.assistant.systemImage)
         } else {
@@ -229,7 +229,7 @@ struct AIUsageWidgetView: View {
 
     /// The tightest window's bar, with the assistant above it and when that window resets between.
     @ViewBuilder
-    private var circular: some View {
+    var circular: some View {
         if let usage = headline, let window = usage.tightestWindow, let limit = usage[window] {
             VStack(spacing: 2) {
                 Image(systemName: usage.assistant.systemImage)
@@ -279,7 +279,7 @@ struct AIUsageWidgetView: View {
 
     /// The one accessory family with room for both windows.
     @ViewBuilder
-    private var rectangular: some View {
+    var rectangular: some View {
         if let usage = headline {
             VStack(alignment: .leading, spacing: 1) {
                 Label(usage.assistant.name, systemImage: usage.assistant.systemImage)

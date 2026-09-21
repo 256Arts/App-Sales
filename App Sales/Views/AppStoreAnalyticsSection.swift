@@ -7,8 +7,9 @@ struct AppStoreAnalyticsSection: View {
     let account: Account
     let data: ACData
     let apps: [AppPerformanceSummary]
+    /// Held by the home screen, whose app rows show each app's product page views.
+    @Binding var availability: AnalyticsAvailability?
 
-    @State private var availability: AnalyticsAvailability?
     @State private var error: Error?
     @State private var loadedAt: Date?
 

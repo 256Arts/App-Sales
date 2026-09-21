@@ -9,6 +9,7 @@ struct HomeView: View {
     /// Keyed by Apple ID; empty while Google Analytics is not connected.
     @State private var websiteTraffic: [String: WebPageTraffic] = [:]
     @State private var editingWebsitePage: AppPerformanceSummary?
+    @State private var appStoreAnalytics: AnalyticsAvailability?
     /// Counts pulls to refresh, so the AI usage below the sales refreshes along with them.
     @State private var refreshCount = 0
 
@@ -85,16 +86,20 @@ struct HomeView: View {
                         InsightsView(summary: summary)
 
                         if let selectedKey {
-                            AppStoreAnalyticsSection(account: selectedKey, data: data, apps: summary.apps)
+                            AppStoreAnalyticsSection(account: selectedKey, data: data, apps: summary.apps, availability: $appStoreAnalytics)
                         }
 
+                        let websiteViews = websiteTraffic.mapValues(\.views)
+                        let appStoreViews = appStorePageViews(of: summary.apps)
                         Section {
-                            ForEach(appListSort.sort(summary.apps)) { app in
+                            ForEach(appListSort.sort(summary.apps, websiteViews: websiteViews, appStoreViews: appStoreViews)) { app in
                                 AppRow(
                                     app: app,
                                     iconLength: appListIconLength,
                                     websiteTraffic: websiteTraffic[app.appleID],
-                                    widestWebsiteViews: websiteTraffic.values.map(\.views).max())
+                                    widestWebsiteViews: websiteViews.values.max(),
+                                    appStoreViews: appStoreViews[app.appleID],
+                                    widestAppStoreViews: appStoreViews.values.max())
                                     .contextMenu {
                                         if googleAnalytics.property != nil {
                                             if let url = websiteTraffic[app.appleID]?.url {
@@ -116,7 +121,7 @@ struct HomeView: View {
 
                                 Menu {
                                     Picker("Sort By", selection: $appListSort) {
-                                        ForEach(AppListSort.allCases) { sort in
+                                        ForEach(AppListSort.allCases.filter { isAvailable($0, websiteViews: websiteViews, appStoreViews: appStoreViews) }) { sort in
                                             Label(sort.title, systemImage: sort.systemImage)
                                                 .tag(sort)
                                         }
@@ -195,6 +200,23 @@ struct HomeView: View {
         await loader.load(account: selectedKey, useMemoization: useMemoization)
     }
     
+    /// Each app's product page views over the analytics window; empty until the analytics are ready.
+    private func appStorePageViews(of apps: [AppPerformanceSummary]) -> [String: Int] {
+        guard case .ready(let analytics) = appStoreAnalytics else { return [:] }
+
+        return Dictionary(uniqueKeysWithValues: apps.map { ($0.appleID, analytics.totals(for: $0.appleID).pageViews) })
+    }
+
+    /// The view sorts are offered only once there are views to sort by, though a chosen one stays
+    /// listed so the menu still shows what the list is sorted by.
+    private func isAvailable(_ sort: AppListSort, websiteViews: [String: Int], appStoreViews: [String: Int]) -> Bool {
+        switch sort {
+        case .websiteViews: !websiteViews.isEmpty || sort == appListSort
+        case .appStoreViews: !appStoreViews.isEmpty || sort == appListSort
+        default: true
+        }
+    }
+
     /// What the website traffic depends on, so it reloads when the website, a page, or the apps change.
     private struct WebsiteTrafficQuery: Equatable {
         let property: GoogleAnalyticsProperty?
@@ -227,8 +249,8 @@ struct HomeView: View {
     }
 }
 
-/// One app in the home screen's app list: its icon, its 30-day downloads, proceeds, and website page
-/// views, its price, and a link to its App Store page.
+/// One app in the home screen's app list: its icon, its website and App Store page views, its 30-day downloads, proceeds,
+/// its price, and a link to its App Store page.
 private struct AppRow: View {
 
     let app: AppPerformanceSummary
@@ -237,6 +259,9 @@ private struct AppRow: View {
     /// The most page views any row shows, which sizes the page view column in every row so the
     /// stats after it line up. `nil` when no app has a page, and the column is left out.
     let widestWebsiteViews: Int?
+    /// Product page views, and the column's width, the same way as the website's.
+    let appStoreViews: Int?
+    let widestAppStoreViews: Int?
 
     var body: some View {
         HStack {
@@ -247,7 +272,10 @@ private struct AppRow: View {
 
                 HStack(spacing: 8) {
                     if let widestWebsiteViews {
-                        websiteViews(widest: widestWebsiteViews)
+                        ViewsColumn(views: websiteTraffic?.views, widest: widestWebsiteViews, systemImage: "globe", source: "website page")
+                    }
+                    if let widestAppStoreViews {
+                        ViewsColumn(views: appStoreViews, widest: widestAppStoreViews, systemImage: "doc.text.magnifyingglass", source: "App Store product page")
                     }
                     downloads
                     proceeds
@@ -272,18 +300,6 @@ private struct AppRow: View {
         }
     }
 
-    /// As wide as the widest row's figure whether or not this app has a page, so the column holds.
-    private func websiteViews(widest: Int) -> some View {
-        ZStack(alignment: .leading) {
-            Label(widest.formatted(), systemImage: "globe")
-                .hidden()
-            if let websiteTraffic {
-                Label(websiteTraffic.views.formatted(), systemImage: "globe")
-                    .accessibilityLabel("\(websiteTraffic.views) website page views in the last 30 days")
-            }
-        }
-        .accessibilityHidden(websiteTraffic == nil)
-    }
     /// Downloads and proceeds are both over the last 30 days, matching the summary above the list.
     private var downloads: some View {
         Label(app.downloads.formatted(), systemImage: "arrow.down.app")
@@ -306,6 +322,29 @@ private struct AppRow: View {
         guard app.price > 0 else { return String(localized: "Free") }
 
         return NumberFormatter.currency.string(from: NSNumber(value: app.price)) ?? ""
+    }
+}
+
+/// A page view count, as wide as the widest row's figure whether or not this app has one, so the
+/// column holds.
+private struct ViewsColumn: View {
+
+    let views: Int?
+    let widest: Int
+    let systemImage: String
+    /// Names the page in the spoken label, as in "website page views".
+    let source: String
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            Label(widest.formatted(), systemImage: systemImage)
+                .hidden()
+            if let views {
+                Label(views.formatted(), systemImage: systemImage)
+                    .accessibilityLabel("\(views) \(source) views in the last 30 days")
+            }
+        }
+        .accessibilityHidden(views == nil)
     }
 }
 
