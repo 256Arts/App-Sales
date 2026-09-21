@@ -19,6 +19,7 @@ struct AIUsageMenuBar: View {
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
     @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
+    @AppStorage(UserDefaults.Key.aiUsageMenuBarHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
     @State private var opensAtLogin = LoginItem.isEnabled
 
     /// The oldest reading on screen, since that is how stale the window as a whole is.
@@ -76,6 +77,8 @@ struct AIUsageMenuBar: View {
                                 .tag(style)
                         }
                     }
+
+                    Toggle("Hide Irrelevant Limits", isOn: $hidesUnreachable)
 
                     // Here and not in the app's options: opening at login is only worth it for the
                     // menu bar extra, and without it is a window in the reader's face every morning.
@@ -160,11 +163,27 @@ struct AIUsageMenuBarLabel: View {
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
+    @AppStorage(UserDefaults.Key.aiUsageMenuBarHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
 
     @Environment(\.displayScale) private var displayScale
 
+    /// The limits the label draws — with `hidesUnreachable`, only the ones that can still run out
+    /// before the other does. Never both: with the week out of reach, the five hours are what bite.
+    private var shown: [AIUsage] {
+        guard hidesUnreachable else { return usage }
+        return usage.map { usage in
+            let week = usage.canReachWeek() ? usage.week : nil
+            return AIUsage(
+                assistant: usage.assistant,
+                plan: usage.plan,
+                fiveHour: week == nil || usage.canReachFiveHour ? usage.fiveHour : nil,
+                week: week,
+                fetched: usage.fetched)
+        }
+    }
+
     private var headline: AIUsage? {
-        usage.max { ($0.tightestLimit?.used ?? 0) < ($1.tightestLimit?.used ?? 0) }
+        shown.max { ($0.tightestLimit?.used ?? 0) < ($1.tightestLimit?.used ?? 0) }
     }
 
     private var display: AIUsageDisplay {

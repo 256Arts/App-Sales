@@ -123,4 +123,35 @@ extension AIUsage {
     var tightestLimit: AIUsageLimit? {
         [fiveHour, week].compactMap { $0 }.max { $0.used < $1.used }
     }
+
+    /// Roughly how many full five-hour windows one week's limit holds, for both assistants.
+    static let fiveHourWindowsPerWeek = 9.0
+
+    /// Whether the five-hour window can still run out before the week does.
+    ///
+    /// Not when what is left of the week is less than what is left of this window: with 1% of the
+    /// week to go, a fresh five hours is not the limit that will stop the next job.
+    var canReachFiveHour: Bool {
+        guard let fiveHour, let week else { return true }
+        // A week that empties before this window does refills first.
+        if let weekResets = week.resetsAt, let fiveHourResets = fiveHour.resetsAt, weekResets < fiveHourResets {
+            return true
+        }
+        return (1 - week.used) * Self.fiveHourWindowsPerWeek >= 1 - fiveHour.used
+    }
+
+    /// Whether the week can still run out before it resets.
+    ///
+    /// Not when what is left of it outlasts every five-hour window that fits before the reset, used
+    /// to the full — which assumes working around the clock, so a week that could still bite is
+    /// never hidden.
+    func canReachWeek(at date: Date = .now) -> Bool {
+        guard let fiveHour, let week else { return true }
+        let weekResets = week.resetsAt ?? date.addingTimeInterval(7 * 24 * 60 * 60)
+        // A window nobody has entered starts whenever the next job does.
+        let nextWindow = fiveHour.resetsAt ?? date
+        let currentWindow = fiveHour.resetsAt == nil ? 0 : max(1 - fiveHour.used, 0)
+        let laterWindows = (max(weekResets.timeIntervalSince(nextWindow), 0) / (5 * 60 * 60)).rounded(.up)
+        return (currentWindow + laterWindows) / Self.fiveHourWindowsPerWeek > 1 - week.used
+    }
 }
