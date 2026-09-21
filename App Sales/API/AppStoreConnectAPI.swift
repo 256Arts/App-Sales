@@ -201,6 +201,10 @@ final class AppStoreConnectAPI {
                 filterReportSubType: [.summary],
                 filterFrequency: [.daily],
                 filterReportDate: [date])))
+        } catch APIProvider.Error.requestFailure(404, _, _) {
+            // A day with no sales, or one Apple has not published yet ("Report is not available
+            // yet") — either way that day is empty, not the whole fetch failed.
+            throw APIError.noDataAvailable
         } catch {
             throw APIError(error)
         }
