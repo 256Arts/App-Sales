@@ -18,6 +18,7 @@ struct AIUsageMenuBar: View {
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
+    @AppStorage(UserDefaults.Key.aiUsageGoal, store: UserDefaults.shared) private var goal: AIUsageGoal = .none
     @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
     @AppStorage(UserDefaults.Key.aiUsageMenuBarHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
     @State private var opensAtLogin = LoginItem.isEnabled
@@ -39,7 +40,7 @@ struct AIUsageMenuBar: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 ForEach(usage) { usage in
-                    AIUsageColumn(usage: usage, display: AIUsageDisplay(metric: metric, timeStyle: timeStyle))
+                    AIUsageColumn(usage: usage, display: AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal), showsMetric: true)
                 }
             }
 
@@ -47,7 +48,7 @@ struct AIUsageMenuBar: View {
 
             HStack {
                 Button("Refresh", systemImage: "arrow.clockwise") {
-                    Task { await load(allowingCached: false) }
+                    Task { await load(maxAge: 0) }
                 }
                 .disabled(refreshing)
 
@@ -106,7 +107,7 @@ struct AIUsageMenuBar: View {
         .task { await load() }
     }
 
-    private func load(allowingCached: Bool = true) async {
+    private func load(maxAge: TimeInterval = AIUsageCache.freshness) async {
         refreshing = true
         defer { refreshing = false }
 
@@ -116,7 +117,7 @@ struct AIUsageMenuBar: View {
         // In turn, not at once: a refresh token used twice gets its family revoked.
         for assistant in assistants.connected {
             do {
-                fetched.append(try await assistants.usage(for: assistant, allowingCached: allowingCached))
+                fetched.append(try await assistants.usage(for: assistant, maxAge: maxAge))
             } catch {
                 if let cached = AIUsageCache.usage(for: assistant) {
                     fetched.append(cached)
@@ -132,7 +133,7 @@ struct AIUsageMenuBar: View {
 }
 
 /// Whether the menu bar draws each window's progress as a ring beside its countdown, or as a line
-/// beneath it.
+/// beneath it — or, with reset times hidden, the two lines stacked.
 enum AIUsageMenuBarStyle: String, CaseIterable, Identifiable, Sendable {
     case ring
     case line
@@ -142,7 +143,7 @@ enum AIUsageMenuBarStyle: String, CaseIterable, Identifiable, Sendable {
     var name: String {
         switch self {
         case .ring: String(localized: "Ring")
-        case .line: String(localized: "Underline")
+        case .line: String(localized: "Line")
         }
     }
 }
@@ -157,11 +158,11 @@ enum AIUsageMenuBarStyle: String, CaseIterable, Identifiable, Sendable {
 struct AIUsageMenuBarLabel: View {
 
     @State private var usage: [AIUsage] = AIUsageCache.all()
-    @State private var lastRefresh: Date = .distantPast
     @State private var glyph = NSImage()
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
+    @AppStorage(UserDefaults.Key.aiUsageGoal, store: UserDefaults.shared) private var goal: AIUsageGoal = .none
     @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
     @AppStorage(UserDefaults.Key.aiUsageMenuBarHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
 
@@ -187,20 +188,41 @@ struct AIUsageMenuBarLabel: View {
     }
 
     private var display: AIUsageDisplay {
-        AIUsageDisplay(metric: metric, timeStyle: timeStyle)
+        AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal)
     }
 
     /// A menu bar extra's label draws only text and images, so the rings and lines are rendered to a
     /// template image — which is also what lets the menu bar tint it for a light or dark wallpaper.
     ///
+    /// A template image is one colour, though, and a warning has to be orange. While one is showing,
+    /// the glyph is rendered for both appearances instead and drawn from whichever the menu bar is
+    /// in at the time, which is the one moment that is known.
+    ///
     /// Rendered into state rather than in `body`: an `ImageRenderer` run during the label's update
     /// asks the menu bar extra for another update, and a fresh image each time never settles.
     private func renderGlyph() {
-        let renderer = ImageRenderer(content: AIUsageMenuBarGlyph(usage: headline, display: display, style: style))
+        let content = AIUsageMenuBarGlyph(usage: headline, display: display, style: style)
+
+        guard content.warns else {
+            let image = render(content)
+            image.isTemplate = true
+            glyph = image
+            return
+        }
+
+        let light = render(content.environment(\.colorScheme, .light))
+        let dark = render(content.environment(\.colorScheme, .dark))
+        glyph = NSImage(size: light.size, flipped: false) { rect in
+            let isDark = NSAppearance.currentDrawing().bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+            (isDark ? dark : light).draw(in: rect)
+            return true
+        }
+    }
+
+    private func render(_ content: some View) -> NSImage {
+        let renderer = ImageRenderer(content: content)
         renderer.scale = displayScale
-        let image = renderer.nsImage ?? NSImage()
-        image.isTemplate = true
-        glyph = image
+        return renderer.nsImage ?? NSImage()
     }
 
     private var accessibilityLabel: String {
@@ -214,14 +236,13 @@ struct AIUsageMenuBarLabel: View {
             .onChange(of: GlyphInputs(usage: shown, display: display, style: style, scale: displayScale)) {
                 renderGlyph()
             }
-        // Re-reading the cache every minute picks up whatever the app, the widgets, and the menu bar
-        // window fetched; asking the assistants happens at most once per `freshness`, so a sign-in
-        // that keeps failing is retried on that cadence rather than every minute.
+        // Asks the assistants every minute, so the figure moves while the work is being done. A
+        // sign-in that fails is retried once per `freshness` instead, rather than every minute.
         .task {
+            var retryAt = Date.distantPast
             while !Task.isCancelled {
-                if lastRefresh.timeIntervalSinceNow < -AIUsageCache.freshness {
-                    lastRefresh = .now
-                    await refresh()
+                if retryAt <= .now, await !refresh() {
+                    retryAt = .now.addingTimeInterval(AIUsageCache.freshness)
                 }
                 usage = AIUsageCache.all()
                 // Also what redraws the countdowns each minute between refreshes.
@@ -242,33 +263,68 @@ struct AIUsageMenuBarLabel: View {
     /// Through `AIAssistants.shared.usage(for:)` like every other surface, so a reading another
     /// process saved in the last `freshness` is used as it is, and there is never a second fetch of
     /// the same assistant in flight — a refresh token used twice gets its family revoked, which
-    /// would sign the reader's terminal out. Failures are left to the window, which can explain
-    /// them; up here the last good reading stays on screen.
-    private func refresh() async {
+    /// would sign the reader's terminal out. A window that has run out is not asked about again
+    /// until it resets, since nothing can change before then. Failures are left to the window,
+    /// which can explain them; up here the last good reading stays on screen.
+    ///
+    /// Returns whether every assistant answered.
+    private func refresh() async -> Bool {
         let assistants = AIAssistants.shared
+        var succeeded = true
 
         // In turn, not at once, for the same reason.
         for assistant in assistants.connected {
-            _ = try? await assistants.usage(for: assistant)
+            do {
+                // Half the tick: a reading another process took in the last half minute is as good
+                // as one of our own, and anything older is asked for again.
+                _ = try await assistants.usage(for: assistant, maxAge: 30)
+            } catch {
+                succeeded = false
+            }
         }
+        return succeeded
     }
 }
 
 /// The drawing the menu bar label renders: the assistant's symbol, then the five-hour window and the
-/// week, each as its progress and its countdown. Monochrome, since it becomes a template image.
+/// week, each as its progress and its countdown. Monochrome unless a window warns, since it becomes
+/// a template image.
 private struct AIUsageMenuBarGlyph: View {
 
     let usage: AIUsage?
     let display: AIUsageDisplay
     let style: AIUsageMenuBarStyle
 
+    private static let windows: [AIUsageWindow] = [.fiveHour, .week]
+
+    /// Whether any window is drawn in a warning colour, which a template image cannot show.
+    var warns: Bool {
+        guard let usage else { return false }
+        return Self.windows.contains { window in
+            usage[window].flatMap { display.warning(for: $0, in: window) } != nil
+        }
+    }
+
     var body: some View {
         HStack(spacing: 5) {
             Image(systemName: usage?.assistant.systemImage ?? "gauge.with.dots.needle.33percent")
 
             if let usage {
-                window(usage.fiveHour)
-                window(usage.week)
+                if style == .line, display.timeStyle == .hidden {
+                    // With no countdowns to sit under, the lines stack — five hours over the week.
+                    VStack(spacing: 3) {
+                        ForEach(Self.windows, id: \.self) { window in
+                            if let limit = usage[window] {
+                                AIUsageTrack(fraction: display.fraction(of: limit), tint: tint(for: limit, in: window), height: 3)
+                            }
+                        }
+                    }
+                    .frame(width: 28)
+                } else {
+                    ForEach(Self.windows, id: \.self) { window in
+                        self.window(window, of: usage)
+                    }
+                }
             }
         }
         .font(.system(size: style == .line ? 11 : 12, weight: .medium))
@@ -277,10 +333,15 @@ private struct AIUsageMenuBarGlyph: View {
         .frame(height: 18)
     }
 
+    private func tint(for limit: AIUsageLimit, in window: AIUsageWindow) -> Color {
+        display.warning(for: limit, in: window) ?? .primary
+    }
+
     @ViewBuilder
-    private func window(_ limit: AIUsageLimit?) -> some View {
-        if let limit {
-            let countdown = limit.resetsAt.map { display.countdown(to: $0) }
+    private func window(_ window: AIUsageWindow, of usage: AIUsage) -> some View {
+        if let limit = usage[window] {
+            let countdown = limit.resetsAt.flatMap { display.countdown(to: $0) }
+            let tint = tint(for: limit, in: window)
 
             switch style {
             case .ring:
@@ -290,7 +351,7 @@ private struct AIUsageMenuBarGlyph: View {
                             .stroke(.primary.opacity(0.25), lineWidth: 2)
                         Circle()
                             .trim(from: 0, to: display.fraction(of: limit))
-                            .stroke(.primary, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                            .stroke(tint, style: StrokeStyle(lineWidth: 2, lineCap: .round))
                             .rotationEffect(.degrees(-90))
                     }
                     .frame(width: 11, height: 11)
@@ -308,7 +369,7 @@ private struct AIUsageMenuBarGlyph: View {
                     .frame(minWidth: 28)
                     .padding(.bottom, 4)
                     .overlay(alignment: .bottom) {
-                        AIUsageTrack(fraction: display.fraction(of: limit), tint: .primary, height: 2)
+                        AIUsageTrack(fraction: display.fraction(of: limit), tint: tint, height: 2)
                     }
             }
         }

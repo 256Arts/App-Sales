@@ -10,34 +10,37 @@ import WidgetKit
 /// for the reset line beneath it, which is what `showsReset` is for.
 struct AIUsageBar: View {
 
-    let title: LocalizedStringKey
-    let limit: AIUsageLimit?
+    let window: AIUsageWindow
+    let usage: AIUsage
 
     var display: AIUsageDisplay = .current
     /// The accessory families and the small widget have no room for a second line per bar.
     var showsReset = true
+    /// Whether the figure says which way round it is — "39% left" rather than "39%" — where there is
+    /// room, so a glance does not depend on remembering the setting.
+    var showsMetric = false
 
     var body: some View {
-        if let limit {
+        if let limit = usage[window] {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(title)
+                    Text(window.title)
 
                     Spacer()
 
-                    Text(display.percentage(of: limit))
+                    Text(showsMetric ? display.summary(of: limit) : display.percentage(of: limit))
                         .monospacedDigit()
                 }
 
-                AIUsageTrack(fraction: display.fraction(of: limit), tint: display.tint(for: limit))
+                AIUsageTrack(fraction: display.fraction(of: limit), tint: display.tint(for: limit, in: window))
 
-                if showsReset, let resetsAt = limit.resetsAt, resetsAt > .now {
-                    display.resetText(resetsAt)
+                if showsReset, let resetsAt = limit.resetsAt, resetsAt > .now, let resetText = display.resetText(resetsAt) {
+                    resetText
                         .foregroundStyle(.secondary)
                 }
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(title))
+            .accessibilityLabel(Text(window.title))
             .accessibilityValue(Text(display.summary(of: limit)))
         }
     }
@@ -79,6 +82,7 @@ struct AIUsageColumn: View {
 
     let usage: AIUsage
     var display: AIUsageDisplay = .current
+    var showsMetric = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -98,8 +102,8 @@ struct AIUsageColumn: View {
             .lineLimit(1)
             .minimumScaleFactor(0.8)
 
-            AIUsageBar(title: "5 Hours", limit: usage.fiveHour, display: display)
-            AIUsageBar(title: "Week", limit: usage.week, display: display)
+            AIUsageBar(window: .fiveHour, usage: usage, display: display, showsMetric: showsMetric)
+            AIUsageBar(window: .week, usage: usage, display: display, showsMetric: showsMetric)
 
             Spacer(minLength: 0)
         }
@@ -109,8 +113,8 @@ struct AIUsageColumn: View {
 
 #Preview {
     List {
-        AIUsageBar(title: "5 Hours", limit: AIUsage.examples[0].fiveHour)
-        AIUsageBar(title: "Week", limit: AIUsage.examples[0].week)
+        AIUsageBar(window: .fiveHour, usage: AIUsage.examples[0])
+        AIUsageBar(window: .week, usage: AIUsage.examples[0])
     }
     .font(.footnote)
 }

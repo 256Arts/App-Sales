@@ -11,6 +11,7 @@ extension UserDefaults {
         /// bar extra draw the same figures and have to agree with the app about which way round.
         static let aiUsageMetric = "aiUsageMetric"
         static let aiUsageTimeStyle = "aiUsageTimeStyle"
+        static let aiUsageGoal = "aiUsageGoal"
         static let aiUsageMenuBarExtra = "aiUsageMenuBarExtra"
         static let aiUsageMenuBarStyle = "aiUsageMenuBarStyle"
         static let aiUsageMenuBarHidesUnreachable = "aiUsageMenuBarHidesUnreachable"

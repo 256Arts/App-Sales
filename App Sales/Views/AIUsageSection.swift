@@ -17,9 +17,10 @@ struct AIUsageSection: View {
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
+    @AppStorage(UserDefaults.Key.aiUsageGoal, store: UserDefaults.shared) private var goal: AIUsageGoal = .none
 
     private var display: AIUsageDisplay {
-        AIUsageDisplay(metric: metric, timeStyle: timeStyle)
+        AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal)
     }
     private var connected: [AIAssistant] {
         ScreenshotMode.isActive ? AIUsage.examples.map(\.assistant) : assistants.connected
@@ -43,7 +44,7 @@ struct AIUsageSection: View {
 
                 Menu {
                     Button("Refresh", systemImage: "arrow.clockwise") {
-                        Task { await load(allowingCached: false) }
+                        Task { await load(maxAge: 0) }
                     }
 
                     Divider()
@@ -65,7 +66,7 @@ struct AIUsageSection: View {
         }
     }
 
-    private func load(allowingCached: Bool = true) async {
+    private func load(maxAge: TimeInterval = AIUsageCache.freshness) async {
         guard !ScreenshotMode.isActive else {
             usage = Dictionary(uniqueKeysWithValues: AIUsage.examples.map { ($0.assistant, $0) })
             return
@@ -76,7 +77,7 @@ struct AIUsageSection: View {
         // reader's own terminal out, not just App Sales.
         for assistant in assistants.connected {
             do {
-                usage[assistant] = try await assistants.usage(for: assistant, allowingCached: allowingCached)
+                usage[assistant] = try await assistants.usage(for: assistant, maxAge: maxAge)
                 errors[assistant] = nil
             } catch {
                 errors[assistant] = error.localizedDescription
@@ -108,8 +109,8 @@ private struct AIUsageRow: View {
             }
 
             if let usage {
-                AIUsageBar(title: "5 Hours", limit: usage.fiveHour, display: display)
-                AIUsageBar(title: "Week", limit: usage.week, display: display)
+                AIUsageBar(window: .fiveHour, usage: usage, display: display)
+                AIUsageBar(window: .week, usage: usage, display: display)
             } else if let error {
                 Text(error)
                     .font(.footnote)
@@ -133,6 +134,7 @@ struct AIUsageOptions: View {
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
+    @AppStorage(UserDefaults.Key.aiUsageGoal, store: UserDefaults.shared) private var goal: AIUsageGoal = .none
     #if os(macOS)
     @AppStorage(UserDefaults.Key.aiUsageMenuBarExtra, store: UserDefaults.shared) private var showsMenuBarExtra = false
     #endif
@@ -151,6 +153,13 @@ struct AIUsageOptions: View {
             ForEach(AIUsageTimeStyle.allCases) { style in
                 Text(style.name)
                     .tag(style)
+            }
+        }
+
+        Picker("Goal", selection: binding($goal)) {
+            ForEach(AIUsageGoal.allCases) { goal in
+                Text(goal.name)
+                    .tag(goal)
             }
         }
 

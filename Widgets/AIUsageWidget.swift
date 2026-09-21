@@ -259,8 +259,8 @@ struct AIUsageWidgetView: View {
                     .font(.headline)
                     .widgetAccentable()
 
-                AIUsageBar(title: "5 Hours", limit: usage.fiveHour, display: display, showsReset: false)
-                AIUsageBar(title: "Week", limit: usage.week, display: display, showsReset: false)
+                AIUsageBar(window: .fiveHour, usage: usage, display: display, showsReset: false)
+                AIUsageBar(window: .week, usage: usage, display: display, showsReset: false)
             }
             .font(.caption)
             .frame(maxWidth: .infinity, alignment: .leading)
