@@ -83,9 +83,7 @@ struct SummarySmall: View {
         }
         .allowsTightening(true)
         .frame(idealWidth: .infinity, maxWidth: .infinity, alignment: .leading)
-        #if canImport(UIKit)
-        .containerBackground(Color(UIColor.systemBackground), for: .widget)
-        #endif
+        .containerBackground(.background, for: .widget)
     }
     
     private var appOutlineColor: Color {

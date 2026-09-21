@@ -20,7 +20,7 @@ enum AIAssistant: String, Codable, CaseIterable, Identifiable, Sendable {
 
     var systemImage: String {
         switch self {
-        case .claude: "sparkle"
+        case .claude: "asterisk"
         case .codex: "chevron.left.forwardslash.chevron.right"
         }
     }
@@ -61,7 +61,7 @@ extension AIAssistant: AppEnum {
     /// compile the widget configuration's picker.
     static var caseDisplayRepresentations: [AIAssistant: DisplayRepresentation] {
         [
-            .claude: DisplayRepresentation(title: "Claude", image: .init(systemName: "sparkle")),
+            .claude: DisplayRepresentation(title: "Claude", image: .init(systemName: "asterisk")),
             .codex: DisplayRepresentation(title: "Codex", image: .init(systemName: "chevron.left.forwardslash.chevron.right")),
         ]
     }

@@ -18,6 +18,13 @@ struct AIUsageMenuBar: View {
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
+    @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
+    @State private var opensAtLogin = LoginItem.isEnabled
+
+    /// The oldest reading on screen, since that is how stale the window as a whole is.
+    private var lastRefresh: Date? {
+        usage.map(\.fetched).min()
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -45,8 +52,39 @@ struct AIUsageMenuBar: View {
 
                 Spacer()
 
+                Group {
+                    if refreshing {
+                        Text("Updating…")
+                    } else if let lastRefresh {
+                        TimelineView(.periodic(from: .now, by: 1)) { _ in
+                            Text("Updated \(lastRefresh, format: .relative(presentation: .numeric, unitsStyle: .abbreviated))")
+                        }
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+
+                Spacer()
+
                 Menu {
                     AIUsageOptions()
+
+                    Picker("Menu Bar Progress", selection: $style) {
+                        ForEach(AIUsageMenuBarStyle.allCases) { style in
+                            Text(style.name)
+                                .tag(style)
+                        }
+                    }
+
+                    // Here and not in the app's options: opening at login is only worth it for the
+                    // menu bar extra, and without it is a window in the reader's face every morning.
+                    Toggle("Open at Login", isOn: Binding {
+                        opensAtLogin
+                    } set: { newValue in
+                        // System Settings can refuse, so the toggle follows what the status ended up as.
+                        opensAtLogin = LoginItem.setEnabled(newValue)
+                    })
 
                     Divider()
 
@@ -92,8 +130,24 @@ struct AIUsageMenuBar: View {
     }
 }
 
-/// What sits in the menu bar itself: the window closest to running out, so the figure on screen is
-/// always the one about to stop the next job.
+/// Whether the menu bar draws each window's progress as a ring beside its countdown, or as a line
+/// beneath it.
+enum AIUsageMenuBarStyle: String, CaseIterable, Identifiable, Sendable {
+    case ring
+    case line
+
+    var id: String { rawValue }
+
+    var name: String {
+        switch self {
+        case .ring: String(localized: "Ring")
+        case .line: String(localized: "Underline")
+        }
+    }
+}
+
+/// What sits in the menu bar itself: the assistant closest to running out, with both of its windows
+/// — how far through each is, and how long until it empties.
 ///
 /// This is also what keeps the figure fresh with no window open. The label exists only while the
 /// extra is inserted, so its task is the refresh that lives exactly as long as the menu bar item —
@@ -105,19 +159,38 @@ struct AIUsageMenuBarLabel: View {
     @State private var lastRefresh: Date = .distantPast
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
+    @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
 
-    private var headline: (AIUsage, AIUsageLimit)? {
-        let tightest = usage.compactMap { usage in usage.tightestLimit.map { (usage, $0) } }
-        return tightest.max { $0.1.used < $1.1.used }
+    @Environment(\.displayScale) private var displayScale
+
+    private var headline: AIUsage? {
+        usage.max { ($0.tightestLimit?.used ?? 0) < ($1.tightestLimit?.used ?? 0) }
+    }
+
+    private var display: AIUsageDisplay {
+        AIUsageDisplay(metric: metric, timeStyle: .relative)
+    }
+
+    /// A menu bar extra's label draws only text and images, so the rings and lines are rendered to a
+    /// template image — which is also what lets the menu bar tint it for a light or dark wallpaper.
+    private var glyph: NSImage {
+        let renderer = ImageRenderer(content: AIUsageMenuBarGlyph(usage: headline, display: display, style: style))
+        renderer.scale = displayScale
+        let image = renderer.nsImage ?? NSImage()
+        image.isTemplate = true
+        return image
+    }
+
+    private var accessibilityLabel: String {
+        guard let headline, let limit = headline.tightestLimit else { return String(localized: "AI Usage") }
+        return "\(headline.assistant.name) \(display.summary(of: limit))"
     }
 
     var body: some View {
-        Group {
-            if let (usage, limit) = headline {
-                Label(AIUsageDisplay(metric: metric, timeStyle: .relative).percentage(of: limit), systemImage: usage.assistant.systemImage)
-            } else {
-                Image(systemName: "gauge.with.dots.needle.33percent")
-            }
+        // `TimelineView` redraws the countdowns each minute between refreshes.
+        TimelineView(.everyMinute) { _ in
+            Image(nsImage: glyph)
+                .accessibilityLabel(accessibilityLabel)
         }
         // Re-reading the cache every minute picks up whatever the app, the widgets, and the menu bar
         // window fetched; asking the assistants happens at most once per `freshness`, so a sign-in
@@ -145,6 +218,64 @@ struct AIUsageMenuBarLabel: View {
         // In turn, not at once, for the same reason.
         for assistant in assistants.connected {
             _ = try? await assistants.usage(for: assistant)
+        }
+    }
+}
+
+/// The drawing the menu bar label renders: the assistant's symbol, then the five-hour window and the
+/// week, each as its progress and its countdown. Monochrome, since it becomes a template image.
+private struct AIUsageMenuBarGlyph: View {
+
+    let usage: AIUsage?
+    let display: AIUsageDisplay
+    let style: AIUsageMenuBarStyle
+
+    var body: some View {
+        HStack(spacing: 5) {
+            Image(systemName: usage?.assistant.systemImage ?? "gauge.with.dots.needle.33percent")
+
+            if let usage {
+                window(usage.fiveHour)
+                window(usage.week)
+            }
+        }
+        .font(.system(size: style == .line ? 11 : 12, weight: .medium))
+        .monospacedDigit()
+        .fixedSize()
+        .frame(height: 18)
+    }
+
+    @ViewBuilder
+    private func window(_ limit: AIUsageLimit?) -> some View {
+        if let limit {
+            let countdown = limit.resetsAt.map { display.countdown(to: $0) }
+
+            switch style {
+            case .ring:
+                HStack(spacing: 3) {
+                    ZStack {
+                        Circle()
+                            .stroke(.primary.opacity(0.25), lineWidth: 2)
+                        Circle()
+                            .trim(from: 0, to: display.fraction(of: limit))
+                            .stroke(.primary, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                    }
+                    .frame(width: 11, height: 11)
+
+                    if let countdown {
+                        Text(countdown)
+                    }
+                }
+            case .line:
+                // A window nobody has entered has no countdown; the line still needs something to
+                // sit under.
+                Text(countdown ?? display.percentage(of: limit))
+                    .padding(.bottom, 4)
+                    .overlay(alignment: .bottom) {
+                        AIUsageTrack(fraction: display.fraction(of: limit), tint: .primary, height: 2)
+                    }
+            }
         }
     }
 }

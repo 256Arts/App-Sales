@@ -135,7 +135,6 @@ struct AIUsageOptions: View {
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
     #if os(macOS)
     @AppStorage(UserDefaults.Key.aiUsageMenuBarExtra, store: UserDefaults.shared) private var showsMenuBarExtra = false
-    @State private var opensAtLogin = LoginItem.isEnabled
     #endif
 
     var body: some View {
@@ -159,16 +158,6 @@ struct AIUsageOptions: View {
         Divider()
 
         Toggle("Show in Menu Bar", isOn: $showsMenuBarExtra)
-
-        Toggle("Open at Login", isOn: Binding {
-            opensAtLogin
-        } set: { newValue in
-            // System Settings can refuse, so the toggle follows what the status ended up as.
-            opensAtLogin = LoginItem.setEnabled(newValue)
-        })
-        // Only useful alongside the menu bar extra: without it, opening at login is a window in the
-        // reader's face every morning.
-        .disabled(!showsMenuBarExtra)
         #endif
     }
 

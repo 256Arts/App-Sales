@@ -12,6 +12,7 @@ extension UserDefaults {
         static let aiUsageMetric = "aiUsageMetric"
         static let aiUsageTimeStyle = "aiUsageTimeStyle"
         static let aiUsageMenuBarExtra = "aiUsageMenuBarExtra"
+        static let aiUsageMenuBarStyle = "aiUsageMenuBarStyle"
     }
     
     func register() {

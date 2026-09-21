@@ -94,6 +94,13 @@ struct AIUsageDisplay: Equatable, Sendable {
         }
     }
 
+    /// How long until the window empties, in the fewest characters that still say it: "2h", "3d".
+    /// For the menu bar, which has room for neither the word "Resets" nor a clock time.
+    func countdown(to date: Date) -> String {
+        Duration.seconds(max(date.timeIntervalSinceNow, 0))
+            .formatted(.units(allowed: [.days, .hours, .minutes], width: .narrow, maximumUnitCount: 1))
+    }
+
     /// The same three-step reading as a battery: fine, getting low, nearly out.
     ///
     /// Always keyed off how much is *gone*, whichever way round the number is being shown — the

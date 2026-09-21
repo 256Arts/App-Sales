@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 /// How much of one rate limit window is gone — or left — as a bar that warms as it fills.
 ///
@@ -16,7 +19,7 @@ struct AIUsageBar: View {
 
     var body: some View {
         if let limit {
-            ProgressView(value: display.fraction(of: limit)) {
+            VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(title)
 
@@ -25,17 +28,46 @@ struct AIUsageBar: View {
                     Text(display.percentage(of: limit))
                         .monospacedDigit()
                 }
-            } currentValueLabel: {
+
+                AIUsageTrack(fraction: display.fraction(of: limit), tint: display.tint(for: limit))
+
                 if showsReset, let resetsAt = limit.resetsAt, resetsAt > .now {
                     display.resetText(resetsAt)
                         .foregroundStyle(.secondary)
                 }
             }
-            .tint(display.tint(for: limit))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text(title))
             .accessibilityValue(Text(display.summary(of: limit)))
         }
+    }
+}
+
+/// The bar on its own: a faint track and a fill.
+///
+/// Drawn rather than a `ProgressView`, because a tinted widget flattens a `ProgressView`'s track and
+/// fill into one solid colour, so the bar reads as full whatever the figure. Here the track keeps its
+/// transparency and only the fill is accented. The menu bar label draws the same bar under its text.
+struct AIUsageTrack: View {
+
+    let fraction: Double
+    var tint: Color = .accentColor
+    var height: CGFloat = 4
+
+    var body: some View {
+        Capsule()
+            .fill(.primary.opacity(0.2))
+            .overlay(alignment: .leading) {
+                GeometryReader { proxy in
+                    Capsule()
+                        .fill(tint)
+                        .frame(width: max(proxy.size.width * fraction, fraction > 0 ? height : 0))
+                        #if canImport(WidgetKit)
+                        .widgetAccentable()
+                        #endif
+                }
+            }
+            .frame(height: height)
     }
 }
 

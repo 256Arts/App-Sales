@@ -18,15 +18,7 @@ struct ErrorWidget: View {
             Spacer()
         }
         .frame(idealWidth: .infinity, maxWidth: .infinity, alignment: .leading)
-        .containerBackground(backgroundColor, for: .widget)
-    }
-    
-    private var backgroundColor: Color {
-        #if canImport(UIKit)
-        Color(UIColor.systemBackground)
-        #else
-        Color(NSColor.windowBackgroundColor)
-        #endif
+        .containerBackground(.background, for: .widget)
     }
 }
 
