@@ -141,7 +141,7 @@
 				Views/AppStoreAnalyticsSection.swift,
 				Views/HomeView.swift,
 				Views/NewAccountView.swift,
-				Views/WebsiteTrafficSection.swift,
+				Views/WebsitePageEditor.swift,
 			);
 			target = 45E8C4932612531D007F9B0E /* WidgetsExtension */;
 		};
@@ -186,7 +186,7 @@
 				Views/HomeView.swift,
 				Views/InsightsView.swift,
 				Views/NewAccountView.swift,
-				Views/WebsiteTrafficSection.swift,
+				Views/WebsitePageEditor.swift,
 			);
 			target = 1BC0FFEE0000000000000001 /* App Sales Watch App */;
 		};
@@ -219,7 +219,7 @@
 				Views/HomeView.swift,
 				Views/InsightsView.swift,
 				Views/NewAccountView.swift,
-				Views/WebsiteTrafficSection.swift,
+				Views/WebsitePageEditor.swift,
 			);
 			target = 1BC0FFEE0000000000000018 /* Watch Widgets */;
 		};

@@ -5,6 +5,9 @@ struct HomeView: View {
     @State var loader = SalesDataLoader()
 
     @State var showingAccountsList = false
+    @State private var googleAnalytics = GoogleAnalytics.shared
+    /// Keyed by Apple ID; empty while Google Analytics is not connected.
+    @State private var websiteTraffic: [String: WebPageTraffic] = [:]
     @State private var editingWebsitePage: AppPerformanceSummary?
 
     @Environment(AccountManager.self) var accountManager
@@ -88,11 +91,21 @@ struct HomeView: View {
                             AppStoreAnalyticsSection(account: selectedKey, data: data, apps: summary.apps)
                         }
 
-                        WebsiteTrafficSection(apps: summary.apps, editingApp: $editingWebsitePage)
-
                         Section {
                             ForEach(appListSort.sort(summary.apps)) { app in
-                                AppRow(app: app, iconLength: appListIconLength)
+                                AppRow(app: app, iconLength: appListIconLength, websiteTraffic: websiteTraffic[app.appleID])
+                                    .contextMenu {
+                                        if googleAnalytics.property != nil {
+                                            if let url = websiteTraffic[app.appleID]?.url {
+                                                Link(destination: url) {
+                                                    Label("Open Website Page", systemImage: "safari")
+                                                }
+                                            }
+                                            Button("Set Website Page…", systemImage: "pencil") {
+                                                editingWebsitePage = app
+                                            }
+                                        }
+                                    }
                             }
                         } header: {
                             HStack {
@@ -122,7 +135,10 @@ struct HomeView: View {
                 .refreshable {
                     await fetchData(useMemoization: false)
                 }
-                .websitePageEditor(for: $editingWebsitePage)
+                .websitePageEditor(for: $editingWebsitePage, currentURL: editingWebsitePage.flatMap { websiteTraffic[$0.appleID]?.url })
+                .task(id: WebsiteTrafficQuery(property: googleAnalytics.property, pageURLs: googleAnalytics.pageURLs, appIDs: loader.summary?.apps.map(\.appleID) ?? [])) {
+                    await loadWebsiteTraffic()
+                }
             } else if let error = loader.error {
                 VStack(spacing: 20) {
                     Text(error.localizedDescription)
@@ -189,6 +205,25 @@ struct HomeView: View {
         await loader.load(account: selectedKey, useMemoization: useMemoization)
     }
     
+    /// What the website traffic depends on, so it reloads when the website, a page, or the apps change.
+    private struct WebsiteTrafficQuery: Equatable {
+        let property: GoogleAnalyticsProperty?
+        let pageURLs: [String: URL]
+        let appIDs: [String]
+    }
+
+    private func loadWebsiteTraffic() async {
+        guard GoogleAnalytics.isAvailable, googleAnalytics.property != nil, let apps = loader.summary?.apps else {
+            websiteTraffic = [:]
+            return
+        }
+
+        // A failed fetch keeps the last figures rather than blanking every row.
+        if let traffic = try? await googleAnalytics.traffic(for: apps.map { ($0.appleID, $0.name) }) {
+            websiteTraffic = traffic
+        }
+    }
+
     private func updatedDateString(lastRefreshDate: Date) -> String {
         guard lastRefreshDate != .distantPast else { return "" }
         
@@ -202,12 +237,13 @@ struct HomeView: View {
     }
 }
 
-/// One app in the home screen's app list: its icon, its 30-day downloads and proceeds, its price,
-/// and a link to its App Store page.
+/// One app in the home screen's app list: its icon, its 30-day downloads, proceeds, and website page
+/// views, its price, and a link to its App Store page.
 private struct AppRow: View {
 
     let app: AppPerformanceSummary
     let iconLength: CGFloat
+    let websiteTraffic: WebPageTraffic?
 
     var body: some View {
         HStack {
@@ -219,8 +255,12 @@ private struct AppRow: View {
                 HStack(spacing: 8) {
                     downloads
                     proceeds
+                    if let websiteTraffic {
+                        Label(websiteTraffic.views.formatted(), systemImage: "safari")
+                            .accessibilityLabel("\(websiteTraffic.views) website page views in the last 30 days")
+                    }
                     price
-                    // Soaks up the width the row has spare, so the three stay grouped
+                    // Soaks up the width the row has spare, so the stats stay grouped
                     // at the leading edge rather than spreading across the row.
                     Spacer(minLength: 0)
                 }

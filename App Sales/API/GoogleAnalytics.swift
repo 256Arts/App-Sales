@@ -12,8 +12,9 @@ struct GoogleAnalyticsProperty: Codable, Hashable, Identifiable {
 
 /// Views of an app's page on the developer's website.
 struct WebPageTraffic: Hashable {
+    /// The page counted: the one the reader set, or the one found by the app's name.
+    let url: URL
     let views: Int
-    let users: Int
 }
 
 enum GoogleAnalyticsError: LocalizedError {
@@ -230,40 +231,28 @@ final class GoogleAnalytics {
         return properties
     }
 
-    /// Each app's page traffic over the last 30 days, the window the home screen counts downloads in.
-    /// Apps without a page are left out.
-    func traffic() async throws -> [String: WebPageTraffic] {
+    /// Each app's page traffic over the last 30 days, the window the home screen counts downloads in,
+    /// keyed by Apple ID. An app's page is the one the reader set or, failing that, any page whose last
+    /// path component spells the app's name — `256arts.com/spritepencil` for Sprite Pencil. Apps with
+    /// no page are left out.
+    func traffic(for apps: [(appleID: String, name: String)]) async throws -> [String: WebPageTraffic] {
         guard let property else { throw GoogleAnalyticsError.notConnected }
 
-        return try await withThrowingTaskGroup(of: (String, WebPageTraffic).self) { group in
-            for (appleID, url) in pageURLs {
-                group.addTask { (appleID, try await self.traffic(of: url, in: property)) }
-            }
-            return try await group.reduce(into: [:]) { $0[$1.0] = $1.1 }
-        }
-    }
-
-    private func traffic(of url: URL, in property: GoogleAnalyticsProperty) async throws -> WebPageTraffic {
         struct Report: Decodable {
             struct Row: Decodable {
                 struct Value: Decodable { let value: String }
+                let dimensionValues: [Value]
                 let metricValues: [Value]
             }
             let rows: [Row]?
         }
 
-        // The same page is often reachable with and without `www.` and a trailing slash.
-        let host = (url.host() ?? "").replacing(/^www\./, with: "")
-        let path = url.path().isEmpty ? "/" : url.path()
-        let paths = path == "/" ? [path] : [path.hasSuffix("/") ? String(path.dropLast()) : path, path.hasSuffix("/") ? path : path + "/"]
+        // One report of every page, rather than one per app, so matching by name costs nothing extra.
         let body: [String: Any] = [
             "dateRanges": [["startDate": "30daysAgo", "endDate": "today"]],
-            // No dimensions, so Google counts each user once across the page's variants.
-            "metrics": [["name": "screenPageViews"], ["name": "totalUsers"]],
-            "dimensionFilter": ["andGroup": ["expressions": [
-                ["filter": ["fieldName": "hostName", "inListFilter": ["values": [host, "www." + host]]]],
-                ["filter": ["fieldName": "pagePath", "inListFilter": ["values": paths]]],
-            ]]],
+            "dimensions": [["name": "hostName"], ["name": "pagePath"]],
+            "metrics": [["name": "screenPageViews"]],
+            "limit": 10_000,
         ]
 
         var request = URLRequest(url: URL(string: "https://analyticsdata.googleapis.com/v1beta/\(property.id):runReport") ?? URL(filePath: "/"))
@@ -272,8 +261,64 @@ final class GoogleAnalytics {
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let report: Report = try await send(request)
-        let values = report.rows?.first?.metricValues.map { Int($0.value) ?? 0 } ?? []
-        return WebPageTraffic(views: values.first ?? 0, users: values.dropFirst().first ?? 0)
+
+        // The same page is often reachable with and without `www.` and a trailing slash; those count together.
+        var pages: [WebPage: Int] = [:]
+        for row in report.rows ?? [] {
+            guard row.dimensionValues.count == 2 else { continue }
+            let page = WebPage(host: row.dimensionValues[0].value, path: row.dimensionValues[1].value)
+            pages[page, default: 0] += Int(row.metricValues.first?.value ?? "") ?? 0
+        }
+
+        var traffic: [String: WebPageTraffic] = [:]
+        for app in apps {
+            if let url = pageURLs[app.appleID] {
+                traffic[app.appleID] = WebPageTraffic(url: url, views: pages[WebPage(url)] ?? 0)
+            } else if let match = Self.page(named: app.name, in: pages) {
+                traffic[app.appleID] = WebPageTraffic(url: match.page.url, views: match.views)
+            }
+        }
+        return traffic
+    }
+
+    /// The most viewed page whose last path component is the app's name, with or without its
+    /// App Store subtitle ("Sprite Pencil: Pixel Art" is `spritepencil`).
+    private static func page(named name: String, in pages: [WebPage: Int]) -> (page: WebPage, views: Int)? {
+        let full = WebPage.slug(name)
+        let short = WebPage.slug(String(name.prefix { !":–—|".contains($0) }).replacing(#/ - .*/#, with: ""))
+        return pages
+            .filter { !$0.key.lastComponent.isEmpty && [full, short].contains($0.key.lastComponent) }
+            .max { $0.value < $1.value }
+            .map { ($0.key, $0.value) }
+    }
+
+    /// A page with the variants Google counts apart folded together: `www.`, the trailing slash, and letter case.
+    private struct WebPage: Hashable {
+        let host: String
+        let path: String
+
+        init(host: String, path: String) {
+            self.host = host.lowercased().replacing(/^www\./, with: "")
+            let path = path.lowercased().split(separator: "?").first.map(String.init) ?? ""
+            self.path = path.count > 1 && path.hasSuffix("/") ? String(path.dropLast()) : (path.isEmpty ? "/" : path)
+        }
+
+        init(_ url: URL) {
+            self.init(host: url.host() ?? "", path: url.path())
+        }
+
+        var url: URL {
+            URL(string: "https://" + host + path) ?? URL(filePath: "/")
+        }
+
+        var lastComponent: String {
+            Self.slug(path.split(separator: "/").last.map(String.init) ?? "")
+        }
+
+        /// Letters and digits only, so "Sprite Pencil", `sprite-pencil`, and `spritepencil` all agree.
+        static func slug(_ text: String) -> String {
+            String(text.lowercased().filter { $0.isLetter || $0.isNumber })
+        }
     }
 
     private struct ErrorResponse: Decodable {
