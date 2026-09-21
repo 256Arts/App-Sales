@@ -160,6 +160,7 @@ struct AIUsageMenuBarLabel: View {
 
     @State private var usage: [AIUsage] = AIUsageCache.all()
     @State private var lastRefresh: Date = .distantPast
+    @State private var glyph = NSImage()
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
@@ -192,12 +193,15 @@ struct AIUsageMenuBarLabel: View {
 
     /// A menu bar extra's label draws only text and images, so the rings and lines are rendered to a
     /// template image — which is also what lets the menu bar tint it for a light or dark wallpaper.
-    private var glyph: NSImage {
+    ///
+    /// Rendered into state rather than in `body`: an `ImageRenderer` run during the label's update
+    /// asks the menu bar extra for another update, and a fresh image each time never settles.
+    private func renderGlyph() {
         let renderer = ImageRenderer(content: AIUsageMenuBarGlyph(usage: headline, display: display, style: style))
         renderer.scale = displayScale
         let image = renderer.nsImage ?? NSImage()
         image.isTemplate = true
-        return image
+        glyph = image
     }
 
     private var accessibilityLabel: String {
@@ -206,11 +210,11 @@ struct AIUsageMenuBarLabel: View {
     }
 
     var body: some View {
-        // `TimelineView` redraws the countdowns each minute between refreshes.
-        TimelineView(.everyMinute) { _ in
-            Image(nsImage: glyph)
-                .accessibilityLabel(accessibilityLabel)
-        }
+        Image(nsImage: glyph)
+            .accessibilityLabel(accessibilityLabel)
+            .onChange(of: GlyphInputs(usage: shown, display: display, style: style, scale: displayScale)) {
+                renderGlyph()
+            }
         // Re-reading the cache every minute picks up whatever the app, the widgets, and the menu bar
         // window fetched; asking the assistants happens at most once per `freshness`, so a sign-in
         // that keeps failing is retried on that cadence rather than every minute.
@@ -221,9 +225,19 @@ struct AIUsageMenuBarLabel: View {
                     await refresh()
                 }
                 usage = AIUsageCache.all()
+                // Also what redraws the countdowns each minute between refreshes.
+                renderGlyph()
                 try? await Task.sleep(for: .seconds(60))
             }
         }
+    }
+
+    /// Everything the glyph is drawn from, so it is redrawn when any of it changes.
+    private struct GlyphInputs: Equatable {
+        let usage: [AIUsage]
+        let display: AIUsageDisplay
+        let style: AIUsageMenuBarStyle
+        let scale: CGFloat
     }
 
     /// Through `AIAssistants.shared.usage(for:)` like every other surface, so a reading another
