@@ -57,9 +57,7 @@ struct AIUsageMenuBar: View {
                     if refreshing {
                         Text("Updating…")
                     } else if let lastRefresh {
-                        TimelineView(.periodic(from: .now, by: 1)) { _ in
-                            Text("Updated \(lastRefresh, format: .relative(presentation: .numeric, unitsStyle: .abbreviated))")
-                        }
+                        Text("Updated \(Text(.currentDate, format: .reference(to: lastRefresh, allowedFields: [.day, .hour, .minute, .second], maxFieldCount: 1)))")
                     }
                 }
                 .font(.caption)
@@ -163,6 +161,7 @@ struct AIUsageMenuBarLabel: View {
     @State private var glyph = NSImage()
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
+    @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
     @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
     @AppStorage(UserDefaults.Key.aiUsageMenuBarHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
 
@@ -188,7 +187,7 @@ struct AIUsageMenuBarLabel: View {
     }
 
     private var display: AIUsageDisplay {
-        AIUsageDisplay(metric: metric, timeStyle: .relative)
+        AIUsageDisplay(metric: metric, timeStyle: timeStyle)
     }
 
     /// A menu bar extra's label draws only text and images, so the rings and lines are rendered to a
@@ -303,7 +302,10 @@ private struct AIUsageMenuBarGlyph: View {
             case .line:
                 // A window nobody has entered has no countdown; the line still needs something to
                 // sit under.
+                // At least wide enough that a few percent of progress shows as more than a dot, even
+                // under a countdown as short as "3d".
                 Text(countdown ?? display.percentage(of: limit))
+                    .frame(minWidth: 28)
                     .padding(.bottom, 4)
                     .overlay(alignment: .bottom) {
                         AIUsageTrack(fraction: display.fraction(of: limit), tint: .primary, height: 2)

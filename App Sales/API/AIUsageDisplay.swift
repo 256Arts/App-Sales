@@ -94,11 +94,25 @@ struct AIUsageDisplay: Equatable, Sendable {
         }
     }
 
-    /// How long until the window empties, in the fewest characters that still say it: "2h", "3d".
-    /// For the menu bar, which has room for neither the word "Resets" nor a clock time.
+    /// When the window empties, in the fewest characters that still say it — "2h 15m", "3d", or
+    /// "4:30 PM" when the reader asked for clock times. For the menu bar, which has no room for the
+    /// word "Resets".
+    ///
+    /// Under a day a countdown keeps its minutes: a five-hour window always is, and "2h" rounds away
+    /// most of what is worth knowing about it.
     func countdown(to date: Date) -> String {
-        Duration.seconds(max(date.timeIntervalSinceNow, 0))
-            .formatted(.units(allowed: [.days, .hours, .minutes], width: .narrow, maximumUnitCount: 1))
+        switch timeStyle {
+        case .relative:
+            let seconds = max(date.timeIntervalSinceNow, 0)
+            return Duration.seconds(seconds).formatted(.units(
+                allowed: [.days, .hours, .minutes],
+                width: .narrow,
+                maximumUnitCount: seconds < 24 * 60 * 60 ? 2 : 1))
+        case .absolute:
+            return Calendar.autoupdatingCurrent.isDateInToday(date)
+                ? date.formatted(.dateTime.hour().minute())
+                : date.formatted(.dateTime.weekday(.abbreviated).hour())
+        }
     }
 
     /// The same three-step reading as a battery: fine, getting low, nearly out.
