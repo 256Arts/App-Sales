@@ -1,16 +1,15 @@
 import SwiftUI
-import AuthenticationServices
 
 /// The home screen's website traffic: views of each app's page on the developer's own site, from
 /// Google Analytics, beside its downloads — how many people read about an app against how many get it.
+///
+/// Connecting Google Analytics and picking the website happen in Accounts, beside every other
+/// sign-in; this section only reports.
 struct WebsiteTrafficSection: View {
 
     let apps: [AppPerformanceSummary]
 
-    @Environment(\.webAuthenticationSession) private var webAuthenticationSession
-
     @State private var googleAnalytics = GoogleAnalytics.shared
-    @State private var properties: [GoogleAnalyticsProperty] = []
     @State private var traffic: [String: WebPageTraffic] = [:]
     @State private var error: Error?
     @State private var editingApp: AppPerformanceSummary?
@@ -20,14 +19,11 @@ struct WebsiteTrafficSection: View {
         if GoogleAnalytics.isAvailable {
             Section {
                 if !googleAnalytics.isConnected {
-                    Text("Connect Google Analytics to see how many people read about each app on your website, next to how many download it.")
+                    Text("Connect Google Analytics in Accounts to see how many people read about each app on your website, next to how many download it.")
                         .foregroundStyle(.secondary)
-
-                    Button("Connect Google Analytics", systemImage: "link") {
-                        Task { await connect() }
-                    }
                 } else if googleAnalytics.property == nil {
-                    propertyPicker
+                    Text("Choose your website in Accounts to see how many people read about each app on it.")
+                        .foregroundStyle(.secondary)
                 } else {
                     ForEach(apps) { app in
                         Button {
@@ -45,33 +41,11 @@ struct WebsiteTrafficSection: View {
                         .foregroundStyle(.secondary)
                 }
             } header: {
-                HStack {
-                    Label("Website", systemImage: "safari")
-
-                    Spacer()
-
-                    if googleAnalytics.isConnected {
-                        Menu {
-                            propertyPicker
-
-                            Button("Disconnect Google Analytics", systemImage: "link", role: .destructive) {
-                                googleAnalytics.disconnect()
-                                traffic = [:]
-                            }
-                        } label: {
-                            Label("Google Analytics Settings", systemImage: "ellipsis")
-                                .labelStyle(.iconOnly)
-                        }
-                        .menuIndicator(.hidden)
-                    }
-                }
+                Label("Website", systemImage: "safari")
             } footer: {
                 if let property = googleAnalytics.property {
                     Text("Page views over the last 30 days, from \(property.name). Select an app to set its page.")
                 }
-            }
-            .task(id: googleAnalytics.isConnected) {
-                await loadProperties()
             }
             .task(id: TrafficQuery(property: googleAnalytics.property, pageURLs: googleAnalytics.pageURLs)) {
                 await loadTraffic()
@@ -98,18 +72,6 @@ struct WebsiteTrafficSection: View {
         }
     }
 
-    @ViewBuilder
-    private var propertyPicker: some View {
-        Picker("Website", selection: Binding(get: { googleAnalytics.property }, set: { $0.map(googleAnalytics.setProperty) })) {
-            if googleAnalytics.property == nil {
-                Text("Choose…").tag(GoogleAnalyticsProperty?.none)
-            }
-            ForEach(properties) { property in
-                Text("\(property.name) (\(property.accountName))").tag(Optional(property))
-            }
-        }
-    }
-
     /// What the traffic depends on, so it reloads when the website or any app's page changes.
     private struct TrafficQuery: Equatable {
         let property: GoogleAnalyticsProperty?
@@ -124,31 +86,12 @@ struct WebsiteTrafficSection: View {
         return URL(string: text.contains("://") ? text : "https://" + text)
     }
 
-    private func connect() async {
-        error = nil
-        let request = GoogleAnalytics.signInRequest()
-        do {
-            let callback = try await webAuthenticationSession.authenticate(using: request.url, callback: .customScheme(GoogleAnalytics.callbackScheme), additionalHeaderFields: [:])
-            try await googleAnalytics.connect(callback: callback, verifier: request.verifier)
-        } catch ASWebAuthenticationSessionError.canceledLogin {
-            return
-        } catch {
-            self.error = error
-        }
-    }
-
-    private func loadProperties() async {
-        guard googleAnalytics.isConnected else { return }
-
-        do {
-            properties = try await googleAnalytics.properties()
-        } catch {
-            self.error = error
-        }
-    }
-
     private func loadTraffic() async {
-        guard googleAnalytics.property != nil else { return }
+        // Disconnected, or the website changed away, in Accounts — the last website's views are no longer ours.
+        guard googleAnalytics.property != nil else {
+            traffic = [:]
+            return
+        }
 
         error = nil
         do {
