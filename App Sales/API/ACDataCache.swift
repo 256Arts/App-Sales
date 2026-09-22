@@ -16,26 +16,32 @@ class ACDataCache {
         let objects: [CacheObject]
     }
 
+    /// How many days of reports are fetched and kept — the home screen and widgets compare the last 30 days with the 30 before.
+    static let retainedDays = 60
+
     private struct CacheObject: Codable {
         let apiKeyId: String
         let data: ACData
+        /// Days App Store Connect had no report for, so they aren't re-requested on every fetch. Optional so older cache files still load.
+        let emptyDates: [String]?
     }
 
-    public static func getData(apiKey: Account) -> ACData? {
-        guard let collection = getCollection() else { return nil }
-        return collection.objects.first(where: { $0.apiKeyId == apiKey.id })?.data
+    public static func getData(apiKey: Account) -> (data: ACData, emptyDates: Set<String>)? {
+        guard let object = getCollection()?.objects.first(where: { $0.apiKeyId == apiKey.id }) else { return nil }
+        return (object.data, Set(object.emptyDates ?? []))
     }
 
-    public static func saveData(data: ACData, apiKey: Account) {
+    public static func saveData(data: ACData, emptyDates: Set<String> = [], apiKey: Account) {
         var cacheObjects: [CacheObject] = getCollection()?.objects ?? []
 
         // find existing data for apiKey and remove matching data temporarily from array
-        var oldData: ACData?
+        var oldObject: CacheObject?
         cacheObjects.removeAll(where: {
             let matching = $0.apiKeyId == apiKey.id
-            if matching { oldData = $0.data }
+            if matching { oldObject = $0 }
             return matching
         })
+        let oldData = oldObject?.data
 
         // Convert currency from oldData to data.displayCurrency
         var oldEntries: [Event] = []
@@ -44,26 +50,27 @@ class ACDataCache {
         }
 
         // merge items
-        let oldDataFiltered = oldEntries.filter { oldEntry in
-            return !data.entries.contains(where: { $0.date == oldEntry.date })
-        }
+        let newDates = Set(data.entries.map(\.date))
+        let oldDataFiltered = oldEntries.filter { !newDates.contains($0.date) }
 
         var entries: [Event] = data.entries + oldDataFiltered
 
-        // delete entries from all object that are to old
-        let latest: Event? = entries.sorted { a, b in
-            a.date.compare(b.date) == .orderedDescending
-        }.first
-
-        let latestDate = latest?.date ?? Date()
-        let validDays = latestDate.getLastNDates(35).map({ $0.acApiFormat() })
+        // delete entries older than the window AppStoreConnectAPI fetches
+        let validDays = Set(Date.now.dayBefore.getLastNDates(retainedDays).map({ $0.acApiFormat() }))
 
         entries = entries.filter({ entry in
             validDays.contains(entry.date.acApiFormat())
         })
 
-        if !entries.isEmpty {
-            let newObj = CacheObject(apiKeyId: apiKey.id, data: ACData(entries: entries, currency: data.displayCurrency, apps: data.apps))
+        let entryDays = Set(entries.map { $0.date.acApiFormat() })
+        let allEmptyDates = emptyDates.union(oldObject?.emptyDates ?? [])
+            .filter { validDays.contains($0) && !entryDays.contains($0) }
+
+        if !entries.isEmpty || !allEmptyDates.isEmpty {
+            let newObj = CacheObject(
+                apiKeyId: apiKey.id,
+                data: ACData(entries: entries, currency: data.displayCurrency, apps: data.apps),
+                emptyDates: allEmptyDates.sorted())
             cacheObjects.append(newObj)
         }
 

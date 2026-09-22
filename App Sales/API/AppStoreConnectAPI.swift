@@ -25,12 +25,12 @@ final class AppStoreConnectAPI {
         lastData.removeAll()
     }
 
-    public func getData(numOfDays: Int = 60, useCache: Bool = true) async throws -> ACData {
+    public func getData(numOfDays: Int = ACDataCache.retainedDays, useCache: Bool = true) async throws -> ACData {
         if account.isDemo { return ACData.example }
         return try await getData(currency: Currency(rawValue: Locale.autoupdatingCurrent.currency?.identifier ?? ""), numOfDays: numOfDays, useCache: useCache)
     }
 
-    public func getData(currency: Currency? = nil, numOfDays: Int = 60, useCache: Bool = true, useMemoization: Bool = true) async throws -> ACData {
+    public func getData(currency: Currency? = nil, numOfDays: Int = ACDataCache.retainedDays, useCache: Bool = true, useMemoization: Bool = true) async throws -> ACData {
         if account.isDemo { return ACData.example }
 
         if useMemoization {
@@ -61,7 +61,7 @@ final class AppStoreConnectAPI {
         return data
     }
 
-    private func getDataFromAPI(localCurrency: Currency, numOfDays: Int = 60, useCache: Bool = true) async throws -> ACData {
+    private func getDataFromAPI(localCurrency: Currency, numOfDays: Int = ACDataCache.retainedDays, useCache: Bool = true) async throws -> ACData {
         if self.privateKey.count < privateKeyMinLength {
             throw APIError.invalidCredentials
         }
@@ -74,45 +74,48 @@ final class AppStoreConnectAPI {
 
         let dates = Date.now.dayBefore.getLastNDates(numOfDays).map({ $0.acApiFormat() })
 
-        if useCache {
-            let cachedData = ACDataCache.getData(apiKey: self.account)?.changeCurrency(to: localCurrency)
-            let cachedEntries: [Event] = cachedData?.entries ?? []
-
-            entries.append(contentsOf: cachedEntries)
+        var knownEmptyDates: Set<String> = []
+        if useCache, let cached = ACDataCache.getData(apiKey: self.account) {
+            entries.append(contentsOf: cached.data.changeCurrency(to: localCurrency).entries)
+            // The latest couple of days may be empty only because Apple hasn't published them yet, so they're always re-requested.
+            knownEmptyDates = cached.emptyDates.subtracting(dates.prefix(2))
         }
 
-        let entriesDates = entries.map({ $0.date.acApiFormat() })
-        let missingDates = dates.filter({ !entriesDates.contains($0) })
+        let entriesDates = Set(entries.map({ $0.date.acApiFormat() }))
+        let missingDates = dates.filter({ !entriesDates.contains($0) && !knownEmptyDates.contains($0) })
 
-        async let results: [Data] = withThrowingTaskGroup(of: Data?.self) { group in
-            var data: [Data] = []
+        async let results: [(date: String, data: Data?)] = withThrowingTaskGroup(of: (date: String, data: Data?).self) { group in
+            var results: [(date: String, data: Data?)] = []
 
             for date in missingDates {
                 group.addTask {
                     do {
-                        return try await self.salesReport(provider: provider, date: date)
+                        return (date, try await self.salesReport(provider: provider, date: date))
                     } catch APIError.noDataAvailable {
-                        return nil
+                        return (date, nil)
                     }
                 }
             }
 
-            for try await d in group {
-                if let d = d {
-                    data.append(d)
-                }
+            for try await result in group {
+                results.append(result)
             }
 
-            return data
+            return results
         }
 
+        var emptyDates: Set<String> = []
         for result in try await results {
-            entries.append(contentsOf: parseApiResult(result, localCurrency: localCurrency))
+            if let data = result.data {
+                entries.append(contentsOf: parseApiResult(data, localCurrency: localCurrency))
+            } else {
+                emptyDates.insert(result.date)
+            }
         }
 
         let apps = try? await self.getApps(entries: entries)
         let acdata = ACData(entries: entries, currency: localCurrency, apps: apps ?? [])
-        ACDataCache.saveData(data: acdata, apiKey: self.account)
+        ACDataCache.saveData(data: acdata, emptyDates: emptyDates, apiKey: self.account)
 
         return acdata
     }
