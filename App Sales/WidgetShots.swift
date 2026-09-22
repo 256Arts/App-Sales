@@ -10,7 +10,11 @@ import SwiftUI
 /// the contract of the shared `widget-screenshots` in Repos/Scripts, which lays them out on
 /// wallpapers for the listing.
 ///
-/// None of this is the system's own rendering: corner radius, margins, and the dark tile colour are
+/// The one exception is Liquid Glass, which only the window server draws. Under `-glassTile` the Mac
+/// takes a finished shot on stdin, lays that tile on real glass over it in an on-screen window,
+/// captures the window, and prints the whole shot back — see `renderGlass()`.
+///
+/// Otherwise none of this is the system's own rendering: corner radius, margins, and the dark tile colour are
 /// estimates, and the Lock Screen's vibrant monochrome is approximated as plain white.
 enum WidgetShots {
 
@@ -20,7 +24,9 @@ enum WidgetShots {
             #if os(iOS)
             renderWidgets()
             #elseif os(macOS)
-            renderMenuBar()
+            withDefaultOptions {
+                if ProcessInfo.processInfo.arguments.contains("-glassTile") { renderGlass() } else { renderMenuBar() }
+            }
             #endif
         }
         exit(0)
@@ -122,15 +128,23 @@ enum WidgetShots {
 
     // MARK: - Menu bar
 
-    @MainActor
-    private static func renderMenuBar() {
-        // The menu bar reads its options straight from the App Group, so draw them at their
-        // defaults and put the reader's back afterwards.
+    /// The menu bar reads its options straight from the App Group, so draw them at their defaults and
+    /// put the reader's back afterwards.
+    private static func withDefaultOptions(_ body: () -> Void) {
         let defaults = UserDefaults.shared
         let keys = [UserDefaults.Key.aiUsageMetric, UserDefaults.Key.aiUsageTimeStyle, UserDefaults.Key.aiUsageGoal, UserDefaults.Key.aiUsageMenuBarStyle, UserDefaults.Key.aiUsageHidesUnreachable]
         let saved = keys.map { defaults?.object(forKey: $0) }
         keys.forEach { defaults?.removeObject(forKey: $0) }
         defer { for (key, value) in zip(keys, saved) { defaults?.set(value, forKey: key) } }
+        body()
+    }
+
+    @MainActor
+    private static func renderMenuBar() {
+        // Only its size and place in the layout: the composer leaves its spot bare for
+        // `renderGlass()` to fill.
+        let (png, scale) = snapshot(menuBarExtra(onGlass: false), appearance: NSAppearance(named: .aqua))
+        emit(png, "Menu Bar/Menu Bar Extra", scale: scale)
 
         for (look, appearanceName) in [("Light", NSAppearance.Name.aqua), ("Dark", .darkAqua)] {
             let appearance = NSAppearance(named: appearanceName)
@@ -139,22 +153,6 @@ enum WidgetShots {
                 let (png, scale) = snapshot(window(panel: panel), appearance: appearance)
                 emit(png, "Menu Bar/Menu Bar Window \(panel ? "Panel " : "")\(look)", scale: scale)
             }
-
-            // The extra open: its item, highlighted in a menu bar over the wallpaper, with the
-            // panel hanging below it where the screen's right edge holds it.
-            let extra = VStack(alignment: .trailing, spacing: 5) {
-                AIUsageMenuBarGlyph(usage: AIUsage.examples.first, display: .current, style: .ring)
-                    .foregroundStyle(.white)
-                    .environment(\.colorScheme, .dark)
-                    .padding(.horizontal, 8)
-                    .frame(height: 24)
-                    .background(.white.opacity(0.25), in: .capsule)
-                    .padding(.trailing, 16)
-                AIUsageMenuBar()
-                    .background { glass(dark: look == "Dark") }
-            }
-            let (png, scale) = snapshot(extra, appearance: appearance)
-            emit(png, "Menu Bar/Menu Bar Extra \(look)", scale: scale)
 
             for style in AIUsageMenuBarStyle.allCases {
                 let glyph = AIUsageMenuBarGlyph(usage: AIUsage.examples.first, display: .current, style: style)
@@ -181,20 +179,91 @@ enum WidgetShots {
             }
     }
 
-    /// Liquid Glass samples what is behind the window, and there is nothing behind one drawn
-    /// offscreen — a real `glassEffect` comes out empty. So this is its look by hand: a tint the
-    /// wallpaper shows through once the shot is composed, lit along the rim.
-    private static func glass(dark: Bool) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
-        return shape
-            .fill(dark ? Color.black.opacity(0.45) : Color.white.opacity(0.76))
-            .overlay {
-                shape.strokeBorder(
-                    LinearGradient(colors: [.white.opacity(dark ? 0.35 : 0.9), .white.opacity(dark ? 0.08 : 0.3), .white.opacity(dark ? 0.2 : 0.6)],
-                                   startPoint: .topLeading, endPoint: .bottomTrailing),
-                    lineWidth: 1
-                )
+    /// The extra open: its item highlighted in the menu bar, with the panel hanging below it where the
+    /// screen's right edge holds it. White on clear glass, whatever the appearance — only the glass
+    /// itself stays light, which keeps it from tinting the wallpaper either way.
+    @ViewBuilder
+    private static func menuBarExtra(onGlass: Bool) -> some View {
+        VStack(alignment: .trailing, spacing: 5) {
+            AIUsageMenuBarGlyph(usage: AIUsage.examples.first, display: .current, style: .ring)
+                .foregroundStyle(.white)
+                .padding(.horizontal, 8)
+                .frame(height: 24)
+                .background(.white.opacity(0.25), in: .capsule)
+                .padding(.trailing, 16)
+            if onGlass {
+                AIUsageMenuBar()
+                    .environment(\.colorScheme, .dark)
+                    .glassEffect(.clear, in: .rect(cornerRadius: 16))
+                    .environment(\.colorScheme, .light)
+            } else {
+                AIUsageMenuBar()
             }
+        }
+        .environment(\.colorScheme, .dark)
+    }
+
+    /// Lays `-glassTile` on real glass over the shot on stdin, where `-glassFrame` (canvas pixels)
+    /// puts it at `-glassScale` pixels per point, and prints the whole shot back.
+    ///
+    /// The glass has to sit in a window over the real pixels to bend them, so the window holds the
+    /// shot's pixels around that frame with the tile on top, and is captured by the window server.
+    @MainActor
+    private static func renderGlass() {
+        func argument(_ flag: String) -> String {
+            let arguments = ProcessInfo.processInfo.arguments
+            return arguments.firstIndex(of: flag).flatMap { arguments.indices.contains($0 + 1) ? arguments[$0 + 1] : nil } ?? ""
+        }
+        let name = argument("-glassTile")
+        let frame = argument("-glassFrame").split(separator: ",").compactMap { Double($0) }
+        let scale = Double(argument("-glassScale")) ?? 0
+        let stdin = FileHandle.standardInput.readDataToEndOfFile()
+        guard name.hasSuffix("Menu Bar Extra"), frame.count == 4, scale > 0,
+              let source = CGImageSourceCreateWithData(stdin as CFData, nil),
+              let canvas = CGImageSourceCreateImageAtIndex(source, 0, nil) else { return emit(nil, name, scale: 1) }
+
+        // Some of the shot beyond the tile, so the glass's edges bend real pixels too.
+        let tile = CGRect(x: frame[0], y: frame[1], width: frame[2], height: frame[3])
+        let area = tile.insetBy(dx: -48, dy: -48).integral.intersection(CGRect(x: 0, y: 0, width: canvas.width, height: canvas.height))
+        guard let backdrop = canvas.cropping(to: area) else { return emit(nil, name, scale: 1) }
+
+        let window = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+        window.appearance = NSAppearance(named: .aqua)
+        window.level = .floating
+        let pixels = window.backingScaleFactor
+        let content = ZStack(alignment: .topLeading) {
+            Image(decorative: backdrop, scale: pixels)
+            menuBarExtra(onGlass: true)
+                .fixedSize()
+                .scaleEffect(scale / pixels, anchor: .topLeading)
+                .offset(x: (tile.minX - area.minX) / pixels, y: (tile.minY - area.minY) / pixels)
+        }
+        window.contentView = NSHostingView(rootView: content)
+        window.setFrame(CGRect(origin: NSScreen.main?.visibleFrame.origin ?? .zero, size: CGSize(width: area.width / pixels, height: area.height / pixels)), display: true)
+        window.orderFrontRegardless()
+        RunLoop.main.run(until: .now.addingTimeInterval(1.5))
+        defer { window.orderOut(nil) }
+        guard let glass = captureWindow(window.windowNumber) else { return emit(nil, name, scale: 1) }
+
+        guard let context = CGContext(data: nil, width: canvas.width, height: canvas.height, bitsPerComponent: 8, bytesPerRow: 0,
+                                      space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+                                      bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { return emit(nil, name, scale: 1) }
+        let height = Double(canvas.height)
+        context.interpolationQuality = .high
+        context.draw(canvas, in: CGRect(x: 0, y: 0, width: canvas.width, height: canvas.height))
+        context.draw(glass, in: CGRect(x: area.minX, y: height - area.maxY, width: area.width, height: area.height))
+        emit(context.makeImage().flatMap { NSBitmapImageRep(cgImage: $0).representation(using: .png, properties: [:]) }, name, scale: 1)
+    }
+
+    /// `CGWindowListCreateImage` is marked unavailable in the SDK, but it still captures the app's own
+    /// windows — glass and all — with no Screen Recording permission, which ScreenCaptureKit needs.
+    /// Looked up at runtime so a macOS that drops it fails the shot rather than the build.
+    private static func captureWindow(_ number: Int) -> CGImage? {
+        typealias CreateImage = @convention(c) (CGRect, UInt32, UInt32, UInt32) -> Unmanaged<CGImage>?
+        guard let symbol = dlsym(dlopen(nil, RTLD_NOW), "CGWindowListCreateImage") else { return nil }
+        let createImage = unsafeBitCast(symbol, to: CreateImage.self)
+        // Including just this window; ignoring its framing, at its best resolution.
+        return createImage(.null, 1 << 3, UInt32(number), 1 << 0 | 1 << 3)?.takeRetainedValue()
     }
 
     /// `ImageRenderer` cannot draw the window's AppKit-backed controls, so this hosts it in a real,
