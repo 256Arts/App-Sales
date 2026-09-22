@@ -150,7 +150,8 @@ enum WidgetShots {
                     .frame(height: 24)
                     .background(.white.opacity(0.25), in: .capsule)
                     .padding(.trailing, 16)
-                window(panel: true)
+                AIUsageMenuBar()
+                    .background { glass(dark: look == "Dark") }
             }
             let (png, scale) = snapshot(extra, appearance: appearance)
             emit(png, "Menu Bar/Menu Bar Extra \(look)", scale: scale)
@@ -177,6 +178,22 @@ enum WidgetShots {
                         .fill(Color(nsColor: .windowBackgroundColor))
                         .strokeBorder(Color.primary.opacity(0.1))
                 }
+            }
+    }
+
+    /// Liquid Glass samples what is behind the window, and there is nothing behind one drawn
+    /// offscreen — a real `glassEffect` comes out empty. So this is its look by hand: a tint the
+    /// wallpaper shows through once the shot is composed, lit along the rim.
+    private static func glass(dark: Bool) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
+        return shape
+            .fill(dark ? Color.black.opacity(0.45) : Color.white.opacity(0.76))
+            .overlay {
+                shape.strokeBorder(
+                    LinearGradient(colors: [.white.opacity(dark ? 0.35 : 0.9), .white.opacity(dark ? 0.08 : 0.3), .white.opacity(dark ? 0.2 : 0.6)],
+                                   startPoint: .topLeading, endPoint: .bottomTrailing),
+                    lineWidth: 1
+                )
             }
     }
 
