@@ -133,19 +133,27 @@ enum WidgetShots {
         defer { for (key, value) in zip(keys, saved) { defaults?.set(value, forKey: key) } }
 
         for (look, appearanceName) in [("Light", NSAppearance.Name.aqua), ("Dark", .darkAqua)] {
+            let appearance = NSAppearance(named: appearanceName)
             // The window's content alone, to lay over glass of your own, and on a plain panel.
             for panel in [false, true] {
-                let root = AIUsageMenuBar()
-                    .background {
-                        if panel {
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(Color(nsColor: .windowBackgroundColor))
-                                .strokeBorder(Color.primary.opacity(0.1))
-                        }
-                    }
-                let (png, scale) = snapshot(root, appearance: NSAppearance(named: appearanceName))
+                let (png, scale) = snapshot(window(panel: panel), appearance: appearance)
                 emit(png, "Menu Bar/Menu Bar Window \(panel ? "Panel " : "")\(look)", scale: scale)
             }
+
+            // The extra open: its item, highlighted in a menu bar over the wallpaper, with the
+            // panel hanging below it where the screen's right edge holds it.
+            let extra = VStack(alignment: .trailing, spacing: 5) {
+                AIUsageMenuBarGlyph(usage: AIUsage.examples.first, display: .current, style: .ring)
+                    .foregroundStyle(.white)
+                    .environment(\.colorScheme, .dark)
+                    .padding(.horizontal, 8)
+                    .frame(height: 24)
+                    .background(.white.opacity(0.25), in: .capsule)
+                    .padding(.trailing, 16)
+                window(panel: true)
+            }
+            let (png, scale) = snapshot(extra, appearance: appearance)
+            emit(png, "Menu Bar/Menu Bar Extra \(look)", scale: scale)
 
             for style in AIUsageMenuBarStyle.allCases {
                 let glyph = AIUsageMenuBarGlyph(usage: AIUsage.examples.first, display: .current, style: style)
@@ -159,6 +167,17 @@ enum WidgetShots {
                 emit(png, "Menu Bar/Menu Bar Item \(style.rawValue.capitalized) \(look)", scale: renderer.scale)
             }
         }
+    }
+
+    private static func window(panel: Bool) -> some View {
+        AIUsageMenuBar()
+            .background {
+                if panel {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(Color(nsColor: .windowBackgroundColor))
+                        .strokeBorder(Color.primary.opacity(0.1))
+                }
+            }
     }
 
     /// `ImageRenderer` cannot draw the window's AppKit-backed controls, so this hosts it in a real,
