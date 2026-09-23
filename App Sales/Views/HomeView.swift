@@ -6,6 +6,7 @@ struct HomeView: View {
 
     @State var showingAccountsList = false
     @State private var googleAnalytics = GoogleAnalytics.shared
+    @State private var aiAssistants = AIAssistants.shared
     /// Keyed by Apple ID; empty while Google Analytics is not connected.
     @State private var websiteTraffic: [String: WebPageTraffic] = [:]
     @State private var editingWebsitePage: AppPerformanceSummary?
@@ -195,6 +196,10 @@ struct HomeView: View {
             #if os(macOS)
             .frame(idealHeight: 400)
             #endif
+        }
+        // Asked for by an AI usage row, or by the Mac's menu bar extra, whose sign-in was refused.
+        .sheet(item: $aiAssistants.signingIn) { assistant in
+            AIUsageSignInSheet(assistant: assistant)
         }
         .onChange(of: keyID) {
             Task { await fetchData(useMemoization: false) }

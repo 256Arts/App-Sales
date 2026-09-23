@@ -103,7 +103,7 @@ enum AIUsageError: LocalizedError {
         case .notSignedIn:
             String(localized: "You are not connected to this assistant.")
         case .signInExpired:
-            String(localized: "The sign-in has expired. Sign in to the assistant again.")
+            String(localized: "The sign-in has expired. Sign in again in App Sales.")
         case .unreadableSignIn(let assistant):
             String(localized: "That is not a \(assistant.name) sign-in.")
         case .assistant(let message):

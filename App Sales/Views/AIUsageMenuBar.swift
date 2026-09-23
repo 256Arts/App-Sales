@@ -46,6 +46,15 @@ struct AIUsageMenuBar: View {
                         AIUsageColumn(usage: usage, display: AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal, hidesUnreachable: hidesUnreachable), showsMetric: true)
                     }
                 }
+
+                // The sign-in sheet is the app's, so this brings the window forward with it up.
+                ForEach(assistants.connected.filter(assistants.needsSignIn)) { assistant in
+                    Button("Sign In to \(assistant.name) Again…") {
+                        assistants.signingIn = assistant
+                        openApp()
+                    }
+                    .frame(maxWidth: .infinity)
+                }
             }
             .padding(12)
 
@@ -94,12 +103,7 @@ struct AIUsageMenuBar: View {
                     Divider()
 
                     // With no window open there is no Dock icon to click, so this is the way back in.
-                    Button("Open App Sales") {
-                        if !DockIcon.hasWindow {
-                            openWindow(id: AppSalesApp.mainWindowID)
-                        }
-                        NSApplication.shared.activate()
-                    }
+                    Button("Open App Sales", action: openApp)
 
                     Button("Quit App Sales") {
                         NSApplication.shared.terminate(nil)
@@ -119,6 +123,13 @@ struct AIUsageMenuBar: View {
         }
         .frame(width: 260)
         .task { await load() }
+    }
+
+    private func openApp() {
+        if !DockIcon.hasWindow {
+            openWindow(id: AppSalesApp.mainWindowID)
+        }
+        NSApplication.shared.activate()
     }
 
     private func load(maxAge: TimeInterval = AIUsageCache.freshness) async {

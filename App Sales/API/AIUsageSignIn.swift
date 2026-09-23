@@ -24,10 +24,21 @@ struct AIUsageSignIn: Codable, Hashable, Identifiable, Sendable {
 
     var id: AIAssistant { assistant }
 
-    var isExpired: Bool {
+    /// Whether this device should refresh the token now.
+    ///
+    /// Every device holds the same token, so every device finds it expired at the same moment —
+    /// and two refreshing before the Keychain syncs spend the same refresh token twice. The Mac,
+    /// whose menu bar extra reads usage every minute all day, refreshes ten minutes early, so the
+    /// new token has usually reached the phone and watch before they would have wanted one.
+    var expiresSoon: Bool {
         guard let expires else { return false }
 
-        return expires <= .now
+        #if os(macOS)
+        let lead: TimeInterval = 10 * 60
+        #else
+        let lead: TimeInterval = 0
+        #endif
+        return expires <= .now.addingTimeInterval(lead)
     }
 
     init(assistant: AIAssistant, accessToken: String, refreshToken: String? = nil, expires: Date? = nil, accountID: String? = nil, label: String? = nil, plan: String? = nil) {

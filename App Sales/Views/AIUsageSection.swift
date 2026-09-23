@@ -43,7 +43,7 @@ struct AIUsageSection: View {
             }
 
             ForEach(connected) { assistant in
-                AIUsageRow(assistant: assistant, usage: usage[assistant], error: assistants.failures[assistant], display: display)
+                AIUsageRow(assistant: assistant, usage: usage[assistant], error: assistants.failures[assistant]?.localizedDescription, needsSignIn: assistants.needsSignIn(assistant), display: display)
             }
         } header: {
             HStack {
@@ -98,6 +98,7 @@ private struct AIUsageRow: View {
     let assistant: AIAssistant
     let usage: AIUsage?
     let error: String?
+    let needsSignIn: Bool
     let display: AIUsageDisplay
 
     var body: some View {
@@ -117,6 +118,25 @@ private struct AIUsageRow: View {
             if let usage {
                 AIUsageBar(window: .fiveHour, usage: usage, display: display)
                 AIUsageBar(window: .week, usage: usage, display: display)
+            }
+
+            // Shown under the last figures read, which have stopped moving until this is done.
+            if needsSignIn {
+                HStack {
+                    Text("Your sign-in has expired.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+
+                    Spacer()
+
+                    Button("Sign In Again") {
+                        AIAssistants.shared.signingIn = assistant
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+            } else if usage != nil {
+                EmptyView()
             } else if let error {
                 Text(error)
                     .font(.footnote)
