@@ -234,19 +234,24 @@ extension AIUsageLimit {
 
 extension AIUsage {
 
-    /// The window closest to running out, which is the one that will actually stop the next job.
-    ///
-    /// The families with room for only one number show this rather than always showing the
-    /// five-hour window: on a heavy week it is the weekly limit that bites first.
+    /// The window that will actually stop the next job — what the families with room for one figure
+    /// show.
     var tightestLimit: AIUsageLimit? {
         tightestWindow.flatMap { self[$0] }
     }
 
     /// Which window `tightestLimit` is, for the warning colour that depends on its length.
+    ///
+    /// The five-hour one, unless the week runs out before it can. Not whichever is *fuller*: a week
+    /// at 61% still holds most of a week's work, so it is not what stops anything this afternoon,
+    /// and showing it on a Lock Screen ring buries the window that does — a fresh five hours at 0%,
+    /// which is the useful thing to know before starting. `canReachFiveHour` is that test already:
+    /// it is false exactly when what is left of the week is worth less than this window.
     var tightestWindow: AIUsageWindow? {
-        [AIUsageWindow.fiveHour, .week]
-            .filter { self[$0] != nil }
-            .max { (self[$0]?.used ?? 0) < (self[$1]?.used ?? 0) }
+        guard fiveHour != nil else { return week == nil ? nil : .week }
+        guard week != nil else { return .fiveHour }
+
+        return canReachFiveHour ? .fiveHour : .week
     }
 
     /// When the reading can next change, if a window has run out: its reset, since nothing can be

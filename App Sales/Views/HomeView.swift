@@ -77,8 +77,21 @@ struct HomeView: View {
                         .font(.title)
                         .padding(.vertical)
                     } footer: {
-                        TimelineView(.everyMinute) { context in
-                            Text(updatedDateString(lastRefreshDate: data.latestReportingDate()))
+                        // Two ages, and they are not the same one: when App Sales last asked, and
+                        // how far the reports it was given reach — App Store Connect publishes a
+                        // day behind, so the second is always older than it looks.
+                        HStack(spacing: 4) {
+                            if let lastRefresh = loader.lastRefresh {
+                                Text(updated: lastRefresh)
+
+                                if data.latestReportingDate() != .distantPast {
+                                    Text(verbatim: "·")
+                                }
+                            }
+
+                            if data.latestReportingDate() != .distantPast {
+                                Text("Sales through \(data.latestReportingDate(), format: .dateTime.month().day())")
+                            }
                         }
                     }
 
@@ -194,8 +207,6 @@ struct HomeView: View {
         #endif
     }
     
-    private let relativeDateFormatter = RelativeDateTimeFormatter()
-
     private func fetchData(useMemoization: Bool = true) async {
         await loader.load(account: selectedKey, useMemoization: useMemoization)
     }
@@ -234,18 +245,6 @@ struct HomeView: View {
         if let traffic = try? await googleAnalytics.traffic(for: apps.map { ($0.appleID, $0.name) }) {
             websiteTraffic = traffic
         }
-    }
-
-    private func updatedDateString(lastRefreshDate: Date) -> String {
-        guard lastRefreshDate != .distantPast else { return "" }
-        
-        let string: String
-        if Date.now.timeIntervalSince(lastRefreshDate) < 60 {
-            string = "Just Now"
-        } else {
-            string = relativeDateFormatter.localizedString(for: lastRefreshDate, relativeTo: .now)
-        }
-        return "Updated \(string)"
     }
 }
 
@@ -359,5 +358,5 @@ private struct StatLabelStyle: LabelStyle {
 }
 
 #Preview {
-    HomeView(loader: SalesDataLoader(data: .example))
+    HomeView(loader: SalesDataLoader(data: .example, lastRefresh: .now))
 }

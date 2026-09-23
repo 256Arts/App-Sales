@@ -16,6 +16,9 @@ enum AIUsageCache {
     /// minutes of steady work, which is under the rounding on every figure App Sales draws.
     static let freshness: TimeInterval = 15 * 60
 
+    /// The AI usage widget's kind, for the app to reload it by once it has read something new.
+    static let widgetKind = "AIUsage"
+
     private static let fileName = "ai-usage-cache.json"
 
     private static var storageURL: URL? {

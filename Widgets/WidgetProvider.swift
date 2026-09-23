@@ -65,39 +65,91 @@ struct Provider: AppIntentTimelineProvider {
 
             let entry = ACStatEntry(date: Date(), data: data, configuration: configuration, relevance: isNewData ? .high : .medium)
 
-            // Report is not available yet. Daily reports for the Americas are available by 5 am Pacific Time; Japan, Australia, and New Zealand by 5 am Japan Standard Time; and 5 am Central European Time for all other territories.
-
-            var nextUpdate = Date()
-
-            if nextUpdate.getCETHour() <= 12 {
-                // every 3 hour
-                nextUpdate = nextUpdate.advanced(by: 3 * 60 * 60)
-            } else {
-                nextUpdate = nextUpdate.advanced(by: 12 * 60 * 60)
-            }
-
-            let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-            return timeline
+            return Timeline(entries: [entry], policy: .after(Provider.nextUpdate(having: data)))
         } catch let err as APIError {
             let entry = ACStatEntry(date: Date(), data: nil, error: err, configuration: configuration, relevance: .low)
 
-            var nextUpdateDate = Date()
-            if err == .invalidCredentials {
-                nextUpdateDate = nextUpdateDate.advanced(by: 20 * 60)
-            } else {
-                // when api down, update in 5 min erneut
-                nextUpdateDate = nextUpdateDate.advanced(by: 5 * 60)
-            }
-
-            let timeline = Timeline(entries: [entry], policy: .after(nextUpdateDate))
-            return timeline
+            return Timeline(entries: [entry], policy: .after(Provider.nextUpdate(after: err)))
         } catch {
             let entry = ACStatEntry(date: Date(), data: nil, error: APIError.unknown, configuration: configuration, relevance: .low)
 
-            // when api down, update in 5 min erneut
-            let timeline = Timeline(entries: [entry], policy: .after(Date().advanced(by: 5 * 60)))
-            return timeline
+            return Timeline(entries: [entry], policy: .after(Provider.nextUpdate(after: .unknown)))
         }
+    }
+
+    // MARK: - Refresh cadence
+
+    /// When to come back after a fetch that worked.
+    ///
+    /// These figures move at exactly three moments a day — App Store Connect publishes the previous
+    /// day's report by 5am Pacific for the Americas, 5am Japan time for Japan, Australia, and New
+    /// Zealand, and 5am central European time for everywhere else — so the next of those is the next
+    /// moment worth waking for, and anything in between would fetch the same numbers again.
+    ///
+    /// Asking more often is not free: WidgetKit allows a widget somewhere around 40–70 reloads a
+    /// day, shared with the AI usage widget in this same extension, and a timeline that spends the
+    /// day's budget on identical figures has none left when the day's report actually lands. Waking
+    /// on the boundaries is both cheaper and fresher than the clock-based cadence this replaces,
+    /// which slept through every afternoon and evening.
+    static func nextUpdate(having data: ACData, at date: Date = .now) -> Date {
+        let boundary = nextReportTime(after: date)
+
+        // Apple publishes late often enough to be worth allowing for: with yesterday still missing
+        // after every region has had its turn, waiting for the next boundary would leave the day
+        // blank until tomorrow.
+        guard Calendar.autoupdatingCurrent.isDateInYesterday(data.latestReportingDate()) || !reportsAreDue(at: date) else {
+            return min(boundary, date.addingTimeInterval(2 * 60 * 60))
+        }
+
+        return boundary
+    }
+
+    /// When to come back after a fetch that failed. Credentials that are not valid stay not valid
+    /// until the reader fixes them in the app — which reloads the timelines itself — so there is
+    /// nothing to gain by asking again soon, and a busy retry would leave no budget for the moment
+    /// they do.
+    static func nextUpdate(after error: APIError, at date: Date = .now) -> Date {
+        date.addingTimeInterval(error == .invalidCredentials ? 60 * 60 : 15 * 60)
+    }
+
+    /// The zones whose 5am publishes a region's daily report.
+    private static let reportTimeZones = ["America/Los_Angeles", "Asia/Tokyo", "Europe/Berlin"]
+    private static let reportHour = 5
+    /// 5am is when a region's report starts arriving rather than when it has arrived.
+    private static let reportGrace: TimeInterval = 30 * 60
+
+    /// The next moment a region publishes, whichever region that is.
+    static func nextReportTime(after date: Date) -> Date {
+        let times = reportTimeZones.compactMap { identifier -> Date? in
+            guard let timeZone = TimeZone(identifier: identifier) else { return nil }
+
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = timeZone
+            // Searching from before the grace period so a boundary that has struck but whose grace
+            // has not run out is still ahead, rather than skipping a day to the next one.
+            return calendar.nextDate(
+                after: date.addingTimeInterval(-reportGrace),
+                matching: DateComponents(hour: reportHour),
+                matchingPolicy: .nextTime)?
+                .addingTimeInterval(reportGrace)
+        }
+
+        // Never sooner than a quarter hour, whatever the arithmetic says.
+        return max(times.min() ?? date.addingTimeInterval(4 * 60 * 60), date.addingTimeInterval(15 * 60))
+    }
+
+    /// Whether every region has had time to publish yesterday's report. The last to do so is the
+    /// Americas, whose 5am is the afternoon in Europe.
+    private static func reportsAreDue(at date: Date) -> Bool {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: reportTimeZones[0]) ?? .autoupdatingCurrent
+        // Built from the day's own components rather than `date(bySettingHour:)`, which searches
+        // forward and so answers with tomorrow's 5am for any moment after this morning's.
+        var components = calendar.dateComponents([.year, .month, .day], from: date)
+        components.hour = reportHour
+        guard let due = calendar.date(from: components) else { return false }
+
+        return date > due.addingTimeInterval(reportGrace)
     }
 
     #if os(watchOS)
@@ -121,7 +173,7 @@ struct Provider: AppIntentTimelineProvider {
 }
 
 struct ACStatEntry: TimelineEntry {
-    
+
     let date: Date
     let summary: PerformanceSummary?
     var error: APIError?

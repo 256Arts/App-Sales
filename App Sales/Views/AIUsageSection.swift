@@ -15,8 +15,6 @@ struct AIUsageSection: View {
     var refreshCount = 0
 
     @State private var assistants = AIAssistants.shared
-    @State private var usage: [AIAssistant: AIUsage] = [:]
-    @State private var errors: [AIAssistant: String] = [:]
 
     @AppStorage(UserDefaults.Key.aiUsageMetric, store: UserDefaults.shared) private var metric: AIUsageMetric = .used
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
@@ -29,6 +27,13 @@ struct AIUsageSection: View {
     private var connected: [AIAssistant] {
         ScreenshotMode.isActive ? AIUsage.examples.map(\.assistant) : assistants.connected
     }
+    /// Kept by `AIAssistants` rather than here, so the app's once-a-minute refresh reaches the rows
+    /// even while this section is scrolled out of the list and has no task of its own running.
+    private var usage: [AIAssistant: AIUsage] {
+        ScreenshotMode.isActive
+            ? Dictionary(uniqueKeysWithValues: AIUsage.examples.map { ($0.assistant, $0) })
+            : assistants.latest
+    }
 
     var body: some View {
         Section {
@@ -38,7 +43,7 @@ struct AIUsageSection: View {
             }
 
             ForEach(connected) { assistant in
-                AIUsageRow(assistant: assistant, usage: usage[assistant], error: errors[assistant], display: display)
+                AIUsageRow(assistant: assistant, usage: usage[assistant], error: assistants.failures[assistant], display: display)
             }
         } header: {
             HStack {
@@ -56,7 +61,19 @@ struct AIUsageSection: View {
             }
         } footer: {
             if !connected.isEmpty {
-                Text("Limits refill on a rolling five-hour and seven-day window.")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Limits refill on a rolling five-hour and seven-day window.")
+
+                    // The oldest of the readings above: with one assistant's fetch failed and its
+                    // cached figures standing in, that is the one worth knowing the age of. A
+                    // reading is shared with the widgets and the menu bar through the App Group, so
+                    // this is often older than the moment the screen was opened — which is the
+                    // point of showing it.
+                    if let read = usage.values.map(\.fetched).min() {
+                        Text(updated: read)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .task(id: connected) {
@@ -67,23 +84,11 @@ struct AIUsageSection: View {
         }
     }
 
+    /// On appearing, and for a newly connected assistant; the minute-by-minute refresh is the app's.
     private func load(maxAge: TimeInterval = AIUsageCache.freshness) async {
-        guard !ScreenshotMode.isActive else {
-            usage = Dictionary(uniqueKeysWithValues: AIUsage.examples.map { ($0.assistant, $0) })
-            return
-        }
+        guard !ScreenshotMode.isActive else { return }
 
-        // One assistant at a time. Two at once could each find their sign-in expired and each
-        // refresh it, and a refresh token used twice gets its family revoked — which would sign the
-        // reader's own terminal out, not just App Sales.
-        for assistant in assistants.connected {
-            do {
-                usage[assistant] = try await assistants.usage(for: assistant, maxAge: maxAge)
-                errors[assistant] = nil
-            } catch {
-                errors[assistant] = error.localizedDescription
-            }
-        }
+        await assistants.refreshConnected(maxAge: maxAge)
     }
 }
 

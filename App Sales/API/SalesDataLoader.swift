@@ -17,10 +17,14 @@ final class SalesDataLoader {
     /// work, and a view body reads it more than once per pass.
     private(set) var summary: PerformanceSummary?
     private(set) var error: APIError?
+    /// When the figures on screen were last read from App Store Connect, for the "Updated" line
+    /// under them. Nothing persists it: a launch fetches before it draws anything anyway.
+    private(set) var lastRefresh: Date?
 
-    init(data: ACData? = nil) {
+    init(data: ACData? = nil, lastRefresh: Date? = nil) {
         self.data = data
         self.summary = data?.getPerformanceSummary()
+        self.lastRefresh = lastRefresh
     }
 
     /// The reader's own currency, which is what the home screens display in.
@@ -38,6 +42,7 @@ final class SalesDataLoader {
             let data = try await api.getData(currency: displayCurrency, useMemoization: useMemoization)
             self.data = data
             self.summary = data.getPerformanceSummary()
+            lastRefresh = .now
             error = nil
             #if canImport(WidgetKit)
             WidgetCenter.shared.reloadAllTimelines()

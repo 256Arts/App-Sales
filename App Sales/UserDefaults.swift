@@ -15,6 +15,8 @@ extension UserDefaults {
         static let aiUsageHidesUnreachable = "aiUsageHidesUnreachable"
         static let aiUsageMenuBarExtra = "aiUsageMenuBarExtra"
         static let aiUsageMenuBarStyle = "aiUsageMenuBarStyle"
+        /// What the AI usage widget has learned about how often each assistant's figures move.
+        static let aiUsageWidgetPacing = "aiUsageWidgetPacing"
     }
     
     func register() {

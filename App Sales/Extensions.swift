@@ -9,11 +9,16 @@ extension Date {
     var dayBefore: Date {
         return Calendar.current.date(byAdding: .day, value: -1, to: self) ?? self
     }
+}
 
-    func getCETHour() -> Int {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(abbreviation: "CET") ?? .current
-        return calendar.component(.hour, from: self)
+extension Text {
+    /// When the figures above were last read, as "Updated 8 minutes ago".
+    ///
+    /// Drawn from `.currentDate`, so it counts up on its own — in a widget between timeline entries
+    /// as well as in the app — with nothing holding a clock for it. Minutes are as fine as it goes: a
+    /// line that ticks every second pulls the eye for no reason.
+    init(updated date: Date) {
+        self.init("Updated \(Text(.currentDate, format: .reference(to: date, allowedFields: [.day, .hour, .minute], maxFieldCount: 1)))")
     }
 }
 

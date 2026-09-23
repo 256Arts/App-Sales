@@ -44,9 +44,17 @@ struct AIUsageBar: View {
 
                 AIUsageTrack(fraction: display.fraction(of: limit), tint: display.tint(for: limit, in: window))
 
-                if showsReset, let resetsAt = limit.resetsAt, resetsAt > .now, let resetText = display.resetText(resetsAt) {
-                    resetText
-                        .foregroundStyle(.secondary)
+                // The line is kept while there is no reset to show — a window nobody has started has
+                // none — so the bars sit the same distance apart either way.
+                if showsReset, display.timeStyle != .hidden {
+                    Group {
+                        if let resetsAt = limit.resetsAt, resetsAt > .now, let resetText = display.resetText(resetsAt) {
+                            resetText
+                        } else {
+                            Text(verbatim: " ")
+                        }
+                    }
+                    .foregroundStyle(.secondary)
                 }
             }
             .accessibilityElement(children: .ignore)

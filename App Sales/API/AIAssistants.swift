@@ -52,12 +52,16 @@ final class AIAssistants {
     /// Connects an assistant from a sign-in the app negotiated itself.
     func connect(_ signIn: AIUsageSignIn) {
         save(signIn)
+        latest[signIn.assistant] = nil
+        failures[signIn.assistant] = nil
         AIUsageCache.clear(signIn.assistant)
     }
 
     func disconnect(_ assistant: AIAssistant) {
         inFlight[assistant]?.cancel()
         inFlight[assistant] = nil
+        latest[assistant] = nil
+        failures[assistant] = nil
         signIns.removeAll { $0.assistant == assistant }
         AIUsageCache.clear(assistant)
     }
@@ -87,6 +91,12 @@ final class AIAssistants {
     /// terminal out, not just App Sales.
     private var inFlight: [AIAssistant: Task<AIUsage, Error>] = [:]
 
+    /// The last reading this process has seen of each assistant, cached or fetched — what the home
+    /// screen section draws, so the minute-by-minute refresh below reaches it without a hand-off.
+    private(set) var latest: [AIAssistant: AIUsage] = [:]
+    /// Why the last fetch of each assistant failed, until one works.
+    private(set) var failures: [AIAssistant: String] = [:]
+
     /// This assistant's limits — from the shared cache while that reading is younger than `maxAge`,
     /// or while a window it shows has run out and not yet reset, from the assistant otherwise.
     ///
@@ -96,6 +106,7 @@ final class AIAssistants {
     func usage(for assistant: AIAssistant, maxAge: TimeInterval = AIUsageCache.freshness) async throws -> AIUsage {
         if maxAge > 0, let cached = AIUsageCache.usage(for: assistant),
            cached.fetched.timeIntervalSinceNow > -maxAge || cached.exhaustedUntil() != nil {
+            latest[assistant] = cached
             return cached
         }
         if let existing = inFlight[assistant] {
@@ -106,9 +117,51 @@ final class AIAssistants {
         inFlight[assistant] = task
         defer { inFlight[assistant] = nil }
 
-        let usage = try await task.value
+        let usage: AIUsage
+        do {
+            usage = try await task.value
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            failures[assistant] = error.localizedDescription
+            throw error
+        }
         AIUsageCache.save(usage)
+        latest[assistant] = usage
+        failures[assistant] = nil
         return usage
+    }
+
+    /// What the app does once a minute while it is on screen — the window, or the Mac's menu bar
+    /// extra — so the figures move while the work is being done: every connected assistant asked in
+    /// turn, then the AI usage widget told to redraw from what came back.
+    ///
+    /// Half the minute as the cache age by default, so a reading another process took in the last
+    /// half minute is as good as one of our own and two open surfaces do not each ask. The widget
+    /// reload is free while the app is in the foreground — WidgetKit only budgets the reloads a
+    /// widget asks for itself — and its timeline finds this reading in the cache rather than
+    /// fetching again.
+    ///
+    /// Returns whether every assistant answered.
+    @discardableResult
+    func refreshConnected(maxAge: TimeInterval = 30) async -> Bool {
+        guard !connected.isEmpty else { return true }
+
+        var succeeded = true
+
+        // In turn, not at once: two fetches could each refresh the same token.
+        for assistant in connected {
+            do {
+                _ = try await usage(for: assistant, maxAge: maxAge)
+            } catch {
+                succeeded = false
+            }
+        }
+
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: AIUsageCache.widgetKind)
+        #endif
+        return succeeded
     }
 
     private func fetchUsage(for assistant: AIAssistant) async throws -> AIUsage {

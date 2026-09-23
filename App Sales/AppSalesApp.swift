@@ -17,6 +17,8 @@ struct AppSalesApp: App {
     
     @State private var showingEvent = false
 
+    @Environment(\.scenePhase) private var scenePhase
+
     #if os(macOS)
     @AppStorage(UserDefaults.Key.aiUsageMenuBarExtra, store: UserDefaults.shared) private var showsMenuBarExtra = false
     #endif
@@ -46,6 +48,16 @@ struct AppSalesApp: App {
                 }
             }
             .screenshotModeStatus()
+            // The AI usage figures move while the work is being done, so while the app is up they
+            // are read once a minute and handed to the widget, which cannot ask that often itself.
+            .task(id: scenePhase) {
+                guard scenePhase == .active, !ScreenshotMode.isActive else { return }
+
+                while !Task.isCancelled {
+                    await AIAssistants.shared.refreshConnected()
+                    try? await Task.sleep(for: .seconds(60))
+                }
+            }
             #if os(macOS)
             .onAppear { DockIcon.windowOpened() }
             .onDisappear { DockIcon.windowClosed() }

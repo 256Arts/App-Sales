@@ -63,7 +63,7 @@ struct AIUsageMenuBar: View {
                     if refreshing {
                         Text("Updating…")
                     } else if let lastRefresh {
-                        Text("Updated \(Text(.currentDate, format: .reference(to: lastRefresh, allowedFields: [.day, .hour, .minute, .second], maxFieldCount: 1)))")
+                        Text(updated: lastRefresh)
                     }
                 }
                 .font(.caption)
@@ -247,7 +247,10 @@ struct AIUsageMenuBarLabel: View {
         .task {
             var retryAt = Date.distantPast
             while !Task.isCancelled {
-                if retryAt <= .now, await !refresh() {
+                // Shared with the app's window, and so also what keeps the widgets current while
+                // the extra is up. The last good reading stays on screen through a failure; the
+                // window is where one gets explained.
+                if retryAt <= .now, await !AIAssistants.shared.refreshConnected() {
                     retryAt = .now.addingTimeInterval(AIUsageCache.freshness)
                 }
                 usage = AIUsageCache.all()
@@ -264,31 +267,6 @@ struct AIUsageMenuBarLabel: View {
         let display: AIUsageDisplay
         let style: AIUsageMenuBarStyle
         let scale: CGFloat
-    }
-
-    /// Through `AIAssistants.shared.usage(for:)` like every other surface, so a reading another
-    /// process saved in the last `freshness` is used as it is, and there is never a second fetch of
-    /// the same assistant in flight — a refresh token used twice gets its family revoked, which
-    /// would sign the reader's terminal out. A window that has run out is not asked about again
-    /// until it resets, since nothing can change before then. Failures are left to the window,
-    /// which can explain them; up here the last good reading stays on screen.
-    ///
-    /// Returns whether every assistant answered.
-    private func refresh() async -> Bool {
-        let assistants = AIAssistants.shared
-        var succeeded = true
-
-        // In turn, not at once, for the same reason.
-        for assistant in assistants.connected {
-            do {
-                // Half the tick: a reading another process took in the last half minute is as good
-                // as one of our own, and anything older is asked for again.
-                _ = try await assistants.usage(for: assistant, maxAge: 30)
-            } catch {
-                succeeded = false
-            }
-        }
-        return succeeded
     }
 }
 

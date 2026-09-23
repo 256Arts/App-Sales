@@ -114,22 +114,26 @@ enum AIUsageError: LocalizedError {
 
 extension AIUsage {
 
+    /// How long ago the example figures were read.
+    private static let exampleAge: TimeInterval = 8 * 60
+
     /// Plausible figures for previews and App Store screenshots.
     ///
     /// Reset times are offsets from `.now`, the way `ACData.example` builds its entries, so the
-    /// section reads the same whichever day a run happens on.
+    /// section reads the same whichever day a run happens on — including `fetched`, which is a few
+    /// minutes back rather than this instant so the "Updated" line reads like a real one.
     static let examples: [AIUsage] = [
         AIUsage(
             assistant: .claude,
             plan: "Max",
             fiveHour: AIUsageLimit(used: 0.34, resetsAt: .now.addingTimeInterval(2 * 60 * 60)),
             week: AIUsageLimit(used: 0.61, resetsAt: .now.addingTimeInterval(3 * 24 * 60 * 60)),
-            fetched: .now),
+            fetched: .now.addingTimeInterval(-exampleAge)),
         AIUsage(
             assistant: .codex,
             plan: "Plus",
             fiveHour: AIUsageLimit(used: 0.08, resetsAt: .now.addingTimeInterval(4 * 60 * 60)),
             week: AIUsageLimit(used: 0.45, resetsAt: .now.addingTimeInterval(5 * 24 * 60 * 60)),
-            fetched: .now),
+            fetched: .now.addingTimeInterval(-exampleAge)),
     ]
 }

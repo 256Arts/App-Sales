@@ -55,10 +55,16 @@ struct AIUsageProvider: AppIntentTimelineProvider {
     func timeline(for configuration: AIUsagePreferences, in context: Context) async -> Timeline<AIUsageEntry> {
         let entry = await entry(for: configuration)
         let nextUpdate = nextUpdate(after: entry)
-        // The same figures redrawn every few minutes until the next fetch, so the reset countdowns
-        // the accessories show keep counting down between fetches.
-        let entries = stride(from: entry.date, to: nextUpdate, by: 5 * 60).map { entry.at($0) }
-        return Timeline(entries: entries, policy: .after(nextUpdate))
+        return Timeline(entries: redraws(from: entry.date, to: nextUpdate).map { entry.at($0) }, policy: .after(nextUpdate))
+    }
+
+    /// The same figures redrawn until the next fetch, so the reset countdowns the accessories show
+    /// keep counting down: every five minutes through the first day, where a countdown reads to the
+    /// minute, then hourly — a week that has run out can be days from refilling, and a countdown
+    /// that long reads only in days.
+    private func redraws(from start: Date, to end: Date) -> [Date] {
+        let day = start.addingTimeInterval(24 * 60 * 60)
+        return Array(stride(from: start, to: min(end, day), by: 5 * 60)) + Array(stride(from: day, to: end, by: 60 * 60))
     }
 
     #if os(watchOS)
@@ -94,7 +100,8 @@ struct AIUsageProvider: AppIntentTimelineProvider {
         // reader's terminal out too.
         for assistant in wanted {
             do {
-                usage.append(try await AIAssistants.shared.usage(for: assistant))
+                // A minute's grace, so a reading the open app has just handed over is used as it is.
+                usage.append(try await AIAssistants.shared.usage(for: assistant, maxAge: 60))
             } catch {
                 // One assistant failing should not blank the other, or throw away yesterday's
                 // figures: stale numbers still say roughly where the week stands.
@@ -109,29 +116,77 @@ struct AIUsageProvider: AppIntentTimelineProvider {
         return AIUsageEntry(date: .now, usage: usage, message: usage.isEmpty ? message : nil, configuration: configuration)
     }
 
-    /// When to come back: shortly after the first window empties, or on the routine cadence,
-    /// whichever is sooner.
-    ///
-    /// A reset is the one moment these figures jump — every other minute they only creep — so it is
-    /// worth waking for. With nothing to show, back off: an assistant that is not connected will not
-    /// connect itself.
+    /// When to come back: whenever the assistant that needs it soonest does. With nothing to show,
+    /// back off — an assistant that is not connected will not connect itself.
     private func nextUpdate(after entry: AIUsageEntry) -> Date {
-        guard !entry.usage.isEmpty else { return .now.addingTimeInterval(60 * 60) }
+        entry.usage.map { AIUsagePacing.nextCheck(for: $0, at: entry.date) }.min()
+            ?? entry.date.addingTimeInterval(60 * 60)
+    }
+}
 
-        let routine = Date.now.addingTimeInterval(2 * AIUsageCache.freshness)
-        let nextReset = entry.usage
-            .flatMap { [$0.fiveHour?.resetsAt, $0.week?.resetsAt] }
-            .compactMap { $0 }
-            .filter { $0 > .now }
-            .min()?
-            .addingTimeInterval(60)
+/// How often the AI usage widget asks about one assistant.
+///
+/// - A window that has run out cannot move until it refills, so the widget sleeps until it does.
+/// - A five-hour window nobody has started moves only once work does: every half hour.
+/// - Otherwise work is under way: every five minutes, doubling each time a new reading comes back
+///   unchanged — the reader has stepped away — up to twenty, and back to five the moment one moves.
+///
+/// Five minutes is well past WidgetKit's daily reload budget if it ran all day, which is what the
+/// doubling is for; and while the app is open it reads usage every minute and reloads this widget
+/// itself, which the budget does not count.
+///
+/// Each timeline is a fresh run of the extension with no memory of the last, so what the pacing
+/// has learned — the last reading it compared, and the interval that earned — lives in the App Group.
+struct AIUsagePacing: Codable {
 
-        return min(routine, nextReset ?? routine)
+    var fiveHour: Double?
+    var week: Double?
+    var fetched: Date
+    var interval: TimeInterval
+
+    static let quickest: TimeInterval = 5 * 60
+    static let slowest: TimeInterval = 20 * 60
+    static let idle: TimeInterval = 30 * 60
+
+    /// When to next ask about this reading's assistant, remembering what it learned for next time.
+    static func nextCheck(for usage: AIUsage, at date: Date = .now) -> Date {
+        var paces = stored()
+        let previous = paces[usage.assistant.rawValue]
+
+        let interval: TimeInterval
+        if let previous, previous.fetched == usage.fetched {
+            // The reading last time came back again, out of the cache: nothing new to learn from.
+            interval = previous.interval
+        } else if let previous, previous.fiveHour == usage.fiveHour?.used, previous.week == usage.week?.used {
+            interval = min(previous.interval * 2, slowest)
+        } else {
+            interval = quickest
+        }
+        paces[usage.assistant.rawValue] = AIUsagePacing(fiveHour: usage.fiveHour?.used, week: usage.week?.used, fetched: usage.fetched, interval: interval)
+        save(paces)
+
+        if let refill = usage.exhaustedUntil(at: date) {
+            return refill.addingTimeInterval(60)
+        }
+        if (usage.fiveHour?.used ?? 0) == 0 {
+            return date.addingTimeInterval(idle)
+        }
+        return date.addingTimeInterval(interval)
+    }
+
+    /// Keyed by the assistant's raw value, which JSON keeps as an object rather than a list of pairs.
+    private static func stored() -> [String: AIUsagePacing] {
+        guard let data = UserDefaults.shared?.data(forKey: UserDefaults.Key.aiUsageWidgetPacing) else { return [:] }
+        return (try? JSONDecoder().decode([String: AIUsagePacing].self, from: data)) ?? [:]
+    }
+
+    private static func save(_ paces: [String: AIUsagePacing]) {
+        UserDefaults.shared?.set(try? JSONEncoder().encode(paces), forKey: UserDefaults.Key.aiUsageWidgetPacing)
     }
 }
 
 struct AIUsageWidget: Widget {
-    let kind: String = "AIUsage"
+    let kind: String = AIUsageCache.widgetKind
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: AIUsagePreferences.self, provider: AIUsageProvider()) { entry in
@@ -207,12 +262,24 @@ struct AIUsageWidgetView: View {
         } else {
             let shown = showingAll ? entry.usage : Array(headline.map { [$0] } ?? [])
 
-            HStack(alignment: .top, spacing: 16) {
-                ForEach(shown) { usage in
-                    AIUsageColumn(usage: usage, display: display)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .top, spacing: 16) {
+                    ForEach(shown) { usage in
+                        AIUsageColumn(usage: usage, display: display)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+
+                // The oldest of the readings on screen: with one assistant's fetch failed and its
+                // cached figures standing in, that is the one worth knowing the age of.
+                if let read = entry.usage.map(\.fetched).min() {
+                    Text(updated: read)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
     }
 
