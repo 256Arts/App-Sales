@@ -35,7 +35,7 @@ struct AppPerformanceSummary: Identifiable {
     let appleID: String
     var id: String { appleID }
     let name: String
-    let iconURL: URL
+    let iconURL: URL?
     let downloads: Int
     let proceeds: Double
     let price: Double

@@ -167,21 +167,40 @@ final class AppStoreConnectAPI {
     }
 
     private func getApps(entries: [Event]) async throws -> [ACApp] {
-        let tupples: [ITunesAppRequest] = entries.map({ .init(appleID: $0.appIdentifier, name: $0.appTitle, sku: $0.appSKU) })
-        var uniqueTupple: [ITunesAppRequest] = []
-        for tupple in tupples {
-            if !uniqueTupple.contains(where: { $0.appleID == tupple.appleID }) {
-                uniqueTupple.append(tupple)
+        // An in-app purchase row carries the purchase's own Apple ID, which is not an app, so only app
+        // rows become requests.
+        var requests: [String: ITunesAppRequest] = [:]
+        var countrySales: [String: [String: Int]] = [:]
+        for entry in entries where entry.type != .iap && entry.type != .restoredIap {
+            if requests[entry.appIdentifier] == nil {
+                requests[entry.appIdentifier] = .init(appleID: entry.appIdentifier, name: entry.appTitle, sku: entry.appSKU, storefront: nil, isApp: false)
             }
+            countrySales[entry.appIdentifier, default: [:]][entry.countryCode, default: 0] += max(entry.units, 1)
+            if [.download, .redownload, .update].contains(entry.type) {
+                requests[entry.appIdentifier]?.isApp = true
+            }
+        }
+        for appleID in requests.keys {
+            // The storefront outside the US it sold best in, for an app the US lookup cannot see.
+            requests[appleID]?.storefront = countrySales[appleID]?.filter { $0.key != "US" }.max(by: { $0.value < $1.value })?.key
         }
 
         return await withTaskGroup(of: ACApp?.self) { group in
             var lookUps: [ACApp] = []
-            lookUps.reserveCapacity(uniqueTupple.count)
+            lookUps.reserveCapacity(requests.count)
 
-            for app in uniqueTupple {
+            for app in requests.values {
                 group.addTask {
-                    return try? await self.iTunesLookup(appRequest: app)
+                    if let found = try? await self.iTunesLookup(appRequest: app, country: nil) {
+                        return found
+                    }
+                    if let storefront = app.storefront, let found = try? await self.iTunesLookup(appRequest: app, country: storefront) {
+                        return found
+                    }
+                    // Removed from sale or unreleased: keep it from the report alone, so its sales
+                    // still have a row, drawn with a placeholder icon.
+                    guard app.isApp else { return nil }
+                    return ACApp(appleID: app.appleID, name: app.name, sku: app.sku, version: "", price: 0, currentVersionReleaseDate: "", iconURL100: nil, iconURL512: nil)
                 }
             }
 
@@ -230,15 +249,22 @@ final class AppStoreConnectAPI {
         let appleID: String
         let name: String
         let sku: String
+        var storefront: String?
+        /// Whether any row was a download, redownload, or update — the rows only an app has.
+        var isApp: Bool
     }
 
     // Icons come from the public iTunes lookup rather than App Store Connect. The ASC API only exposes
     // icons per build (`Build.iconAssetToken`, via /v1/builds?filter[app]=…), which needs a Developer,
     // App Manager, or Admin key — Sales/Finance keys can read reports but not builds.
-    // Known gap: this lookup throws for removed, unreleased, or non-US apps (no `country` param), and
-    // `getApps` then drops the app entirely. If fixing, fall back to the latest build's icon, then a placeholder.
-    private func iTunesLookup(appRequest: ITunesAppRequest) async throws -> ACApp {
-        guard let url = URL(string: "https://itunes.apple.com/lookup?id=" + appRequest.appleID) else {
+    // The lookup is per storefront (US unless `country` is given) and finds nothing for a removed or
+    // unreleased app; `getApps` retries and then falls back to the report row.
+    private func iTunesLookup(appRequest: ITunesAppRequest, country: String?) async throws -> ACApp {
+        var query = "https://itunes.apple.com/lookup?id=" + appRequest.appleID
+        if let country {
+            query += "&country=" + country.lowercased()
+        }
+        guard let url = URL(string: query) else {
             throw APIError.unknown
         }
 

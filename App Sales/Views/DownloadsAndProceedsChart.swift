@@ -24,27 +24,7 @@ struct DownloadsAndProceedsChart: View {
         .chartXAxis {
             AxisMarks(values: apps.map { $0.name }) { axis in
                 AxisValueLabel {
-                    AsyncImage(url: apps[axis.index].iconURL) { image in
-                        image
-                            .resizable()
-                            .widgetAccentedRenderingMode(.accentedDesaturated)
-                    } placeholder: {
-                        #if canImport(UIKit)
-                        if let path = apps[axis.index].cachedIconURL?.path(percentEncoded: false), let data = FileManager.default.contents(atPath: path), let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage).resizable()
-                        } else {
-                            Color.secondary
-                        }
-                        #else
-                        if let path = apps[axis.index].cachedIconURL?.path(percentEncoded: false), let data = FileManager.default.contents(atPath: path), let nsImage = NSImage(data: data) {
-                            Image(nsImage: nsImage).resizable()
-                        } else {
-                            Color.secondary
-                        }
-                        #endif
-                    }
-                    .frame(width: iconLength, height: iconLength)
-                    .clipShape(RoundedRectangle(cornerRadius: iconLength / 4))
+                    AppIconView(app: apps[axis.index], length: iconLength)
                 }
             }
         }

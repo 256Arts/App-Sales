@@ -8,8 +8,10 @@ struct ACApp: Codable, Identifiable {
     let version: String
     let price: Double
     let currentVersionReleaseDate: String
-    let iconURL100: URL
-    let iconURL512: URL
+    /// Nil for an app the iTunes lookup could not find (removed from sale, unreleased), which is
+    /// drawn with a placeholder icon.
+    let iconURL100: URL?
+    let iconURL512: URL?
     
     var url: URL {
         URL(string: "https://apps.apple.com/app/id" + appleID)!
@@ -21,7 +23,7 @@ struct ACApp: Codable, Identifiable {
     }
     
     func saveIcon() async {
-        guard let cachedIconURL else { return }
+        guard let cachedIconURL, let iconURL512 else { return }
         
         let imageData: Data? = await {
             if let data = try? Data(contentsOf: iconURL512) {

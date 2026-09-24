@@ -67,7 +67,7 @@ struct SummarySmall: View {
                                     .resizable()
                                     .widgetAccentedRenderingMode(.accentedDesaturated)
                             } else {
-                                Color.secondary
+                                AppIconPlaceholder()
                             }
                         }
                         .frame(width: 24, height: 24)

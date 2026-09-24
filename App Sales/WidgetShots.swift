@@ -87,7 +87,7 @@ enum WidgetShots {
     /// The widgets read app icons from the App Group, where a real fetch would have cached them.
     private static func seedDemoIcons() {
         for app in [ACApp.demo1, .demo2, .demo3, .demo4] {
-            guard let url = app.cachedIconURL, let data = try? Data(contentsOf: app.iconURL512) else { continue }
+            guard let url = app.cachedIconURL, let iconURL = app.iconURL512, let data = try? Data(contentsOf: iconURL) else { continue }
             try? FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
             try? data.write(to: url)
         }
