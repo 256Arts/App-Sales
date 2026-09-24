@@ -26,9 +26,9 @@ enum GoogleAnalyticsError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notConnected:
-            "You are not signed in to Google Analytics."
+            String(localized: "You are not signed in to Google Analytics.")
         case .signInExpired:
-            "Your Google sign-in has expired. Sign in to Google Analytics again."
+            String(localized: "Your Google sign-in has expired. Sign in to Google Analytics again.")
         case .google(let message):
             message
         }
@@ -182,7 +182,7 @@ final class GoogleAnalytics {
         struct TokenError: Decodable { let error: String; let errorDescription: String? }
         let error = try? decoder.decode(TokenError.self, from: data)
         if error?.error == "invalid_grant" { throw GoogleAnalyticsError.signInExpired }
-        throw GoogleAnalyticsError.google(error?.errorDescription ?? error?.error ?? "Google could not sign you in.")
+        throw GoogleAnalyticsError.google(error?.errorDescription ?? error?.error ?? String(localized: "Google could not sign you in."))
     }
 
     private func validAccessToken() async throws -> String {

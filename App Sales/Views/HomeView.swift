@@ -337,7 +337,7 @@ private struct ViewsColumn: View {
     let widest: Int
     let systemImage: String
     /// Names the page in the spoken label, as in "website page views".
-    let source: String
+    let source: LocalizedStringResource
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -345,7 +345,7 @@ private struct ViewsColumn: View {
                 .hidden()
             if let views {
                 Label(views.formatted(), systemImage: systemImage)
-                    .accessibilityLabel("\(views) \(source) views in the last 30 days")
+                    .accessibilityLabel("\(views) \(String(localized: source)) views in the last 30 days")
             }
         }
         .accessibilityHidden(views == nil)
