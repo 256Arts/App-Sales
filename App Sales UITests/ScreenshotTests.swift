@@ -22,6 +22,12 @@ final class ScreenshotTests: XCTestCase {
         continueAfterFailure = false
         app = XCUIApplication()
         app.launchArguments = ["-screenshotMode"]
+        #if os(iOS)
+        // Landscape, to match the iPad's widget shots and show the app list beside the Summary.
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            XCUIDevice.shared.orientation = .landscapeLeft
+        }
+        #endif
         app.launch()
 
         #if os(macOS)
@@ -60,8 +66,8 @@ final class ScreenshotTests: XCTestCase {
     }
 
     #if os(iOS)
-    /// The app list is one step back from the Summary on an iPhone, and folded away beside it on an
-    /// iPad in portrait; the Mac and Vision show it all along.
+    /// The app list is one step back from the Summary on an iPhone; the iPad (in landscape), Mac, and
+    /// Vision show it all along, but the toggle is still tried in case the sidebar starts folded.
     private func revealSidebar(showing row: XCUIElement) {
         if row.waitForExistence(timeout: 2), row.isHittable { return }
         let toggle = app.buttons["Show Sidebar"]
