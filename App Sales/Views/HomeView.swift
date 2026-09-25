@@ -54,7 +54,7 @@ struct HomeView: View {
     var body: some View {
         NavigationSplitView(preferredCompactColumn: $preferredColumn) {
             sidebar
-                .navigationSplitViewColumnWidth(min: 320, ideal: 400)
+                .navigationSplitViewColumnWidth(min: 220, ideal: 400)
         } detail: {
             switch selection ?? .summary {
             case .summary:
