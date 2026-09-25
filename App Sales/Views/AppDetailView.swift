@@ -24,30 +24,48 @@ struct AppDetailView: View {
     var body: some View {
         List {
             Section {
-                HStack(spacing: 16) {
-                    AppIconView(app: app, length: 64)
+                HStack(spacing: 14) {
+                    AppIconView(app: app, length: 72)
+                        .shadow(color: .black.opacity(0.15), radius: 6, y: 3)
 
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 2) {
                         Text(app.name)
                             .font(.title2.bold())
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
                         Text(priceString)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
-                }
 
-                Link(destination: app.url) {
-                    Label("View on the App Store", image: "logo.appstore")
-                }
-                if let url = websiteTraffic?.url {
-                    Link(destination: url) {
-                        Label("Open Webpage", systemImage: "safari")
+                    Spacer(minLength: 0)
+
+                    HStack(spacing: 8) {
+                        Link(destination: app.url) {
+                            Label("View on the App Store", image: "logo.appstore")
+                        }
+                        .help("View on the App Store")
+                        if let url = websiteTraffic?.url {
+                            Link(destination: url) {
+                                Label("Open Webpage", systemImage: "safari")
+                            }
+                            .help("Open Webpage")
+                        }
+                        if showsWebsite {
+                            Button("Set Webpage…", systemImage: "pencil") {
+                                editingWebsitePage = app
+                            }
+                            .help("Set Webpage…")
+                        }
                     }
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.glass)
+                    .buttonBorderShape(.circle)
+                    .controlSize(.large)
                 }
-                if showsWebsite {
-                    Button("Set Webpage…", systemImage: "pencil") {
-                        editingWebsitePage = app
-                    }
-                }
+                .padding(.vertical, 4)
+                .listRowBackground(Color.clear)
+                .listRowInsets(.horizontal, 0)
             }
 
             Section {
