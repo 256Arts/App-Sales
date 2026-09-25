@@ -274,10 +274,6 @@ struct HomeView: View {
                 .labelStyle(.iconOnly)
                 .symbolVariant(.circle.fill)
                 .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(.gray)
-                .font(.title3)
-                .frame(minWidth: 32, minHeight: 32)
-                .contentShape(.rect)
         }
         .menuIndicator(.hidden)
         .onChange(of: chartShowsActiveDevices) {
