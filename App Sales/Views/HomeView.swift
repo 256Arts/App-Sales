@@ -272,7 +272,8 @@ struct HomeView: View {
         } label: {
             Label("Chart Options", systemImage: "ellipsis")
                 .labelStyle(.iconOnly)
-                .symbolVariant(.circle)
+                .symbolVariant(.circle.fill)
+                .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(.gray)
                 .font(.title3)
                 .frame(minWidth: 32, minHeight: 32)
