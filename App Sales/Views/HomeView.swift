@@ -100,32 +100,48 @@ struct HomeView: View {
                         InsightsView(summary: summary)
 
                         if let selectedKey {
-                            AppStoreAnalyticsSection(account: selectedKey, data: data, apps: summary.apps, availability: $appStoreAnalytics)
+                            AppStoreAnalyticsSection(account: selectedKey, data: data, availability: $appStoreAnalytics)
                         }
 
                         let websiteViews = websiteTraffic.mapValues(\.views)
-                        let appStoreViews = appStorePageViews(of: summary.apps)
+                        let appStoreTotals = appStoreTotals(of: summary.apps)
+                        let impressions = appStoreTotals.mapValues(\.impressions)
+                        let appStoreViews = appStoreTotals.mapValues(\.pageViews)
                         Section {
                             ForEach(appListSort.sort(summary.apps, websiteViews: websiteViews, appStoreViews: appStoreViews)) { app in
-                                AppRow(
-                                    app: app,
-                                    iconLength: appListIconLength,
-                                    websiteTraffic: websiteTraffic[app.appleID],
-                                    widestWebsiteViews: websiteViews.values.max(),
-                                    appStoreViews: appStoreViews[app.appleID],
-                                    widestAppStoreViews: appStoreViews.values.max())
-                                    .contextMenu {
-                                        if googleAnalytics.property != nil {
-                                            if let url = websiteTraffic[app.appleID]?.url {
-                                                Link(destination: url) {
-                                                    Label("Open Website Page", systemImage: "safari")
-                                                }
-                                            }
-                                            Button("Set Website Page…", systemImage: "pencil") {
-                                                editingWebsitePage = app
+                                NavigationLink {
+                                    AppDetailView(
+                                        app: app,
+                                        data: data,
+                                        websiteTraffic: websiteTraffic[app.appleID],
+                                        showsWebsite: googleAnalytics.property != nil,
+                                        analytics: appStoreAnalytics)
+                                } label: {
+                                    AppRow(
+                                        app: app,
+                                        iconLength: appListIconLength,
+                                        websiteTraffic: websiteTraffic[app.appleID],
+                                        widestWebsiteViews: websiteViews.values.max(),
+                                        impressions: impressions[app.appleID],
+                                        widestImpressions: impressions.values.max(),
+                                        appStoreViews: appStoreViews[app.appleID],
+                                        widestAppStoreViews: appStoreViews.values.max())
+                                }
+                                .contextMenu {
+                                    Link(destination: app.url) {
+                                        Label("View on the App Store", image: "logo.appstore")
+                                    }
+                                    if googleAnalytics.property != nil {
+                                        if let url = websiteTraffic[app.appleID]?.url {
+                                            Link(destination: url) {
+                                                Label("Open Webpage", systemImage: "safari")
                                             }
                                         }
+                                        Button("Set Webpage…", systemImage: "pencil") {
+                                            editingWebsitePage = app
+                                        }
                                     }
+                                }
                             }
                         } header: {
                             HStack {
@@ -216,11 +232,11 @@ struct HomeView: View {
         await loader.load(account: selectedKey, useMemoization: useMemoization)
     }
     
-    /// Each app's product page views over the analytics window; empty until the analytics are ready.
-    private func appStorePageViews(of apps: [AppPerformanceSummary]) -> [String: Int] {
+    /// Each app's App Store analytics over the analytics window; empty until the analytics are ready.
+    private func appStoreTotals(of apps: [AppPerformanceSummary]) -> [String: AnalyticsTotals] {
         guard case .ready(let analytics) = appStoreAnalytics else { return [:] }
 
-        return Dictionary(uniqueKeysWithValues: apps.map { ($0.appleID, analytics.totals(for: $0.appleID).pageViews) })
+        return Dictionary(uniqueKeysWithValues: apps.map { ($0.appleID, analytics.totals(for: $0.appleID)) })
     }
 
     /// The view sorts are offered only once there are views to sort by, though a chosen one stays
@@ -253,8 +269,8 @@ struct HomeView: View {
     }
 }
 
-/// One app in the home screen's app list: its icon, its website and App Store page views, its 30-day downloads, proceeds,
-/// its price, and a link to its App Store page.
+/// One app in the home screen's app list: its icon, name and price, then its webpage views, App Store
+/// impressions and product page views, and its 30-day downloads and proceeds.
 private struct AppRow: View {
 
     let app: AppPerformanceSummary
@@ -263,7 +279,9 @@ private struct AppRow: View {
     /// The most page views any row shows, which sizes the page view column in every row so the
     /// stats after it line up. `nil` when no app has a page, and the column is left out.
     let widestWebsiteViews: Int?
-    /// Product page views, and the column's width, the same way as the website's.
+    /// Impressions and product page views, and their columns' widths, the same way as the website's.
+    let impressions: Int?
+    let widestImpressions: Int?
     let appStoreViews: Int?
     let widestAppStoreViews: Int?
 
@@ -272,18 +290,33 @@ private struct AppRow: View {
             AppIconView(app: app, length: iconLength)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(app.name)
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text(app.name)
+                    price
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .labelStyle(StatLabelStyle())
+                }
+                .lineLimit(1)
 
                 HStack(spacing: 8) {
                     if let widestWebsiteViews {
-                        ViewsColumn(views: websiteTraffic?.views, widest: widestWebsiteViews, systemImage: "globe", source: "website page")
+                        ViewsColumn(views: websiteTraffic?.views, widest: widestWebsiteViews, systemImage: "globe") {
+                            Text("\($0) webpage views in the last 30 days")
+                        }
+                    }
+                    if let widestImpressions {
+                        ViewsColumn(views: impressions, widest: widestImpressions, systemImage: "eye") {
+                            Text("\($0) App Store impressions in the last 30 days")
+                        }
                     }
                     if let widestAppStoreViews {
-                        ViewsColumn(views: appStoreViews, widest: widestAppStoreViews, systemImage: "doc.text.magnifyingglass", source: "App Store product page")
+                        ViewsColumn(views: appStoreViews, widest: widestAppStoreViews, systemImage: "doc.text.magnifyingglass") {
+                            Text("\($0) App Store product page views in the last 30 days")
+                        }
                     }
                     downloads
                     proceeds
-                    price
                     // Soaks up the width the row has spare, so the stats stay grouped
                     // at the leading edge rather than spreading across the row.
                     Spacer(minLength: 0)
@@ -294,13 +327,6 @@ private struct AppRow: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             }
-
-            Spacer()
-
-            Link(destination: app.url) {
-                Image("logo.appstore")
-            }
-            .accessibilityLabel("View \(app.name) on the App Store")
         }
     }
 
@@ -329,15 +355,15 @@ private struct AppRow: View {
     }
 }
 
-/// A page view count, as wide as the widest row's figure whether or not this app has one, so the
+/// A view count, as wide as the widest row's figure whether or not this app has one, so the
 /// column holds.
 private struct ViewsColumn: View {
 
     let views: Int?
     let widest: Int
     let systemImage: String
-    /// Names the page in the spoken label, as in "website page views".
-    let source: LocalizedStringResource
+    /// What VoiceOver reads for a count, since the icon alone says nothing spoken.
+    let spokenLabel: (Int) -> Text
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -345,7 +371,7 @@ private struct ViewsColumn: View {
                 .hidden()
             if let views {
                 Label(views.formatted(), systemImage: systemImage)
-                    .accessibilityLabel("\(views) \(String(localized: source)) views in the last 30 days")
+                    .accessibilityLabel(spokenLabel(views))
             }
         }
         .accessibilityHidden(views == nil)

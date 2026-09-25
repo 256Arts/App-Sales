@@ -20,7 +20,6 @@ struct AIUsageMenuBar: View {
     @AppStorage(UserDefaults.Key.aiUsageTimeStyle, store: UserDefaults.shared) private var timeStyle: AIUsageTimeStyle = .relative
     @AppStorage(UserDefaults.Key.aiUsageGoal, store: UserDefaults.shared) private var goal: AIUsageGoal = .none
     @AppStorage(UserDefaults.Key.aiUsageMenuBarStyle, store: UserDefaults.shared) private var style: AIUsageMenuBarStyle = .ring
-    @AppStorage(UserDefaults.Key.aiUsageHidesUnreachable, store: UserDefaults.shared) private var hidesUnreachable = false
     @State private var opensAtLogin = LoginItem.isEnabled
 
     @Environment(\.openWindow) private var openWindow
@@ -42,8 +41,9 @@ struct AIUsageMenuBar: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
+                    // Both windows always, whatever the label hides: opening the menu is asking for the lot.
                     ForEach(usage) { usage in
-                        AIUsageColumn(usage: usage, display: AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal, hidesUnreachable: hidesUnreachable), showsMetric: true)
+                        AIUsageColumn(usage: usage, display: AIUsageDisplay(metric: metric, timeStyle: timeStyle, goal: goal), showsMetric: true)
                     }
                 }
 

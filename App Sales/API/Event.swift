@@ -67,6 +67,18 @@ enum ACDevice: String, CaseIterable, Identifiable {
         self.rawValue
     }
 
+    /// Apple's product names, which are the same in every language.
+    var name: String {
+        switch self {
+        case .iPhone: "iPhone"
+        case .iPad: "iPad"
+        case .desktop: "Mac"
+        case .appleWatch: "Apple Watch"
+        case .appleTV: "Apple TV"
+        case .unknown: String(localized: "Other")
+        }
+    }
+
     var symbol: String {
         switch self {
         case .iPhone:

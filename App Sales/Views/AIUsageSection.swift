@@ -62,8 +62,6 @@ struct AIUsageSection: View {
         } footer: {
             if !connected.isEmpty {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Limits refill on a rolling five-hour and seven-day window.")
-
                     // The oldest of the readings above: with one assistant's fetch failed and its
                     // cached figures standing in, that is the one worth knowing the age of. A
                     // reading is shared with the widgets and the menu bar through the App Group, so
