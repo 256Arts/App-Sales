@@ -107,13 +107,24 @@ struct AppDetailView: View {
                 }
             }
 
-            if case .ready(let analytics) = analytics {
+            if let analytics {
                 Section {
-                    AnalyticsTotalsRows(totals: analytics.totals(for: app.appleID), downloads: Int(data.getTotal(for: .downloads, in: analytics.range, filteredApps: acApps)))
+                    switch analytics {
+                    case .ready(let analytics):
+                        AnalyticsTotalsRows(totals: analytics.totals(for: app.appleID), downloads: Int(data.getTotal(for: .downloads, in: analytics.range, filteredApps: acApps)))
+                    case .preparing:
+                        Text("App Store Connect is preparing analytics reports for your apps. The first ones usually arrive within two days.")
+                            .foregroundStyle(.secondary)
+                    case .needsAdminKey:
+                        Text("Analytics reports need to be turned on once with an API key that has the Admin role. After that, a Sales and Reports key can read them.")
+                            .foregroundStyle(.secondary)
+                    }
                 } header: {
                     Text("App Store Analytics")
                 } footer: {
-                    Text("30 days through \(analytics.range.upperBound.addingTimeInterval(-1), format: .dateTime.month().day()), the latest reported.")
+                    if case .ready(let analytics) = analytics {
+                        Text("30 days through \(analytics.range.upperBound.addingTimeInterval(-1), format: .dateTime.month().day()), the latest reported.")
+                    }
                 }
             }
         }
@@ -143,6 +154,51 @@ struct AppDetailView: View {
             .filter { $0.value > 0 }
             .map { (device: $0.key, downloads: $0.value) }
             .sorted { $0.downloads > $1.downloads }
+    }
+}
+
+/// The funnel from being seen to being used, as one row per figure.
+private struct AnalyticsTotalsRows: View {
+
+    let totals: AnalyticsTotals
+    let downloads: Int
+
+    var body: some View {
+        LabeledContent {
+            Text(totals.impressions, format: .number)
+        } label: {
+            Label("Impressions", systemImage: "eye")
+        }
+        LabeledContent {
+            Text(totals.pageViews, format: .number)
+        } label: {
+            Label("Product Page Views", systemImage: "doc.text.magnifyingglass")
+        }
+        LabeledContent {
+            Text(downloads, format: .number)
+        } label: {
+            Label("Downloads", systemImage: "arrow.down.app")
+        }
+        LabeledContent {
+            if let rate = totals.conversionRate(downloads: downloads) {
+                Text(rate, format: .percent.precision(.fractionLength(0...1)))
+            } else {
+                Text("—")
+                    .accessibilityLabel("Not available")
+            }
+        } label: {
+            Label("Conversion Rate", systemImage: "percent")
+        }
+        LabeledContent {
+            Text(totals.sessions, format: .number)
+        } label: {
+            Label("Sessions", systemImage: "hand.tap")
+        }
+        LabeledContent {
+            Text(totals.averageDailyActiveDevices, format: .number)
+        } label: {
+            Label("Daily Active Devices", systemImage: "person.2")
+        }
     }
 }
 

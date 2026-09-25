@@ -11,6 +11,8 @@ struct HomeView: View {
     @State private var websiteTraffic: [String: WebPageTraffic] = [:]
     @State private var editingWebsitePage: AppPerformanceSummary?
     @State private var appStoreAnalytics: AnalyticsAvailability?
+    /// What `appStoreAnalytics` was last loaded for, and when, since the reports only change daily.
+    @State private var appStoreAnalyticsLoad: (query: AppStoreAnalyticsQuery, date: Date)?
     /// Counts pulls to refresh, so the AI usage below the sales refreshes along with them.
     @State private var refreshCount = 0
 
@@ -99,46 +101,40 @@ struct HomeView: View {
                     if let summary = loader.summary {
                         InsightsView(summary: summary)
 
-                        if let selectedKey {
-                            AppStoreAnalyticsSection(account: selectedKey, data: data, availability: $appStoreAnalytics)
-                        }
-
-                        let websiteViews = websiteTraffic.mapValues(\.views)
-                        let appStoreTotals = appStoreTotals(of: summary.apps)
-                        let impressions = appStoreTotals.mapValues(\.impressions)
-                        let appStoreViews = appStoreTotals.mapValues(\.pageViews)
+                        let counts = appCounts(of: summary.apps)
                         Section {
-                            ForEach(appListSort.sort(summary.apps, websiteViews: websiteViews, appStoreViews: appStoreViews)) { app in
-                                NavigationLink {
-                                    AppDetailView(
-                                        app: app,
-                                        data: data,
-                                        websiteTraffic: websiteTraffic[app.appleID],
-                                        showsWebsite: googleAnalytics.property != nil,
-                                        analytics: appStoreAnalytics)
-                                } label: {
-                                    AppRow(
-                                        app: app,
-                                        iconLength: appListIconLength,
-                                        websiteTraffic: websiteTraffic[app.appleID],
-                                        widestWebsiteViews: websiteViews.values.max(),
-                                        impressions: impressions[app.appleID],
-                                        widestImpressions: impressions.values.max(),
-                                        appStoreViews: appStoreViews[app.appleID],
-                                        widestAppStoreViews: appStoreViews.values.max())
+                            ForEach(appListSort.sort(summary.apps, counts: counts[appListSort] ?? [:])) { app in
+                                Group {
+                                    if app.isOnAppStore {
+                                        NavigationLink {
+                                            AppDetailView(
+                                                app: app,
+                                                data: data,
+                                                websiteTraffic: websiteTraffic[app.appleID],
+                                                showsWebsite: googleAnalytics.property != nil,
+                                                analytics: appStoreAnalytics)
+                                        } label: {
+                                            AppRow(app: app, iconLength: appListIconLength, counts: counts)
+                                        }
+                                    } else {
+                                        AppRow(app: app, iconLength: appListIconLength, counts: counts)
+                                    }
                                 }
                                 .contextMenu {
-                                    Link(destination: app.url) {
-                                        Label("View on the App Store", image: "logo.appstore")
-                                    }
-                                    if googleAnalytics.property != nil {
-                                        if let url = websiteTraffic[app.appleID]?.url {
-                                            Link(destination: url) {
-                                                Label("Open Webpage", systemImage: "safari")
-                                            }
+                                    // Nothing to open for an app no longer on the App Store.
+                                    if app.isOnAppStore {
+                                        Link(destination: app.url) {
+                                            Label("View on the App Store", image: "logo.appstore")
                                         }
-                                        Button("Set Webpage…", systemImage: "pencil") {
-                                            editingWebsitePage = app
+                                        if googleAnalytics.property != nil {
+                                            if let url = websiteTraffic[app.appleID]?.url {
+                                                Link(destination: url) {
+                                                    Label("Open Webpage", systemImage: "safari")
+                                                }
+                                            }
+                                            Button("Set Webpage…", systemImage: "pencil") {
+                                                editingWebsitePage = app
+                                            }
                                         }
                                     }
                                 }
@@ -151,7 +147,7 @@ struct HomeView: View {
 
                                 Menu {
                                     Picker("Sort By", selection: $appListSort) {
-                                        ForEach(AppListSort.allCases.filter { isAvailable($0, websiteViews: websiteViews, appStoreViews: appStoreViews) }) { sort in
+                                        ForEach(AppListSort.allCases.filter { !$0.sortsByCounts || counts[$0] != nil || $0 == appListSort }) { sort in
                                             Label(sort.title, systemImage: sort.systemImage)
                                                 .tag(sort)
                                         }
@@ -173,6 +169,9 @@ struct HomeView: View {
                     await fetchData(useMemoization: false)
                 }
                 .websitePageEditor(for: $editingWebsitePage, currentURL: editingWebsitePage.flatMap { websiteTraffic[$0.appleID]?.url })
+                .task(id: AppStoreAnalyticsQuery(accountID: selectedKey?.id, appIDs: data.apps.map(\.appleID))) {
+                    await loadAppStoreAnalytics(data: data)
+                }
                 .task(id: WebsiteTrafficQuery(property: googleAnalytics.property, pageURLs: googleAnalytics.pageURLs, appIDs: loader.summary?.apps.map(\.appleID) ?? [])) {
                     await loadWebsiteTraffic()
                 }
@@ -232,20 +231,39 @@ struct HomeView: View {
         await loader.load(account: selectedKey, useMemoization: useMemoization)
     }
     
-    /// Each app's App Store analytics over the analytics window; empty until the analytics are ready.
-    private func appStoreTotals(of apps: [AppPerformanceSummary]) -> [String: AnalyticsTotals] {
-        guard case .ready(let analytics) = appStoreAnalytics else { return [:] }
-
-        return Dictionary(uniqueKeysWithValues: apps.map { ($0.appleID, analytics.totals(for: $0.appleID)) })
+    /// The figures of each `sortsByCounts` sort, keyed by Apple ID. A sort is missing until it
+    /// has figures, which leaves its column out of the rows and out of the sort menu (unless it is
+    /// the chosen one, so the menu still shows what the list is sorted by).
+    private func appCounts(of apps: [AppPerformanceSummary]) -> [AppListSort: [String: Int]] {
+        var counts: [AppListSort: [String: Int]] = [.websiteViews: websiteTraffic.mapValues(\.views)]
+        if case .ready(let analytics) = appStoreAnalytics {
+            let totals = Dictionary(uniqueKeysWithValues: apps.map { ($0.appleID, analytics.totals(for: $0.appleID)) })
+            counts[.impressions] = totals.mapValues(\.impressions)
+            counts[.appStoreViews] = totals.mapValues(\.pageViews)
+            counts[.activeDevices] = totals.mapValues(\.averageDailyActiveDevices)
+        }
+        return counts.filter { !$0.value.isEmpty }
     }
 
-    /// The view sorts are offered only once there are views to sort by, though a chosen one stays
-    /// listed so the menu still shows what the list is sorted by.
-    private func isAvailable(_ sort: AppListSort, websiteViews: [String: Int], appStoreViews: [String: Int]) -> Bool {
-        switch sort {
-        case .websiteViews: !websiteViews.isEmpty || sort == appListSort
-        case .appStoreViews: !appStoreViews.isEmpty || sort == appListSort
-        default: true
+    /// What the App Store analytics depend on, so they reload when the account or its apps change.
+    private struct AppStoreAnalyticsQuery: Equatable {
+        let accountID: String?
+        let appIDs: [String]
+    }
+
+    private func loadAppStoreAnalytics(data: ACData) async {
+        let query = AppStoreAnalyticsQuery(accountID: selectedKey?.id, appIDs: data.apps.map(\.appleID))
+        // Coming back from an app's screen reappears the list; the reports only change daily.
+        if let appStoreAnalyticsLoad, appStoreAnalyticsLoad.query == query, appStoreAnalyticsLoad.date.timeIntervalSinceNow > -5 * 60 { return }
+        guard let selectedKey else { return }
+
+        if appStoreAnalyticsLoad?.query.accountID != query.accountID {
+            appStoreAnalytics = nil
+        }
+        // A failed fetch keeps the last figures rather than blanking every row.
+        if let availability = try? await AnalyticsReportsAPI(account: selectedKey).getAnalytics(appleIDs: query.appIDs, sales: data) {
+            appStoreAnalytics = availability
+            appStoreAnalyticsLoad = (query, .now)
         }
     }
 
@@ -269,21 +287,15 @@ struct HomeView: View {
     }
 }
 
-/// One app in the home screen's app list: its icon, name and price, then its webpage views, App Store
-/// impressions and product page views, and its 30-day downloads and proceeds.
+/// One app in the home screen's app list: its icon, name and price, then its figures in
+/// `AppListSort` order, so they read the same way as the sort menu. An app no longer on the App
+/// Store shows none of them.
 private struct AppRow: View {
 
     let app: AppPerformanceSummary
     let iconLength: CGFloat
-    let websiteTraffic: WebPageTraffic?
-    /// The most page views any row shows, which sizes the page view column in every row so the
-    /// stats after it line up. `nil` when no app has a page, and the column is left out.
-    let widestWebsiteViews: Int?
-    /// Impressions and product page views, and their columns' widths, the same way as the website's.
-    let impressions: Int?
-    let widestImpressions: Int?
-    let appStoreViews: Int?
-    let widestAppStoreViews: Int?
+    /// The figures of each `sortsByCounts` sort, keyed by Apple ID, from `HomeView.appCounts(of:)`.
+    let counts: [AppListSort: [String: Int]]
 
     var body: some View {
         HStack {
@@ -292,34 +304,28 @@ private struct AppRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(app.name)
-                    price
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .labelStyle(StatLabelStyle())
+                    if app.isOnAppStore {
+                        price
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .labelStyle(StatLabelStyle())
+                    }
                 }
                 .lineLimit(1)
 
-                HStack(spacing: 8) {
-                    if let widestWebsiteViews {
-                        ViewsColumn(views: websiteTraffic?.views, widest: widestWebsiteViews, systemImage: "globe") {
-                            Text("\($0) webpage views in the last 30 days")
+                Group {
+                    if app.isOnAppStore {
+                        HStack(spacing: 8) {
+                            ForEach(AppListSort.allCases) { sort in
+                                stat(for: sort)
+                            }
+                            // Soaks up the width the row has spare, so the stats stay grouped
+                            // at the leading edge rather than spreading across the row.
+                            Spacer(minLength: 0)
                         }
+                    } else {
+                        Text("Not on the App Store")
                     }
-                    if let widestImpressions {
-                        ViewsColumn(views: impressions, widest: widestImpressions, systemImage: "eye") {
-                            Text("\($0) App Store impressions in the last 30 days")
-                        }
-                    }
-                    if let widestAppStoreViews {
-                        ViewsColumn(views: appStoreViews, widest: widestAppStoreViews, systemImage: "doc.text.magnifyingglass") {
-                            Text("\($0) App Store product page views in the last 30 days")
-                        }
-                    }
-                    downloads
-                    proceeds
-                    // Soaks up the width the row has spare, so the stats stay grouped
-                    // at the leading edge rather than spreading across the row.
-                    Spacer(minLength: 0)
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
@@ -327,6 +333,32 @@ private struct AppRow: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             }
+        }
+    }
+
+    /// The name and price sit on the line above, so they have no stat here.
+    @ViewBuilder
+    private func stat(for sort: AppListSort) -> some View {
+        switch sort {
+        case .downloads: downloads
+        case .proceeds: proceeds
+        case .name, .price: EmptyView()
+        case .websiteViews, .impressions, .appStoreViews, .activeDevices:
+            // Each column is as wide as its widest row's figure, so the stats after it line up.
+            if let values = counts[sort], let widest = values.values.max() {
+                ViewsColumn(views: values[app.appleID], widest: widest, systemImage: sort.systemImage) {
+                    spokenLabel(for: sort, count: $0)
+                }
+            }
+        }
+    }
+
+    private func spokenLabel(for sort: AppListSort, count: Int) -> Text {
+        switch sort {
+        case .impressions: Text("\(count) App Store impressions in the last 30 days")
+        case .appStoreViews: Text("\(count) App Store product page views in the last 30 days")
+        case .activeDevices: Text("\(count) active devices a day over the last 30 days")
+        default: Text("\(count) webpage views in the last 30 days")
         }
     }
 

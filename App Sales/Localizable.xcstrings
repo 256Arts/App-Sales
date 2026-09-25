@@ -6391,36 +6391,36 @@
         }
       }
     },
-    "Website Views" : {
+    "Webpage Views" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Website-Aufrufe"
+            "value" : "Webseitenaufrufe"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Vistas del sitio web"
+            "value" : "Vistas de la página web"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Vues du site web"
+            "value" : "Vues de la page web"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "ウェブサイトの表示回数"
+            "value" : "Webページの表示回数"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "网站浏览量"
+            "value" : "网页浏览量"
           }
         }
       }
@@ -7071,6 +7071,40 @@
         }
       }
     },
+    "%lld active devices a day over the last 30 days" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Durchschnittlich %lld aktive Geräte pro Tag in den letzten 30 Tagen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Una media de %lld dispositivos activos al día en los últimos 30 días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "%lld appareils actifs par jour en moyenne au cours des 30 derniers jours"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "過去30日間の1日あたりのアクティブデバイス数 %lld"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "过去 30 天平均每天 %lld 台活跃设备"
+          }
+        }
+      }
+    },
     "%lld App Store product page views in the last 30 days" : {
       "localizations" : {
         "de" : {
@@ -7237,6 +7271,74 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "其他"
+          }
+        }
+      }
+    },
+    "Not on the App Store" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Nicht im App Store"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "No está en el App Store"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Absente de l’App Store"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "App Storeにありません"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "未在 App Store 上架"
+          }
+        }
+      }
+    },
+    "Summarize My Sales" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Verkäufe zusammenfassen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Resumir mis ventas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Résumer mes ventes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "売上を要約"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "总结我的销售情况"
           }
         }
       }

@@ -4,7 +4,7 @@ import FoundationModels
 #endif
 
 /// A "Insights" section that uses on-device Apple Intelligence (Foundation Models)
-/// to summarize the developer's recent performance. Renders nothing on platforms or
+/// to summarize the developer's recent performance, once asked to. Renders nothing on platforms or
 /// devices where the model is unavailable, so it is safe to drop into any list.
 struct InsightsView: View {
 
@@ -64,6 +64,9 @@ final class InsightsStore {
 
     private(set) var insight = ""
     private(set) var failed = false
+    /// Whether the reader asked for insights. Nothing is generated until they do; after that, new
+    /// figures are written about as they arrive, until the app quits.
+    var isRequested = false
 
     /// The numbers `insight` describes. Generation only restarts when they change.
     private var key: String?
@@ -151,8 +154,12 @@ private struct AppleIntelligenceInsights: View {
 
     var body: some View {
         if case .available = model.availability {
-            InsightsSection(showsDisclaimer: !store.insight.isEmpty) {
-                if store.failed {
+            InsightsSection(showsDisclaimer: store.isRequested && !store.insight.isEmpty) {
+                if !store.isRequested {
+                    Button("Summarize My Sales", systemImage: "apple.intelligence") {
+                        store.isRequested = true
+                    }
+                } else if store.failed {
                     Label("Couldn't generate insights right now.", systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.secondary)
                 } else if store.insight.isEmpty {
@@ -166,9 +173,11 @@ private struct AppleIntelligenceInsights: View {
                         .textSelection(.enabled)
                 }
             }
-            // Runs on appear and whenever the figures change; the store ignores a repeat
-            // of numbers it has already written about, which is what a scroll back looks like.
-            .task(id: InsightsStore.key(for: summary)) {
+            // Runs once asked, then on appear and whenever the figures change; the store ignores a
+            // repeat of numbers it has already written about, which is what a scroll back looks like.
+            .task(id: store.isRequested ? InsightsStore.key(for: summary) : nil) {
+                guard store.isRequested else { return }
+
                 store.generate(for: summary)
             }
         }
