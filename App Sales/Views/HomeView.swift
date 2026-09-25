@@ -112,7 +112,7 @@ struct HomeView: View {
     private var sidebar: some View {
         List(selection: $selection) {
             NavigationLink(value: HomeSelection.summary) {
-                Label("Summary", systemImage: "square.grid.2x2")
+                Label("Summary", systemImage: "chart.bar.xaxis")
             }
 
             if let summary = loader.summary {

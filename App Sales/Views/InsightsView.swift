@@ -38,7 +38,7 @@ private struct InsightsSection<Content: View>: View {
         Section {
             content
         } header: {
-            Label("Insights", systemImage: "apple.intelligence")
+            Label("Insights", systemImage: "lightbulb")
         } footer: {
             if showsDisclaimer {
                 Text("Generated on-device by Apple Intelligence. May contain mistakes.")
