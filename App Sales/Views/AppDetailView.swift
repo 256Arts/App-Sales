@@ -13,6 +13,7 @@ struct AppDetailView: View {
     let analytics: AnalyticsAvailability?
 
     @State private var editingWebsitePage: AppPerformanceSummary?
+    @Environment(\.openURL) private var openURL
 
     /// The same 30 days as the home screen's downloads and proceeds.
     private let range = (Calendar.autoupdatingCurrent.date(byAdding: .day, value: -30, to: .now) ?? .now)..<Date.now
@@ -39,29 +40,6 @@ struct AppDetailView: View {
                     }
 
                     Spacer(minLength: 0)
-
-                    HStack(spacing: 8) {
-                        Link(destination: app.url) {
-                            Label("View on the App Store", image: "logo.appstore")
-                        }
-                        .help("View on the App Store")
-                        if let url = websiteTraffic?.url {
-                            Link(destination: url) {
-                                Label("Open Webpage", systemImage: "safari")
-                            }
-                            .help("Open Webpage")
-                        }
-                        if showsWebsite {
-                            Button("Set Webpage…", systemImage: "pencil") {
-                                editingWebsitePage = app
-                            }
-                            .help("Set Webpage…")
-                        }
-                    }
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.glass)
-                    .buttonBorderShape(.circle)
-                    .controlSize(.large)
                 }
                 .padding(.vertical, 4)
                 .listRowBackground(Color.clear)
@@ -152,7 +130,47 @@ struct AppDetailView: View {
         #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .toolbar {
+            ToolbarItemGroup {
+                Link(destination: app.url) {
+                    Label("View on the App Store", image: "logo.appstore")
+                }
+                .help("View on the App Store")
+                webpageButton
+            }
+        }
         .websitePageEditor(for: $editingWebsitePage, currentURL: websiteTraffic?.url)
+    }
+
+    /// Opens the webpage, with setting it as the secondary action, which macOS shows behind a chevron.
+    @ViewBuilder private var webpageButton: some View {
+        switch (websiteTraffic?.url, showsWebsite) {
+        case (let url?, true):
+            Menu {
+                setWebpageButton
+            } label: {
+                Label("Open Webpage", systemImage: "safari")
+            } primaryAction: {
+                openURL(url)
+            }
+            .help("Open Webpage")
+        case (let url?, false):
+            Link(destination: url) {
+                Label("Open Webpage", systemImage: "safari")
+            }
+            .help("Open Webpage")
+        case (nil, true):
+            setWebpageButton
+                .help("Set Webpage…")
+        case (nil, false):
+            EmptyView()
+        }
+    }
+
+    private var setWebpageButton: some View {
+        Button("Set Webpage…", systemImage: "pencil") {
+            editingWebsitePage = app
+        }
     }
 
     private var priceString: String {
