@@ -272,8 +272,6 @@ struct HomeView: View {
         } label: {
             Label("Chart Options", systemImage: "ellipsis")
                 .labelStyle(.iconOnly)
-                .symbolVariant(.circle.fill)
-                .symbolRenderingMode(.hierarchical)
         }
         .menuIndicator(.hidden)
         .onChange(of: chartShowsActiveDevices) {
