@@ -27,43 +27,41 @@ struct AppSalesApp: App {
 
     var body: some Scene {
         WindowGroup(id: Self.mainWindowID) {
-            NavigationStack {
-                HomeView()
-            }
-            .environment(apiKeysProvider)
-            .onAppear {
-                appLaunchCount += 1
-                if [5, 20, 50, 100].contains(appLaunchCount) {
-                    requestReview()
+            HomeView()
+                .environment(apiKeysProvider)
+                .onAppear {
+                    appLaunchCount += 1
+                    if [5, 20, 50, 100].contains(appLaunchCount) {
+                        requestReview()
+                    }
                 }
-            }
-            .alert("Event Intro", isPresented: $showingEvent) {
-                Button("OK") { }
-            } message: {
-                Text("Now let's celebrate by connecting your App Store Connect account and trying out the new features!")
-            }
-            .onOpenURL { url in
-                if url.path().contains("appsales/appstoreevent") {
-                    showingEvent = true
+                .alert("Event Intro", isPresented: $showingEvent) {
+                    Button("OK") { }
+                } message: {
+                    Text("Now let's celebrate by connecting your App Store Connect account and trying out the new features!")
                 }
-            }
-            .screenshotModeStatus()
-            // The AI usage figures move while the work is being done, so while the app is up they
-            // are read once a minute and handed to the widget, which cannot ask that often itself.
-            .task(id: scenePhase) {
-                guard scenePhase == .active, !ScreenshotMode.isActive else { return }
+                .onOpenURL { url in
+                    if url.path().contains("appsales/appstoreevent") {
+                        showingEvent = true
+                    }
+                }
+                .screenshotModeStatus()
+                // The AI usage figures move while the work is being done, so while the app is up they
+                // are read once a minute and handed to the widget, which cannot ask that often itself.
+                .task(id: scenePhase) {
+                    guard scenePhase == .active, !ScreenshotMode.isActive else { return }
 
-                while !Task.isCancelled {
-                    await AIAssistants.shared.refreshConnected()
-                    try? await Task.sleep(for: .seconds(60))
+                    while !Task.isCancelled {
+                        await AIAssistants.shared.refreshConnected()
+                        try? await Task.sleep(for: .seconds(60))
+                    }
                 }
-            }
-            #if os(macOS)
-            .onAppear { DockIcon.windowOpened() }
-            .onDisappear { DockIcon.windowClosed() }
-            #endif
+                #if os(macOS)
+                .onAppear { DockIcon.windowOpened() }
+                .onDisappear { DockIcon.windowClosed() }
+                #endif
         }
-        .defaultSize(CGSize(width: 500, height: 700))
+        .defaultSize(CGSize(width: 1000, height: 700))
         .commands {
             CommandGroup(after: .help) {
                 AppSalesApp.links()

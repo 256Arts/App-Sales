@@ -70,6 +70,10 @@ struct AIUsageSection: View {
                     if let read = usage.values.map(\.fetched).min() {
                         Text(updated: read)
                     }
+
+                    ForEach(display.warningReasons(for: usage.values), id: \.self) { reason in
+                        Text(reason)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }

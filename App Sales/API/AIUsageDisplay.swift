@@ -216,6 +216,29 @@ struct AIUsageDisplay: Equatable, Sendable {
     /// — where one job is a large share of the time gone — do not flash orange.
     private static let paceSlack = 0.05
 
+    /// Why the bars drawn for these readings wear the warning colours they do, one line per colour
+    /// showing — nothing while every bar is plain.
+    func warningReasons(for usages: some Sequence<AIUsage>, at date: Date = .now) -> [String] {
+        let shown = Set(usages.flatMap { usage in
+            [AIUsageWindow.fiveHour, .week].compactMap { window in
+                relevant(usage)[window].flatMap { warning(for: $0, in: window, at: date) }
+            }
+        })
+        var reasons: [String] = []
+        if shown.contains(.orange) {
+            let reason = switch goal {
+            case .none: String(localized: "Orange: over 75% used.")
+            case .useAll: String(localized: "Orange: behind pace, so tokens will go unused when it resets.")
+            case .conserve: String(localized: "Orange: ahead of pace, so it may run out before it resets.")
+            }
+            reasons.append(reason)
+        }
+        if shown.contains(.red) {
+            reasons.append(String(localized: "Red: over 90% used."))
+        }
+        return reasons
+    }
+
     /// The fill colour for a bar: the warning, or the accent while there is none.
     func tint(for limit: AIUsageLimit, in window: AIUsageWindow) -> Color {
         warning(for: limit, in: window) ?? .accentColor

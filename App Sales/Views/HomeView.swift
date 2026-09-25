@@ -15,6 +15,11 @@ struct HomeView: View {
     @State private var appStoreAnalyticsLoad: (query: AppStoreAnalyticsQuery, date: Date)?
     /// Counts pulls to refresh, so the AI usage below the sales refreshes along with them.
     @State private var refreshCount = 0
+    @State private var selection: HomeSelection? = .summary
+    /// The summary, on a phone: the app list is one step back from it, the way Mail opens on the inbox.
+    @State private var preferredColumn = NavigationSplitViewColumn.detail
+    /// Whether the summary has the width for its figures to stand larger over the chart.
+    @State private var isWide = false
 
     @Environment(AccountManager.self) var accountManager
 
@@ -41,6 +46,125 @@ struct HomeView: View {
     }
 
     var body: some View {
+        NavigationSplitView(preferredCompactColumn: $preferredColumn) {
+            sidebar
+                .navigationSplitViewColumnWidth(min: 320, ideal: 400)
+        } detail: {
+            switch selection ?? .summary {
+            case .summary:
+                summaryView
+            case .app(let appleID):
+                if let data = loader.data, let app = loader.summary?.apps.first(where: { $0.appleID == appleID }) {
+                    AppDetailView(
+                        app: app,
+                        data: data,
+                        websiteTraffic: websiteTraffic[app.appleID],
+                        showsWebsite: googleAnalytics.property != nil,
+                        analytics: appStoreAnalytics)
+                        .id(appleID)
+                } else {
+                    ProgressView()
+                }
+            }
+        }
+        .sheet(isPresented: $showingAccountsList) {
+            NavigationStack {
+                AccountsList()
+            }
+            #if os(macOS)
+            .frame(idealHeight: 400)
+            #endif
+        }
+        // Asked for by an AI usage row, or by the Mac's menu bar extra, whose sign-in was refused.
+        .sheet(item: $aiAssistants.signingIn) { assistant in
+            AIUsageSignInSheet(assistant: assistant)
+        }
+        .websitePageEditor(for: $editingWebsitePage, currentURL: editingWebsitePage.flatMap { websiteTraffic[$0.appleID]?.url })
+        .task(id: AppStoreAnalyticsQuery(accountID: selectedKey?.id, appIDs: loader.data?.apps.map(\.appleID) ?? [])) {
+            await loadAppStoreAnalytics()
+        }
+        .task(id: WebsiteTrafficQuery(property: googleAnalytics.property, pageURLs: googleAnalytics.pageURLs, appIDs: loader.summary?.apps.map(\.appleID) ?? [])) {
+            await loadWebsiteTraffic()
+        }
+        .onChange(of: keyID) {
+            selection = .summary
+            Task { await fetchData(useMemoization: false) }
+        }
+        .task { await fetchData(useMemoization: true) }
+        #if canImport(UIKit)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            Task { await fetchData() }
+        }
+        #endif
+    }
+
+    /// The summary, then every app, each opening its own screen beside the list.
+    private var sidebar: some View {
+        List(selection: $selection) {
+            NavigationLink(value: HomeSelection.summary) {
+                Label("Summary", systemImage: "chart.bar.xaxis")
+            }
+
+            if let summary = loader.summary {
+                let counts = appCounts(of: summary.apps)
+                Section {
+                    ForEach(appListSort.sort(summary.apps, counts: counts[appListSort] ?? [:])) { app in
+                        Group {
+                            if app.isOnAppStore {
+                                NavigationLink(value: HomeSelection.app(app.appleID)) {
+                                    AppRow(app: app, iconLength: appListIconLength, counts: counts)
+                                }
+                            } else {
+                                AppRow(app: app, iconLength: appListIconLength, counts: counts)
+                            }
+                        }
+                        .contextMenu {
+                            // Nothing to open for an app no longer on the App Store.
+                            if app.isOnAppStore {
+                                Link(destination: app.url) {
+                                    Label("View on the App Store", image: "logo.appstore")
+                                }
+                                if googleAnalytics.property != nil {
+                                    if let url = websiteTraffic[app.appleID]?.url {
+                                        Link(destination: url) {
+                                            Label("Open Webpage", systemImage: "safari")
+                                        }
+                                    }
+                                    Button("Set Webpage…", systemImage: "pencil") {
+                                        editingWebsitePage = app
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } header: {
+                    HStack {
+                        Text("Apps")
+
+                        Spacer()
+
+                        Menu {
+                            Picker("Sort By", selection: $appListSort) {
+                                ForEach(AppListSort.allCases.filter { !$0.sortsByCounts || counts[$0] != nil || $0 == appListSort }) { sort in
+                                    Label(sort.title, systemImage: sort.systemImage)
+                                        .tag(sort)
+                                }
+                            }
+                            .pickerStyle(.inline)
+                        } label: {
+                            Label("Sort By", systemImage: "arrow.up.arrow.down")
+                                .labelStyle(.iconOnly)
+                        }
+                        .menuIndicator(.hidden)
+                    }
+                }
+            }
+        }
+        .refreshable { await refresh() }
+        .navigationTitle("App Sales")
+    }
+
+    private var summaryView: some View {
         Group {
             if accountManager.accounts.isEmpty {
                 Text("No Account")
@@ -53,18 +177,20 @@ struct HomeView: View {
                             let activeDevices = chartShowsActiveDevices ? availableActiveDevices : nil
                             VStack(alignment: .leading, spacing: 16) {
                                 // In the chart's order, each figure's icon in its bars' colour, so the row doubles as the legend.
-                                HStack(alignment: .top, spacing: 16) {
+                                HStack(alignment: .top, spacing: isWide ? 32 : 16) {
                                     SummaryStat(
                                         name: "Downloads",
                                         value: summary.downloads.formatted(),
                                         systemImage: "arrow.down.app",
                                         color: .blue,
+                                        isLarge: isWide,
                                         change: summary.downloadsPercentageChange)
                                     SummaryStat(
                                         name: "Proceeds",
                                         value: NumberFormatter.currency.string(from: NSNumber(value: summary.proceeds)) ?? "",
                                         systemImage: "dollarsign.circle",
                                         color: .green,
+                                        isLarge: isWide,
                                         change: summary.proceedsPercentageChange,
                                         // The screenshot walk waits on this before its first shot,
                                         // so a capture cannot beat the fetched data onto the screen.
@@ -76,6 +202,7 @@ struct HomeView: View {
                                             value: total.formatted(),
                                             systemImage: AppListSort.activeDevices.systemImage,
                                             color: .orange,
+                                            isLarge: isWide,
                                             caption: "a day")
                                     }
 
@@ -96,6 +223,7 @@ struct HomeView: View {
                                     #endif
                             }
                             .padding(.vertical)
+                            .onGeometryChange(for: Bool.self) { $0.size.width >= 600 } action: { isWide = $0 }
                         }
                     } footer: {
                         // Two ages, and they are not the same one: when App Sales last asked, and
@@ -119,80 +247,10 @@ struct HomeView: View {
                     if let summary = loader.summary {
                         InsightsView(summary: summary)
 
-                        let counts = appCounts(of: summary.apps)
-                        Section {
-                            ForEach(appListSort.sort(summary.apps, counts: counts[appListSort] ?? [:])) { app in
-                                Group {
-                                    if app.isOnAppStore {
-                                        NavigationLink {
-                                            AppDetailView(
-                                                app: app,
-                                                data: data,
-                                                websiteTraffic: websiteTraffic[app.appleID],
-                                                showsWebsite: googleAnalytics.property != nil,
-                                                analytics: appStoreAnalytics)
-                                        } label: {
-                                            AppRow(app: app, iconLength: appListIconLength, counts: counts)
-                                        }
-                                    } else {
-                                        AppRow(app: app, iconLength: appListIconLength, counts: counts)
-                                    }
-                                }
-                                .contextMenu {
-                                    // Nothing to open for an app no longer on the App Store.
-                                    if app.isOnAppStore {
-                                        Link(destination: app.url) {
-                                            Label("View on the App Store", image: "logo.appstore")
-                                        }
-                                        if googleAnalytics.property != nil {
-                                            if let url = websiteTraffic[app.appleID]?.url {
-                                                Link(destination: url) {
-                                                    Label("Open Webpage", systemImage: "safari")
-                                                }
-                                            }
-                                            Button("Set Webpage…", systemImage: "pencil") {
-                                                editingWebsitePage = app
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } header: {
-                            HStack {
-                                Text("Apps")
-
-                                Spacer()
-
-                                Menu {
-                                    Picker("Sort By", selection: $appListSort) {
-                                        ForEach(AppListSort.allCases.filter { !$0.sortsByCounts || counts[$0] != nil || $0 == appListSort }) { sort in
-                                            Label(sort.title, systemImage: sort.systemImage)
-                                                .tag(sort)
-                                        }
-                                    }
-                                    .pickerStyle(.inline)
-                                } label: {
-                                    Label("Sort By", systemImage: "arrow.up.arrow.down")
-                                        .labelStyle(.iconOnly)
-                                }
-                                .menuIndicator(.hidden)
-                            }
-                        }
-
                         AIUsageSection(refreshCount: refreshCount)
                     }
                 }
-                .refreshable {
-                    refreshCount += 1
-                    await fetchData(useMemoization: false)
-                }
-                .websitePageEditor(for: $editingWebsitePage, currentURL: editingWebsitePage.flatMap { websiteTraffic[$0.appleID]?.url })
-                .task(id: AppStoreAnalyticsQuery(accountID: selectedKey?.id, appIDs: data.apps.map(\.appleID))) {
-                    await loadAppStoreAnalytics(data: data)
-                }
-                .task(id: WebsiteTrafficQuery(property: googleAnalytics.property, pageURLs: googleAnalytics.pageURLs, appIDs: loader.summary?.apps.map(\.appleID) ?? [])) {
-                    await loadWebsiteTraffic()
-                }
+                .refreshable { await refresh() }
             } else if let error = loader.error {
                 VStack(spacing: 20) {
                     Text(error.localizedDescription)
@@ -207,7 +265,7 @@ struct HomeView: View {
                 ProgressView()
             }
         }
-        .navigationTitle("App Sales")
+        .navigationTitle("Summary")
         .toolbar {
             #if os(macOS)
             ToolbarItem(placement: .primaryAction) {
@@ -222,27 +280,11 @@ struct HomeView: View {
             }
             #endif
         }
-        .sheet(isPresented: $showingAccountsList) {
-            NavigationStack {
-                AccountsList()
-            }
-            #if os(macOS)
-            .frame(idealHeight: 400)
-            #endif
-        }
-        // Asked for by an AI usage row, or by the Mac's menu bar extra, whose sign-in was refused.
-        .sheet(item: $aiAssistants.signingIn) { assistant in
-            AIUsageSignInSheet(assistant: assistant)
-        }
-        .onChange(of: keyID) {
-            Task { await fetchData(useMemoization: false) }
-        }
-        .task { await fetchData(useMemoization: true) }
-        #if canImport(UIKit)
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-            Task { await fetchData() }
-        }
-        #endif
+    }
+
+    private func refresh() async {
+        refreshCount += 1
+        await fetchData(useMemoization: false)
     }
     
     /// The figures the chart can be sorted by, in the order its bars stand.
@@ -305,7 +347,8 @@ struct HomeView: View {
         let appIDs: [String]
     }
 
-    private func loadAppStoreAnalytics(data: ACData) async {
+    private func loadAppStoreAnalytics() async {
+        guard let data = loader.data else { return }
         let query = AppStoreAnalyticsQuery(accountID: selectedKey?.id, appIDs: data.apps.map(\.appleID))
         // Coming back from an app's screen reappears the list; the reports only change daily.
         if let appStoreAnalyticsLoad, appStoreAnalyticsLoad.query == query, appStoreAnalyticsLoad.date.timeIntervalSinceNow > -5 * 60 { return }
@@ -339,6 +382,12 @@ struct HomeView: View {
             websiteTraffic = traffic
         }
     }
+}
+
+/// What the sidebar has chosen: the summary, or one app by its Apple ID.
+private enum HomeSelection: Hashable {
+    case summary
+    case app(String)
 }
 
 /// One app in the home screen's app list: its icon, name and price, then its figures in
@@ -473,6 +522,8 @@ private struct SummaryStat: View {
     let value: String
     let systemImage: String
     let color: Color
+    /// Beside a wide chart, where the title3 figures would look lost.
+    var isLarge = false
     var change: Double?
     var caption: LocalizedStringKey?
     var identifier = ""
@@ -493,7 +544,7 @@ private struct SummaryStat: View {
                     .accessibilityLabel(Text(name))
                 Text(value)
             }
-            .font(.title3.weight(.semibold))
+            .font((isLarge ? Font.title : .title3).weight(.semibold))
 
             Group {
                 if let change {
@@ -504,7 +555,7 @@ private struct SummaryStat: View {
                         .foregroundStyle(.secondary)
                 }
             }
-            .font(.subheadline)
+            .font(isLarge ? .body : .subheadline)
         }
         .lineLimit(1)
         .minimumScaleFactor(0.7)
