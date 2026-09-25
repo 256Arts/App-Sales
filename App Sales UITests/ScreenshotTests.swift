@@ -3,17 +3,20 @@ import XCTest
 import UIKit
 #endif
 
-/// Drives the app to the screen that becomes an App Store screenshot and attaches it to the result
-/// bundle, where the shared `screenshots` runner collects it.
+/// Walks the app through the screens that become App Store screenshots and attaches each one to the
+/// result bundle, where the shared `screenshots` runner collects them.
 ///
-/// One shot per platform, and it is the last slot on the listing: the ones before it are hand-made
-/// marketing images, kept in "Raw Assets/Screenshots" under the low numbers the runner never writes
-/// (see IPHONE_MANUAL_SHOTS and friends in .screenshots.conf). This one carries the real thing —
-/// the summary and its chart over the seeded account — so the listing ends on the actual app.
+/// The listing opens on hand-made widget shots, kept in "Raw Assets/Screenshots" under the low
+/// numbers the runner never writes (see IPHONE_MANUAL_SHOTS and friends in .screenshots.conf); the
+/// runner files these after them, in capture order: the Summary, then — on the iPhone, where it is
+/// one step back — the app list, then the best seller's own page.
 @MainActor
 final class ScreenshotTests: XCTestCase {
 
     private var app: XCUIApplication!
+
+    /// The seeded best seller, whose page is photographed.
+    private static let featuredApp = "Forest Explorer"
 
     func testCaptureAppStoreScreenshots() throws {
         continueAfterFailure = false
@@ -29,11 +32,48 @@ final class ScreenshotTests: XCTestCase {
 
         // The 30-day proceeds total, the first thing the seeded account puts on screen. Waiting on
         // it means a capture cannot beat the summary and its chart onto the screen.
-        let proceeds = element("Summary.Proceeds")
-        guard waitFor(proceeds, "the seeded proceeds summary") else { return }
+        guard waitFor(element("Summary.Proceeds"), "the seeded proceeds summary") else { return }
         settle()
         capture("01-home")
+
+        // The watch has no app list or app pages, only the summary.
+        #if !os(watchOS)
+        let row = element("AppRow.\(Self.featuredApp)")
+        revealSidebar(showing: row)
+        guard waitFor(row, "the \(Self.featuredApp) row in the app list") else { return }
+        #if os(iOS)
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            settle()
+            capture("02-apps")
+        }
+        #endif
+
+        #if os(macOS)
+        row.click()
+        #else
+        row.tap()
+        #endif
+        guard waitFor(element("AppDetail.Name"), "\(Self.featuredApp)'s page") else { return }
+        settle()
+        capture("03-app")
+        #endif
     }
+
+    #if os(iOS)
+    /// The app list is one step back from the Summary on an iPhone, and folded away beside it on an
+    /// iPad in portrait; the Mac and Vision show it all along.
+    private func revealSidebar(showing row: XCUIElement) {
+        if row.waitForExistence(timeout: 2), row.isHittable { return }
+        let toggle = app.buttons["Show Sidebar"]
+        if toggle.exists {
+            toggle.tap()
+        } else {
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+        }
+    }
+    #elseif !os(watchOS)
+    private func revealSidebar(showing row: XCUIElement) {}
+    #endif
 
     // MARK: - The seed
 
@@ -111,7 +151,7 @@ final class ScreenshotTests: XCTestCase {
     /// first wait with the seed sitting in a store no window is showing. `activate()` is not what
     /// AppKit waits for: only a reopen, the event a Dock icon click sends, builds the window, and a
     /// test runner has no way to send one — so the walk asks for the window itself, with the app's
-    /// own New Window.
+    /// Window menu item for its one window.
     ///
     /// Whether a launch gets away without this depends on who started the run: LaunchServices
     /// activates a launched app only while the process that launched it is frontmost, so the same
@@ -119,13 +159,14 @@ final class ScreenshotTests: XCTestCase {
     /// nothing but a menu bar when an agent runs it in the background.
     ///
     /// Waits first rather than counting windows straight after `launch()`, which returns on idle
-    /// and can beat the window into the accessibility tree — ⌘N would then open a second, empty one
-    /// and the walk would photograph that.
+    /// and can beat the window into the accessibility tree. The main window is a single `Window`
+    /// scene, so asking for it again only brings it forward — it can never open a second.
     private func openWindowIfNeeded() {
         if app.windows.firstMatch.waitForExistence(timeout: 10) { return }
-        app.typeKey("n", modifierFlags: .command)
+        app.menuBarItems["Window"].click()
+        app.menuItems["App Sales"].click()
         XCTAssertTrue(app.windows.firstMatch.waitForExistence(timeout: 15),
-                      "the app launched with no window and ⌘N opened none")
+                      "the app launched with no window and the Window menu opened none")
     }
     #endif
 

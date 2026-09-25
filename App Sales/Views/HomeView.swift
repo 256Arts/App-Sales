@@ -42,17 +42,7 @@ struct HomeView: View {
     }
 
     private var hiddenStats: Set<AppListSort> {
-        Set(hiddenStatsValue.split(separator: ",").compactMap { AppListSort(rawValue: String($0)) })
-    }
-
-    private func isShowing(_ stat: AppListSort) -> Binding<Bool> {
-        Binding {
-            !hiddenStats.contains(stat)
-        } set: { isShowing in
-            var hidden = hiddenStats
-            if isShowing { hidden.remove(stat) } else { hidden.insert(stat) }
-            hiddenStatsValue = AppListSort.allCases.filter(hidden.contains).map(\.rawValue).joined(separator: ",")
-        }
+        AppListOptions.hiddenStats(in: hiddenStatsValue)
     }
 
     private var accountsButton: some View {
@@ -107,6 +97,10 @@ struct HomeView: View {
             Task { await fetchData(useMemoization: false) }
         }
         .task { await fetchData(useMemoization: true) }
+        .focusedSceneValue(\.homeCommands, HomeCommandContext(
+            countedStats: loader.summary.map { Set(appCounts(of: $0.apps).keys) },
+            refresh: { Task { await refresh() } },
+            showAccounts: { showingAccountsList = true }))
         #if canImport(UIKit)
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             Task { await fetchData() }
@@ -118,7 +112,7 @@ struct HomeView: View {
     private var sidebar: some View {
         List(selection: $selection) {
             NavigationLink(value: HomeSelection.summary) {
-                Label("Summary", systemImage: "chart.bar.xaxis")
+                Label("Summary", systemImage: "square.grid.2x2")
             }
 
             if let summary = loader.summary {
@@ -176,7 +170,7 @@ struct HomeView: View {
     private func viewOptionsMenu(counts: [AppListSort: [String: Int]]?) -> some View {
         Menu {
             if let counts {
-                appListOptions(counts: counts)
+                AppListOptions(countedStats: Set(counts.keys))
             }
             #if !os(macOS)
             Section {
@@ -187,25 +181,6 @@ struct HomeView: View {
             Label("View Options", systemImage: "ellipsis")
         }
         .menuIndicator(.hidden)
-    }
-
-    @ViewBuilder
-    private func appListOptions(counts: [AppListSort: [String: Int]]) -> some View {
-        Section("Show") {
-            ForEach(AppListSort.allCases.filter { $0 != .name && (!$0.sortsByCounts || counts[$0] != nil) }) { stat in
-                Toggle(isOn: isShowing(stat)) {
-                    Label(stat.title, systemImage: stat.systemImage)
-                }
-            }
-        }
-
-        Picker("Sort By", selection: $appListSort) {
-            ForEach(AppListSort.allCases.filter { !$0.sortsByCounts || counts[$0] != nil || $0 == appListSort }) { sort in
-                Label(sort.title, systemImage: sort.systemImage)
-                    .tag(sort)
-            }
-        }
-        .pickerStyle(.inline)
     }
 
     private var summaryView: some View {
@@ -415,6 +390,73 @@ struct HomeView: View {
 }
 
 /// What the sidebar has chosen: the summary, or one app by its Apple ID.
+/// Which stats the app rows show and what they are sorted by: in the sidebar's view options menu,
+/// and in the menu bar's View menu. A stat without figures yet is left out of both, unless it is the
+/// chosen sort, so the menu still shows what the list is in.
+struct AppListOptions: View {
+
+    /// The `sortsByCounts` stats that have figures yet.
+    let countedStats: Set<AppListSort>
+    /// Submenus, the way a menu bar lays out its choices, rather than the view options menu's sections.
+    var inMenuBar = false
+
+    @AppStorage(UserDefaults.Key.appListSort, store: UserDefaults.shared) private var sort: AppListSort = .downloads
+    /// The stats hidden from the app rows, as comma-separated `AppListSort` raw values.
+    @AppStorage(UserDefaults.Key.appListHiddenStats, store: UserDefaults.shared) private var hiddenStatsValue = ""
+
+    static func hiddenStats(in value: String) -> Set<AppListSort> {
+        Set(value.split(separator: ",").compactMap { AppListSort(rawValue: String($0)) })
+    }
+
+    private func isShowing(_ stat: AppListSort) -> Binding<Bool> {
+        Binding {
+            !Self.hiddenStats(in: hiddenStatsValue).contains(stat)
+        } set: { isShowing in
+            var hidden = Self.hiddenStats(in: hiddenStatsValue)
+            if isShowing { hidden.remove(stat) } else { hidden.insert(stat) }
+            hiddenStatsValue = AppListSort.allCases.filter(hidden.contains).map(\.rawValue).joined(separator: ",")
+        }
+    }
+
+    private var stats: some View {
+        ForEach(AppListSort.allCases.filter { $0 != .name && (!$0.sortsByCounts || countedStats.contains($0)) }) { stat in
+            Toggle(isOn: isShowing(stat)) {
+                Label(stat.title, systemImage: stat.systemImage)
+            }
+        }
+    }
+
+    private var sorts: some View {
+        ForEach(AppListSort.allCases.filter { !$0.sortsByCounts || countedStats.contains($0) || $0 == sort }) { sort in
+            Label(sort.title, systemImage: sort.systemImage)
+                .tag(sort)
+        }
+    }
+
+    var body: some View {
+        if inMenuBar {
+            Picker("Sort Apps By", selection: $sort) { sorts }
+            Menu("Show in App List") { stats }
+        } else {
+            Section("Show") { stats }
+            Picker("Sort By", selection: $sort) { sorts }
+                .pickerStyle(.inline)
+        }
+    }
+}
+
+/// What the focused window's home screen offers the menu bar's commands.
+struct HomeCommandContext {
+    /// Nil until the sales have loaded, which is when there is a list to sort.
+    let countedStats: Set<AppListSort>?
+    let refresh: () -> Void
+    let showAccounts: () -> Void
+}
+
+extension FocusedValues {
+    @Entry var homeCommands: HomeCommandContext?
+}
+
 private enum HomeSelection: Hashable {
     case summary
     case app(String)
@@ -438,6 +480,7 @@ private struct AppRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(app.name)
+                        .accessibilityIdentifier("AppRow.\(app.name)")
                     if app.isOnAppStore, !hiddenStats.contains(.price) {
                         price
                             .font(.subheadline)

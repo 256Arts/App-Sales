@@ -32,6 +32,8 @@ struct AppDetailView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(app.name)
                             .font(.title2.bold())
+                            // The screenshot walk waits on this before photographing the app's page.
+                            .accessibilityIdentifier("AppDetail.Name")
                             .lineLimit(2)
                             .minimumScaleFactor(0.8)
                         Text(priceString)

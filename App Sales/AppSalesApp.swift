@@ -26,49 +26,17 @@ struct AppSalesApp: App {
     static let mainWindowID = "main"
 
     var body: some Scene {
-        WindowGroup(id: Self.mainWindowID) {
-            HomeView()
-                .environment(apiKeysProvider)
-                .onAppear {
-                    appLaunchCount += 1
-                    if [5, 20, 50, 100].contains(appLaunchCount) {
-                        requestReview()
-                    }
-                }
-                .alert("Event Intro", isPresented: $showingEvent) {
-                    Button("OK") { }
-                } message: {
-                    Text("Now let's celebrate by connecting your App Store Connect account and trying out the new features!")
-                }
-                .onOpenURL { url in
-                    if url.path().contains("appsales/appstoreevent") {
-                        showingEvent = true
-                    }
-                }
-                .screenshotModeStatus()
-                // The AI usage figures move while the work is being done, so while the app is up they
-                // are read once a minute and handed to the widget, which cannot ask that often itself.
-                .task(id: scenePhase) {
-                    guard scenePhase == .active, !ScreenshotMode.isActive else { return }
-
-                    while !Task.isCancelled {
-                        await AIAssistants.shared.refreshConnected()
-                        try? await Task.sleep(for: .seconds(60))
-                    }
-                }
-                #if os(macOS)
-                .onAppear { DockIcon.windowOpened() }
-                .onDisappear { DockIcon.windowClosed() }
-                #endif
+        #if os(macOS)
+        // One window: it already holds every account and app, so a second would only repeat it, and
+        // opening it again (the Dock, the menu bar extra) brings this one forward instead.
+        Window("App Sales", id: Self.mainWindowID) {
+            mainWindow
         }
         .defaultSize(CGSize(width: 1000, height: 700))
         .commands {
-            CommandGroup(after: .help) {
-                AppSalesApp.links()
-            }
+            AppSalesCommands()
         }
 
-        #if os(macOS)
         // Off until the reader turns it on in the AI Usage options — a menu bar item that installs
         // itself is one nobody asked for. A screenshot run always shows it, since it is one of the shots.
         MenuBarExtra(isInserted: ScreenshotMode.isActive ? .constant(true) : $showsMenuBarExtra) {
@@ -80,7 +48,51 @@ struct AppSalesApp: App {
         .onChange(of: showsMenuBarExtra, initial: true) {
             DockIcon.menuBarExtra(isShown: showsMenuBarExtra)
         }
+        #else
+        WindowGroup(id: Self.mainWindowID) {
+            mainWindow
+        }
+        .defaultSize(CGSize(width: 1000, height: 700))
+        .commands {
+            AppSalesCommands()
+        }
         #endif
+    }
+
+    private var mainWindow: some View {
+        HomeView()
+            .environment(apiKeysProvider)
+            .onAppear {
+                appLaunchCount += 1
+                if [5, 20, 50, 100].contains(appLaunchCount) {
+                    requestReview()
+                }
+            }
+            .alert("Event Intro", isPresented: $showingEvent) {
+                Button("OK") { }
+            } message: {
+                Text("Now let's celebrate by connecting your App Store Connect account and trying out the new features!")
+            }
+            .onOpenURL { url in
+                if url.path().contains("appsales/appstoreevent") {
+                    showingEvent = true
+                }
+            }
+            .screenshotModeStatus()
+            // The AI usage figures move while the work is being done, so while the app is up they
+            // are read once a minute and handed to the widget, which cannot ask that often itself.
+            .task(id: scenePhase) {
+                guard scenePhase == .active, !ScreenshotMode.isActive else { return }
+
+                while !Task.isCancelled {
+                    await AIAssistants.shared.refreshConnected()
+                    try? await Task.sleep(for: .seconds(60))
+                }
+            }
+            #if os(macOS)
+            .onAppear { DockIcon.windowOpened() }
+            .onDisappear { DockIcon.windowClosed() }
+            #endif
     }
     
     @ViewBuilder
@@ -96,4 +108,60 @@ struct AppSalesApp: App {
         }
     }
     
+}
+
+/// The menu bar: accounts where Settings would be, refreshing and the app list's options in View,
+/// and the 256 Arts links in place of a help book the app does not have.
+private struct AppSalesCommands: Commands {
+
+    @FocusedValue(\.homeCommands) private var home
+
+    @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID = ""
+
+    private var accountManager: AccountManager { .shared }
+
+    /// The account the home screen shows, which is the first one until the reader picks another.
+    private var currentAccount: Binding<String> {
+        Binding {
+            accountManager.getApiKey(apiKeyId: keyID)?.id ?? accountManager.accounts.first?.id ?? ""
+        } set: {
+            keyID = $0
+        }
+    }
+
+    var body: some Commands {
+        // Accounts are all App Sales has to set up, so they take the Settings item and its shortcut.
+        CommandGroup(replacing: .appSettings) {
+            Button("Accounts…") { home?.showAccounts() }
+                .keyboardShortcut(",")
+                .disabled(home == nil)
+        }
+
+        CommandGroup(before: .toolbar) {
+            Button("Refresh") { home?.refresh() }
+                .keyboardShortcut("r")
+                .disabled(home == nil)
+
+            Divider()
+
+            if accountManager.accounts.count > 1 {
+                Picker("Account", selection: currentAccount) {
+                    ForEach(accountManager.accounts) { account in
+                        Text(account.name)
+                            .tag(account.id)
+                    }
+                }
+            }
+
+            if let countedStats = home?.countedStats {
+                AppListOptions(countedStats: countedStats, inMenuBar: true)
+            }
+
+            Divider()
+        }
+
+        CommandGroup(replacing: .help) {
+            AppSalesApp.links()
+        }
+    }
 }
