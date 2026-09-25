@@ -158,37 +158,54 @@ struct HomeView: View {
         .navigationTitle("App Sales")
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
+                #if os(macOS)
                 if let summary = loader.summary {
                     viewOptionsMenu(counts: appCounts(of: summary.apps))
                 }
+                #else
+                viewOptionsMenu(counts: loader.summary.map { appCounts(of: $0.apps) })
+                #endif
                 accountsButton
             }
         }
     }
 
-    /// Which stats the app rows show, and what they are sorted by. A stat without figures yet is
-    /// left out of both, unless it is the chosen sort, so the menu still shows what the list is in.
-    private func viewOptionsMenu(counts: [AppListSort: [String: Int]]) -> some View {
+    /// Which stats the app rows show, and what they are sorted by, above the 256 Arts links (which
+    /// the Mac keeps in its Help menu). A stat without figures yet is left out of both, unless it is
+    /// the chosen sort, so the menu still shows what the list is in.
+    private func viewOptionsMenu(counts: [AppListSort: [String: Int]]?) -> some View {
         Menu {
-            Section("Show") {
-                ForEach(AppListSort.allCases.filter { $0 != .name && (!$0.sortsByCounts || counts[$0] != nil) }) { stat in
-                    Toggle(isOn: isShowing(stat)) {
-                        Label(stat.title, systemImage: stat.systemImage)
-                    }
-                }
+            if let counts {
+                appListOptions(counts: counts)
             }
-
-            Picker("Sort By", selection: $appListSort) {
-                ForEach(AppListSort.allCases.filter { !$0.sortsByCounts || counts[$0] != nil || $0 == appListSort }) { sort in
-                    Label(sort.title, systemImage: sort.systemImage)
-                        .tag(sort)
-                }
+            #if !os(macOS)
+            Section {
+                AppSalesApp.links()
             }
-            .pickerStyle(.inline)
+            #endif
         } label: {
             Label("View Options", systemImage: "ellipsis")
         }
         .menuIndicator(.hidden)
+    }
+
+    @ViewBuilder
+    private func appListOptions(counts: [AppListSort: [String: Int]]) -> some View {
+        Section("Show") {
+            ForEach(AppListSort.allCases.filter { $0 != .name && (!$0.sortsByCounts || counts[$0] != nil) }) { stat in
+                Toggle(isOn: isShowing(stat)) {
+                    Label(stat.title, systemImage: stat.systemImage)
+                }
+            }
+        }
+
+        Picker("Sort By", selection: $appListSort) {
+            ForEach(AppListSort.allCases.filter { !$0.sortsByCounts || counts[$0] != nil || $0 == appListSort }) { sort in
+                Label(sort.title, systemImage: sort.systemImage)
+                    .tag(sort)
+            }
+        }
+        .pickerStyle(.inline)
     }
 
     private var summaryView: some View {
@@ -293,13 +310,6 @@ struct HomeView: View {
             }
         }
         .navigationTitle("Summary")
-        .toolbar {
-            #if !os(macOS)
-            ToolbarOverflowMenu {
-                AppSalesApp.links()
-            }
-            #endif
-        }
     }
 
     private func refresh() async {
