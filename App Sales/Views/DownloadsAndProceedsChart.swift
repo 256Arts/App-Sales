@@ -3,12 +3,25 @@ import Charts
 
 struct DownloadsAndProceedsChart: View {
 
+    /// In the order their bars stand; the chart shows as many from the front as its width fits.
     let apps: [AppPerformanceSummary]
     let iconLength: CGFloat
     /// Each app's average daily active devices, keyed by Apple ID; `nil` leaves their bars out.
     var activeDevices: [String: Int]?
 
     var body: some View {
+        GeometryReader { proxy in
+            chart(apps: Array(apps.prefix(fittingCount(width: proxy.size.width))))
+        }
+    }
+
+    /// Each app wants a little more than its icon's width beneath its bars; the rest of the width
+    /// goes to the y-axis labels.
+    private func fittingCount(width: CGFloat) -> Int {
+        max(1, Int((width - 40) / (iconLength + 16)))
+    }
+
+    private func chart(apps: [AppPerformanceSummary]) -> some View {
         Chart {
             ForEach(apps) { app in
                 bar(for: app, series: "Downloads", value: Double(app.downloads))

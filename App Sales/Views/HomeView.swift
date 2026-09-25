@@ -85,7 +85,7 @@ struct HomeView: View {
                                 }
 
                                 DownloadsAndProceedsChart(
-                                    apps: Array(chartSort(activeDevices: activeDevices).sort(summary.apps, counts: activeDevices ?? [:]).prefix(6)),
+                                    apps: chartSort(activeDevices: activeDevices).sort(summary.apps, counts: activeDevices ?? [:]),
                                     iconLength: 32,
                                     activeDevices: activeDevices)
                                     .chartLegend(.hidden)
@@ -272,6 +272,8 @@ struct HomeView: View {
         } label: {
             Label("Chart Options", systemImage: "ellipsis")
                 .labelStyle(.iconOnly)
+                .symbolVariant(.circle)
+                .foregroundStyle(.gray)
                 .font(.title3)
                 .frame(minWidth: 32, minHeight: 32)
                 .contentShape(.rect)
@@ -491,6 +493,7 @@ private struct SummaryStat: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
                 Image(systemName: systemImage)
+                    .symbolVariant(.fill)
                     .foregroundStyle(color)
                     .accessibilityLabel(Text(name))
                 Text(value)

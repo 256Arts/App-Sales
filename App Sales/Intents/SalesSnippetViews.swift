@@ -65,7 +65,7 @@ private struct SnippetHeader: View {
     }
 }
 
-/// Up to six apps, the same handful `PerformanceSummary.topApps` gives the chart and the widget.
+/// Up to six apps, the same handful `PerformanceSummary.topApps` gives the widget's chart.
 private struct AppBreakdown: View {
 
     let apps: [AppPerformanceSummary]
