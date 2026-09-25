@@ -7,6 +7,7 @@ extension UserDefaults {
         static let includeRedownloads = "includeRedownloads"
         static let homeSelectedKey = "homeSelectedKey"
         static let appListSort = "appListSort"
+        static let appListHiddenStats = "appListHiddenStats"
         static let homeChartSort = "homeChartSort"
         static let homeChartShowsActiveDevices = "homeChartShowsActiveDevices"
         /// How the AI usage figures read. In the App Group, because the widgets and the Mac's menu

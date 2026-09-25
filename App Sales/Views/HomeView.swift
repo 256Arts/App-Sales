@@ -25,6 +25,8 @@ struct HomeView: View {
 
     @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
     @AppStorage(UserDefaults.Key.appListSort, store: UserDefaults.shared) private var appListSort: AppListSort = .downloads
+    /// The stats hidden from the app rows, as comma-separated `AppListSort` raw values.
+    @AppStorage(UserDefaults.Key.appListHiddenStats, store: UserDefaults.shared) private var hiddenStatsValue = ""
     @AppStorage(UserDefaults.Key.homeChartSort, store: UserDefaults.shared) private var chartSortChoice: AppListSort = .downloads
     @AppStorage(UserDefaults.Key.homeChartShowsActiveDevices, store: UserDefaults.shared) private var chartShowsActiveDevices = false
     
@@ -37,6 +39,20 @@ struct HomeView: View {
         #else
         40
         #endif
+    }
+
+    private var hiddenStats: Set<AppListSort> {
+        Set(hiddenStatsValue.split(separator: ",").compactMap { AppListSort(rawValue: String($0)) })
+    }
+
+    private func isShowing(_ stat: AppListSort) -> Binding<Bool> {
+        Binding {
+            !hiddenStats.contains(stat)
+        } set: { isShowing in
+            var hidden = hiddenStats
+            if isShowing { hidden.remove(stat) } else { hidden.insert(stat) }
+            hiddenStatsValue = AppListSort.allCases.filter(hidden.contains).map(\.rawValue).joined(separator: ",")
+        }
     }
 
     private var accountsButton: some View {
@@ -111,10 +127,10 @@ struct HomeView: View {
                     Group {
                         if app.isOnAppStore {
                             NavigationLink(value: HomeSelection.app(app.appleID)) {
-                                AppRow(app: app, iconLength: appListIconLength, counts: counts)
+                                AppRow(app: app, iconLength: appListIconLength, counts: counts, hiddenStats: hiddenStats)
                             }
                         } else {
-                            AppRow(app: app, iconLength: appListIconLength, counts: counts)
+                            AppRow(app: app, iconLength: appListIconLength, counts: counts, hiddenStats: hiddenStats)
                         }
                     }
                     .contextMenu {
@@ -143,15 +159,25 @@ struct HomeView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 if let summary = loader.summary {
-                    sortMenu(counts: appCounts(of: summary.apps))
+                    viewOptionsMenu(counts: appCounts(of: summary.apps))
                 }
                 accountsButton
             }
         }
     }
 
-    private func sortMenu(counts: [AppListSort: [String: Int]]) -> some View {
+    /// Which stats the app rows show, and what they are sorted by. A stat without figures yet is
+    /// left out of both, unless it is the chosen sort, so the menu still shows what the list is in.
+    private func viewOptionsMenu(counts: [AppListSort: [String: Int]]) -> some View {
         Menu {
+            Section("Show") {
+                ForEach(AppListSort.allCases.filter { $0 != .name && (!$0.sortsByCounts || counts[$0] != nil) }) { stat in
+                    Toggle(isOn: isShowing(stat)) {
+                        Label(stat.title, systemImage: stat.systemImage)
+                    }
+                }
+            }
+
             Picker("Sort By", selection: $appListSort) {
                 ForEach(AppListSort.allCases.filter { !$0.sortsByCounts || counts[$0] != nil || $0 == appListSort }) { sort in
                     Label(sort.title, systemImage: sort.systemImage)
@@ -160,7 +186,7 @@ struct HomeView: View {
             }
             .pickerStyle(.inline)
         } label: {
-            Label("Sort By", systemImage: "arrow.up.arrow.down")
+            Label("View Options", systemImage: "ellipsis")
         }
         .menuIndicator(.hidden)
     }
@@ -322,7 +348,7 @@ struct HomeView: View {
     }
     
     /// The figures of each `sortsByCounts` sort, keyed by Apple ID. A sort is missing until it
-    /// has figures, which leaves its column out of the rows and out of the sort menu (unless it is
+    /// has figures, which leaves its column out of the rows and out of the view options menu (unless it is
     /// the chosen one, so the menu still shows what the list is sorted by).
     private func appCounts(of apps: [AppPerformanceSummary]) -> [AppListSort: [String: Int]] {
         var counts: [AppListSort: [String: Int]] = [.websiteViews: websiteTraffic.mapValues(\.views)]
@@ -385,7 +411,7 @@ private enum HomeSelection: Hashable {
 }
 
 /// One app in the home screen's app list: its icon, name and price, then its figures in
-/// `AppListSort` order, so they read the same way as the sort menu. An app no longer on the App
+/// `AppListSort` order, so they read the same way as the view options menu. An app no longer on the App
 /// Store shows none of them.
 private struct AppRow: View {
 
@@ -393,6 +419,7 @@ private struct AppRow: View {
     let iconLength: CGFloat
     /// The figures of each `sortsByCounts` sort, keyed by Apple ID, from `HomeView.appCounts(of:)`.
     let counts: [AppListSort: [String: Int]]
+    let hiddenStats: Set<AppListSort>
 
     var body: some View {
         HStack {
@@ -401,7 +428,7 @@ private struct AppRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(app.name)
-                    if app.isOnAppStore {
+                    if app.isOnAppStore, !hiddenStats.contains(.price) {
                         price
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -413,7 +440,7 @@ private struct AppRow: View {
                 Group {
                     if app.isOnAppStore {
                         HStack(spacing: 8) {
-                            ForEach(AppListSort.allCases) { sort in
+                            ForEach(AppListSort.allCases.filter { !hiddenStats.contains($0) }) { sort in
                                 stat(for: sort)
                             }
                             // Soaks up the width the row has spare, so the stats stay grouped
