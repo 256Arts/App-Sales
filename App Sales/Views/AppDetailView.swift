@@ -131,12 +131,19 @@ struct AppDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
-            ToolbarItemGroup {
-                Link(destination: app.url) {
-                    Label("View on the App Store", image: "logo.appstore")
+            ToolbarItem {
+                Button("View on the App Store", image: .logoAppstore) {
+                    openURL(app.url)
                 }
                 .help("View on the App Store")
-                webpageButton
+            }
+            if websiteTraffic?.url != nil || showsWebsite {
+                #if !os(visionOS)
+                ToolbarSpacer(.fixed)
+                #endif
+                ToolbarItem {
+                    webpageButton
+                }
             }
         }
         .websitePageEditor(for: $editingWebsitePage, currentURL: websiteTraffic?.url)
@@ -155,15 +162,13 @@ struct AppDetailView: View {
             }
             .help("Open Webpage")
         case (let url?, false):
-            Link(destination: url) {
-                Label("Open Webpage", systemImage: "safari")
+            Button("Open Webpage", systemImage: "safari") {
+                openURL(url)
             }
             .help("Open Webpage")
-        case (nil, true):
+        case (nil, _):
             setWebpageButton
                 .help("Set Webpage…")
-        case (nil, false):
-            EmptyView()
         }
     }
 
