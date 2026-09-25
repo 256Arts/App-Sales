@@ -20,16 +20,12 @@ struct HomeView: View {
 
     @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
     @AppStorage(UserDefaults.Key.appListSort, store: UserDefaults.shared) private var appListSort: AppListSort = .downloads
+    @AppStorage(UserDefaults.Key.homeChartSort, store: UserDefaults.shared) private var chartSortChoice: AppListSort = .downloads
+    @AppStorage(UserDefaults.Key.homeChartShowsActiveDevices, store: UserDefaults.shared) private var chartShowsActiveDevices = false
     
     private var selectedKey: Account? {
         return accountManager.getApiKey(apiKeyId: keyID) ?? accountManager.accounts.first
     }
-    private let percentFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .percent
-        formatter.negativePrefix = ""
-        return formatter
-    }()
     private var appListIconLength: CGFloat {
         #if os(macOS)
         24
@@ -52,33 +48,55 @@ struct HomeView: View {
             } else if let data = loader.data {
                 List {
                     Section {
-                        VStack(alignment: .leading) {
-                            if let summary = loader.summary {
-                                HStack {
-                                    Text(NumberFormatter.currency.string(from: NSNumber(value: summary.proceeds)) ?? "")
+                        if let summary = loader.summary {
+                            let availableActiveDevices = appCounts(of: summary.apps)[.activeDevices]
+                            let activeDevices = chartShowsActiveDevices ? availableActiveDevices : nil
+                            VStack(alignment: .leading, spacing: 16) {
+                                // In the chart's order, each figure's icon in its bars' colour, so the row doubles as the legend.
+                                HStack(alignment: .top, spacing: 16) {
+                                    SummaryStat(
+                                        name: "Downloads",
+                                        value: summary.downloads.formatted(),
+                                        systemImage: "arrow.down.app",
+                                        color: .blue,
+                                        change: summary.downloadsPercentageChange)
+                                    SummaryStat(
+                                        name: "Proceeds",
+                                        value: NumberFormatter.currency.string(from: NSNumber(value: summary.proceeds)) ?? "",
+                                        systemImage: "dollarsign.circle",
+                                        color: .green,
+                                        change: summary.proceedsPercentageChange,
                                         // The screenshot walk waits on this before its first shot,
                                         // so a capture cannot beat the fetched data onto the screen.
-                                        .accessibilityIdentifier("Summary.Proceeds")
-                                    Text("\(Image(systemName: summary.proceedsPercentageChange < 0 ? "arrow.down.forward" : "arrow.up.forward"))\(percentFormatter.string(from: NSNumber(value: summary.proceedsPercentageChange)) ?? "")")
-                                        .foregroundStyle(summary.proceedsPercentageChange < 0 ? Color.red : Color.green)
+                                        identifier: "Summary.Proceeds")
+                                    if let activeDevices {
+                                        let total = summary.apps.reduce(0) { $0 + (activeDevices[$1.appleID] ?? 0) }
+                                        SummaryStat(
+                                            name: AppListSort.activeDevices.title,
+                                            value: total.formatted(),
+                                            systemImage: AppListSort.activeDevices.systemImage,
+                                            color: .orange,
+                                            caption: "a day")
+                                    }
+
+                                    Spacer(minLength: 0)
+
+                                    chartMenu(activeDevicesAvailable: availableActiveDevices != nil)
                                 }
-                                
-                                HStack {
-                                    Text("\(Text(Image(systemName: "arrow.down.app")).foregroundStyle(.secondary))\(summary.downloads)")
-                                    Text("\(Image(systemName: summary.downloadsPercentageChange < 0 ? "arrow.down.forward" : "arrow.up.forward"))\(percentFormatter.string(from: NSNumber(value: summary.downloadsPercentageChange)) ?? "")")
-                                        .foregroundStyle(summary.downloadsPercentageChange < 0 ? Color.red : Color.green)
-                                }
-                                
-                                DownloadsAndProceedsChart(apps: summary.topApps, iconLength: 32)
+
+                                DownloadsAndProceedsChart(
+                                    apps: Array(chartSort(activeDevices: activeDevices).sort(summary.apps, counts: activeDevices ?? [:]).prefix(6)),
+                                    iconLength: 32,
+                                    activeDevices: activeDevices)
+                                    .chartLegend(.hidden)
                                     #if os(visionOS)
                                     .frame(height: 300)
                                     #else
                                     .frame(height: 400)
                                     #endif
                             }
+                            .padding(.vertical)
                         }
-                        .font(.title)
-                        .padding(.vertical)
                     } footer: {
                         // Two ages, and they are not the same one: when App Sales last asked, and
                         // how far the reports it was given reach — App Store Connect publishes a
@@ -227,6 +245,45 @@ struct HomeView: View {
         #endif
     }
     
+    /// The figures the chart can be sorted by, in the order its bars stand.
+    private static let chartSorts: [AppListSort] = [.downloads, .proceeds, .activeDevices]
+
+    /// Downloads while the chosen sort's figures are not on the chart.
+    private func chartSort(activeDevices: [String: Int]?) -> AppListSort {
+        chartSortChoice == .activeDevices && activeDevices == nil ? .downloads : chartSortChoice
+    }
+
+    /// Daily active devices come from the analytics reports, so they can only be turned on once
+    /// those have figures — or off, whenever they are on.
+    private func chartMenu(activeDevicesAvailable: Bool) -> some View {
+        Menu {
+            Toggle(isOn: $chartShowsActiveDevices) {
+                Label(AppListSort.activeDevices.title, systemImage: AppListSort.activeDevices.systemImage)
+            }
+            .disabled(!activeDevicesAvailable && !chartShowsActiveDevices)
+
+            Picker("Sort By", selection: $chartSortChoice) {
+                ForEach(Self.chartSorts.filter { $0 != .activeDevices || chartShowsActiveDevices }) { sort in
+                    Label(sort.title, systemImage: sort.systemImage)
+                        .tag(sort)
+                }
+            }
+            .pickerStyle(.inline)
+        } label: {
+            Label("Chart Options", systemImage: "ellipsis")
+                .labelStyle(.iconOnly)
+                .font(.title3)
+                .frame(minWidth: 32, minHeight: 32)
+                .contentShape(.rect)
+        }
+        .menuIndicator(.hidden)
+        .onChange(of: chartShowsActiveDevices) {
+            if !chartShowsActiveDevices, chartSortChoice == .activeDevices {
+                chartSortChoice = .downloads
+            }
+        }
+    }
+
     private func fetchData(useMemoization: Bool = true) async {
         await loader.load(account: selectedKey, useMemoization: useMemoization)
     }
@@ -407,6 +464,54 @@ private struct ViewsColumn: View {
             }
         }
         .accessibilityHidden(views == nil)
+    }
+}
+
+/// One figure above the home screen's chart: its icon in the colour of its bars, and beneath it
+/// the change from the 30 days before, or a caption for a figure with nothing to compare against.
+private struct SummaryStat: View {
+
+    /// What VoiceOver reads for the icon.
+    let name: LocalizedStringKey
+    let value: String
+    let systemImage: String
+    let color: Color
+    var change: Double?
+    var caption: LocalizedStringKey?
+    var identifier = ""
+
+    private static let percentFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .percent
+        formatter.negativePrefix = ""
+        return formatter
+    }()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 4) {
+                Image(systemName: systemImage)
+                    .foregroundStyle(color)
+                    .accessibilityLabel(Text(name))
+                Text(value)
+            }
+            .font(.title3.weight(.semibold))
+
+            Group {
+                if let change {
+                    Text("\(Image(systemName: change < 0 ? "arrow.down.forward" : "arrow.up.forward"))\(Self.percentFormatter.string(from: NSNumber(value: change)) ?? "")")
+                        .foregroundStyle(change < 0 ? Color.red : Color.green)
+                } else if let caption {
+                    Text(caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .font(.subheadline)
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(identifier)
     }
 }
 

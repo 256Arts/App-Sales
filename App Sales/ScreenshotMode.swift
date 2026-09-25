@@ -85,6 +85,8 @@ enum ScreenshotMode {
     /// whichever of the seeded accounts — was left behind.
     static func resetPreferences() {
         UserDefaults.shared?.removeObject(forKey: UserDefaults.Key.appListSort)
+        UserDefaults.shared?.removeObject(forKey: UserDefaults.Key.homeChartSort)
+        UserDefaults.shared?.removeObject(forKey: UserDefaults.Key.homeChartShowsActiveDevices)
         UserDefaults.shared?.removeObject(forKey: UserDefaults.Key.homeSelectedKey)
     }
 
