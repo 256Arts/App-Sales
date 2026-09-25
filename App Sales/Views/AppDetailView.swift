@@ -38,6 +38,16 @@ struct AppDetailView: View {
                 Link(destination: app.url) {
                     Label("View on the App Store", image: "logo.appstore")
                 }
+                if let url = websiteTraffic?.url {
+                    Link(destination: url) {
+                        Label("Open Webpage", systemImage: "safari")
+                    }
+                }
+                if showsWebsite {
+                    Button("Set Webpage…", systemImage: "pencil") {
+                        editingWebsitePage = app
+                    }
+                }
             }
 
             Section {
@@ -95,14 +105,6 @@ struct AppDetailView: View {
                         }
                     } label: {
                         Label("Page Views", systemImage: "globe")
-                    }
-                    if let url = websiteTraffic?.url {
-                        Link(destination: url) {
-                            Label("Open Webpage", systemImage: "safari")
-                        }
-                    }
-                    Button("Set Webpage…", systemImage: "pencil") {
-                        editingWebsitePage = app
                     }
                 }
             }
