@@ -33,9 +33,9 @@ struct HomeView: View {
     }
     private var appListIconLength: CGFloat {
         #if os(macOS)
-        24
-        #else
         32
+        #else
+        40
         #endif
     }
 
@@ -107,61 +107,62 @@ struct HomeView: View {
 
             if let summary = loader.summary {
                 let counts = appCounts(of: summary.apps)
-                Section {
-                    ForEach(appListSort.sort(summary.apps, counts: counts[appListSort] ?? [:])) { app in
-                        Group {
-                            if app.isOnAppStore {
-                                NavigationLink(value: HomeSelection.app(app.appleID)) {
-                                    AppRow(app: app, iconLength: appListIconLength, counts: counts)
-                                }
-                            } else {
+                ForEach(appListSort.sort(summary.apps, counts: counts[appListSort] ?? [:])) { app in
+                    Group {
+                        if app.isOnAppStore {
+                            NavigationLink(value: HomeSelection.app(app.appleID)) {
                                 AppRow(app: app, iconLength: appListIconLength, counts: counts)
                             }
-                        }
-                        .contextMenu {
-                            // Nothing to open for an app no longer on the App Store.
-                            if app.isOnAppStore {
-                                Link(destination: app.url) {
-                                    Label("View on the App Store", image: "logo.appstore")
-                                }
-                                if googleAnalytics.property != nil {
-                                    if let url = websiteTraffic[app.appleID]?.url {
-                                        Link(destination: url) {
-                                            Label("Open Webpage", systemImage: "safari")
-                                        }
-                                    }
-                                    Button("Set Webpage…", systemImage: "pencil") {
-                                        editingWebsitePage = app
-                                    }
-                                }
-                            }
+                        } else {
+                            AppRow(app: app, iconLength: appListIconLength, counts: counts)
                         }
                     }
-                } header: {
-                    HStack {
-                        Text("Apps")
-
-                        Spacer()
-
-                        Menu {
-                            Picker("Sort By", selection: $appListSort) {
-                                ForEach(AppListSort.allCases.filter { !$0.sortsByCounts || counts[$0] != nil || $0 == appListSort }) { sort in
-                                    Label(sort.title, systemImage: sort.systemImage)
-                                        .tag(sort)
+                    .contextMenu {
+                        // Nothing to open for an app no longer on the App Store.
+                        if app.isOnAppStore {
+                            Link(destination: app.url) {
+                                Label("View on the App Store", image: "logo.appstore")
+                            }
+                            if googleAnalytics.property != nil {
+                                if let url = websiteTraffic[app.appleID]?.url {
+                                    Link(destination: url) {
+                                        Label("Open Webpage", systemImage: "safari")
+                                    }
+                                }
+                                Button("Set Webpage…", systemImage: "pencil") {
+                                    editingWebsitePage = app
                                 }
                             }
-                            .pickerStyle(.inline)
-                        } label: {
-                            Label("Sort By", systemImage: "arrow.up.arrow.down")
-                                .labelStyle(.iconOnly)
                         }
-                        .menuIndicator(.hidden)
                     }
                 }
             }
         }
         .refreshable { await refresh() }
         .navigationTitle("App Sales")
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                if let summary = loader.summary {
+                    sortMenu(counts: appCounts(of: summary.apps))
+                }
+                accountsButton
+            }
+        }
+    }
+
+    private func sortMenu(counts: [AppListSort: [String: Int]]) -> some View {
+        Menu {
+            Picker("Sort By", selection: $appListSort) {
+                ForEach(AppListSort.allCases.filter { !$0.sortsByCounts || counts[$0] != nil || $0 == appListSort }) { sort in
+                    Label(sort.title, systemImage: sort.systemImage)
+                        .tag(sort)
+                }
+            }
+            .pickerStyle(.inline)
+        } label: {
+            Label("Sort By", systemImage: "arrow.up.arrow.down")
+        }
+        .menuIndicator(.hidden)
     }
 
     private var summaryView: some View {
@@ -267,14 +268,7 @@ struct HomeView: View {
         }
         .navigationTitle("Summary")
         .toolbar {
-            #if os(macOS)
-            ToolbarItem(placement: .primaryAction) {
-                accountsButton
-            }
-            #else
-            ToolbarItem(placement: .topBarPinnedTrailing) {
-                accountsButton
-            }
+            #if !os(macOS)
             ToolbarOverflowMenu {
                 AppSalesApp.links()
             }
@@ -409,7 +403,7 @@ private struct AppRow: View {
                     Text(app.name)
                     if app.isOnAppStore {
                         price
-                            .font(.footnote)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .labelStyle(StatLabelStyle())
                     }
@@ -430,7 +424,7 @@ private struct AppRow: View {
                         Text("Not on the App Store")
                     }
                 }
-                .font(.footnote)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .labelStyle(StatLabelStyle())
                 .lineLimit(1)
