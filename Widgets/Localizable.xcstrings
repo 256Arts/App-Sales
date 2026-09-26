@@ -3,19 +3,13 @@
   "strings" : {
     "%@" : {
       "localizations" : {
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@"
-          }
-        },
         "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@"
@@ -27,7 +21,13 @@
             "value" : "%@"
           }
         },
-        "es" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        },
+        "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@"
@@ -37,25 +37,19 @@
     },
     "%@ · %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ · %2$@"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@"
-          }
-        },
-        "de" : {
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ · %2$@"
@@ -67,7 +61,13 @@
             "value" : "%1$@ · %2$@"
           }
         },
-        "es" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ · %2$@"
@@ -77,25 +77,19 @@
     },
     "%@ %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ %2$@"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "de" : {
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ %2$@"
@@ -107,7 +101,13 @@
             "value" : "%1$@ %2$@"
           }
         },
-        "es" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@"
+          }
+        },
+        "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ %2$@"
@@ -151,25 +151,19 @@
     },
     "%@%@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@%2$@"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$@"
-          }
-        },
-        "de" : {
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@%2$@"
@@ -181,7 +175,13 @@
             "value" : "%1$@%2$@"
           }
         },
-        "es" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@%2$@"
@@ -191,25 +191,19 @@
     },
     "%@%lld" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$lld"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@%2$lld"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$lld"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$lld"
-          }
-        },
-        "de" : {
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@%2$lld"
@@ -221,7 +215,13 @@
             "value" : "%1$@%2$lld"
           }
         },
-        "es" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$lld"
+          }
+        },
+        "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@%2$lld"
@@ -739,6 +739,9 @@
         }
       }
     },
+    "Daily Active Devices" : {
+
+    },
     "Data is not yet available." : {
       "localizations" : {
         "de" : {
@@ -977,6 +980,9 @@
         }
       }
     },
+    "Impressions" : {
+
+    },
     "Insights" : {
       "localizations" : {
         "de" : {
@@ -1113,6 +1119,18 @@
         }
       }
     },
+    "Orange: ahead of pace, so it may run out before it resets." : {
+
+    },
+    "Orange: behind pace, so tokens will go unused when it resets." : {
+
+    },
+    "Orange: over 75% used." : {
+
+    },
+    "Other" : {
+
+    },
     "Price" : {
       "localizations" : {
         "de" : {
@@ -1180,6 +1198,9 @@
           }
         }
       }
+    },
+    "Red: over 90% used." : {
+
     },
     "Relative" : {
       "localizations" : {
@@ -1384,6 +1405,9 @@
           }
         }
       }
+    },
+    "Summarize My Sales" : {
+
     },
     "That code did not work. Sign in again to get a new one." : {
       "localizations" : {
@@ -1691,7 +1715,11 @@
         }
       }
     },
+    "Webpage Views" : {
+
+    },
     "Website Views" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1930,5 +1958,5 @@
       }
     }
   },
-  "version" : "1.0"
+  "version" : "1.3"
 }
