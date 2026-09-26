@@ -26,7 +26,7 @@ struct HomeView: View {
     @AppStorage(UserDefaults.Key.homeSelectedKey, store: UserDefaults.shared) private var keyID: String = ""
     @AppStorage(UserDefaults.Key.appListSort, store: UserDefaults.shared) private var appListSort: AppListSort = .downloads
     /// The stats hidden from the app rows, as comma-separated `AppListSort` raw values.
-    @AppStorage(UserDefaults.Key.appListHiddenStats, store: UserDefaults.shared) private var hiddenStatsValue = ""
+    @AppStorage(UserDefaults.Key.appListHiddenStats, store: UserDefaults.shared) private var hiddenStatsValue = AppListOptions.defaultHiddenStats
     @AppStorage(UserDefaults.Key.homeChartSort, store: UserDefaults.shared) private var chartSortChoice: AppListSort = .downloads
     @AppStorage(UserDefaults.Key.homeChartShowsActiveDevices, store: UserDefaults.shared) private var chartShowsActiveDevices = false
     
@@ -388,12 +388,15 @@ struct AppListOptions: View {
 
     /// The `sortsByCounts` stats that have figures yet.
     let countedStats: Set<AppListSort>
-    /// Submenus, the way a menu bar lays out its choices, rather than the view options menu's sections.
+    /// Longer submenu titles, for the menu bar's View menu, where they sit beside other choices.
     var inMenuBar = false
 
     @AppStorage(UserDefaults.Key.appListSort, store: UserDefaults.shared) private var sort: AppListSort = .downloads
     /// The stats hidden from the app rows, as comma-separated `AppListSort` raw values.
-    @AppStorage(UserDefaults.Key.appListHiddenStats, store: UserDefaults.shared) private var hiddenStatsValue = ""
+    @AppStorage(UserDefaults.Key.appListHiddenStats, store: UserDefaults.shared) private var hiddenStatsValue = AppListOptions.defaultHiddenStats
+
+    /// Impressions and App Store views are more than most readers want on every row, so they start hidden.
+    static let defaultHiddenStats = [AppListSort.impressions, .appStoreViews].map(\.rawValue).joined(separator: ",")
 
     static func hiddenStats(in value: String) -> Set<AppListSort> {
         Set(value.split(separator: ",").compactMap { AppListSort(rawValue: String($0)) })
@@ -425,14 +428,17 @@ struct AppListOptions: View {
     }
 
     var body: some View {
-        if inMenuBar {
-            Picker("Sort Apps By", selection: $sort) { sorts }
-            Menu("Show in App List") { stats }
-        } else {
-            Section("Show") { stats }
-            Picker("Sort By", selection: $sort) { sorts }
-                .pickerStyle(.inline)
+        Menu {
+            stats
+        } label: {
+            Label(inMenuBar ? "Show in App List" : "Show", systemImage: "checklist")
         }
+        Picker(selection: $sort) {
+            sorts
+        } label: {
+            Label(inMenuBar ? "Sort Apps By" : "Sort By", systemImage: "arrow.up.arrow.down")
+        }
+        .pickerStyle(.menu)
     }
 }
 
