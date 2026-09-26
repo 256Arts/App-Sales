@@ -40,11 +40,6 @@ struct AppPerformanceSummary: Identifiable {
     let proceeds: Double
     let price: Double
 
-    /// False for an app the iTunes lookup could not find: unreleased, or removed from sale.
-    var isOnAppStore: Bool {
-        iconURL != nil
-    }
-
     var url: URL {
         URL(string: "https://apps.apple.com/app/id" + appleID) ?? URL(filePath: "/")
     }
@@ -111,11 +106,11 @@ enum AppListSort: String, CaseIterable, Identifiable {
         [.websiteViews, .impressions, .appStoreViews, .activeDevices].contains(self)
     }
 
-    /// Highest first for the numbers, A–Z for the name, and apps no longer on the App Store last.
+    /// Highest first for the numbers, and A–Z for the name.
     /// `counts` are the figures a `sortsByCounts` sort orders by, keyed by Apple ID; apps tied on
     /// them — every app, while they have not loaded — fall back to downloads.
     func sort(_ apps: [AppPerformanceSummary], counts: [String: Int] = [:]) -> [AppPerformanceSummary] {
-        let sorted = switch self {
+        switch self {
         case .name: apps.sorted(by: { $0.name.localizedStandardCompare($1.name) == .orderedAscending })
         case .price: apps.sorted(by: { $0.price > $1.price })
         case .downloads: apps.sorted(by: { $0.downloads > $1.downloads })
@@ -126,6 +121,5 @@ enum AppListSort: String, CaseIterable, Identifiable {
                 return aCount == bCount ? a.downloads > b.downloads : aCount > bCount
             }
         }
-        return sorted.filter(\.isOnAppStore) + sorted.filter { !$0.isOnAppStore }
     }
 }

@@ -8,8 +8,7 @@ struct ACApp: Codable, Identifiable {
     let version: String
     let price: Double
     let currentVersionReleaseDate: String
-    /// Nil for an app the iTunes lookup could not find (removed from sale, unreleased), which is
-    /// drawn with a placeholder icon.
+    /// Nil only in a cache written before apps off the App Store were left out.
     let iconURL100: URL?
     let iconURL512: URL?
     

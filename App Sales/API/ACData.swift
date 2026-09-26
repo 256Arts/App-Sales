@@ -145,9 +145,10 @@ struct ACData: Codable {
         getAppSummaries(in: ACData.date(daysAgo: 30)..<Date.now)
     }
 
-    /// Every app's downloads and proceeds over a window, best-selling first.
+    /// Every app on the App Store's downloads and proceeds over a window, best-selling first.
     func getAppSummaries(in range: Range<Date>) -> [AppPerformanceSummary] {
         apps
+            .filter { $0.iconURL100 != nil }
             .map { app in
                 AppPerformanceSummary(
                     appleID: app.appleID,

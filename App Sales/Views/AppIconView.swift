@@ -1,8 +1,7 @@
 import SwiftUI
 
 /// An app's icon: the fetched artwork when it is available, the App Group's cached copy while that
-/// downloads, and a plain fill when neither is there yet. An app with no artwork at all (removed from
-/// sale, or unreleased) gets `AppIconPlaceholder`.
+/// downloads, and a plain fill when neither is there yet.
 struct AppIconView: View {
 
     let app: AppPerformanceSummary
@@ -18,8 +17,6 @@ struct AppIconView: View {
                 icon
                     .resizable()
                     .widgetAccentedRenderingMode(.accentedDesaturated)
-            } else if app.iconURL == nil {
-                AppIconPlaceholder()
             } else {
                 Color.secondary
             }

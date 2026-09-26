@@ -118,30 +118,21 @@ struct HomeView: View {
             if let summary = loader.summary {
                 let counts = appCounts(of: summary.apps)
                 ForEach(appListSort.sort(summary.apps, counts: counts[appListSort] ?? [:])) { app in
-                    Group {
-                        if app.isOnAppStore {
-                            NavigationLink(value: HomeSelection.app(app.appleID)) {
-                                AppRow(app: app, iconLength: appListIconLength, counts: counts, hiddenStats: hiddenStats)
-                            }
-                        } else {
-                            AppRow(app: app, iconLength: appListIconLength, counts: counts, hiddenStats: hiddenStats)
-                        }
+                    NavigationLink(value: HomeSelection.app(app.appleID)) {
+                        AppRow(app: app, iconLength: appListIconLength, counts: counts, hiddenStats: hiddenStats)
                     }
                     .contextMenu {
-                        // Nothing to open for an app no longer on the App Store.
-                        if app.isOnAppStore {
-                            Link(destination: app.url) {
-                                Label("View on the App Store", image: "logo.appstore")
+                        Link(destination: app.url) {
+                            Label("View on the App Store", image: "logo.appstore")
+                        }
+                        if googleAnalytics.property != nil {
+                            if let url = websiteTraffic[app.appleID]?.url {
+                                Link(destination: url) {
+                                    Label("Open Webpage", systemImage: "safari")
+                                }
                             }
-                            if googleAnalytics.property != nil {
-                                if let url = websiteTraffic[app.appleID]?.url {
-                                    Link(destination: url) {
-                                        Label("Open Webpage", systemImage: "safari")
-                                    }
-                                }
-                                Button("Set Webpage…", systemImage: "pencil") {
-                                    editingWebsitePage = app
-                                }
+                            Button("Set Webpage…", systemImage: "pencil") {
+                                editingWebsitePage = app
                             }
                         }
                     }
@@ -481,7 +472,7 @@ private struct AppRow: View {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(app.name)
                         .accessibilityIdentifier("AppRow.\(app.name)")
-                    if app.isOnAppStore, !hiddenStats.contains(.price) {
+                    if !hiddenStats.contains(.price) {
                         price
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -490,19 +481,13 @@ private struct AppRow: View {
                 }
                 .lineLimit(1)
 
-                Group {
-                    if app.isOnAppStore {
-                        HStack(spacing: 8) {
-                            ForEach(AppListSort.allCases.filter { !hiddenStats.contains($0) }) { sort in
-                                stat(for: sort)
-                            }
-                            // Soaks up the width the row has spare, so the stats stay grouped
-                            // at the leading edge rather than spreading across the row.
-                            Spacer(minLength: 0)
-                        }
-                    } else {
-                        Text("Not on the App Store")
+                HStack(spacing: 8) {
+                    ForEach(AppListSort.allCases.filter { !hiddenStats.contains($0) }) { sort in
+                        stat(for: sort)
                     }
+                    // Soaks up the width the row has spare, so the stats stay grouped
+                    // at the leading edge rather than spreading across the row.
+                    Spacer(minLength: 0)
                 }
                 .font(.subheadline)
                 .foregroundStyle(.secondary)

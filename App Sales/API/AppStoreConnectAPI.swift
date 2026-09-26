@@ -173,12 +173,9 @@ final class AppStoreConnectAPI {
         var countrySales: [String: [String: Int]] = [:]
         for entry in entries where entry.type != .iap && entry.type != .restoredIap {
             if requests[entry.appIdentifier] == nil {
-                requests[entry.appIdentifier] = .init(appleID: entry.appIdentifier, name: entry.appTitle, sku: entry.appSKU, storefront: nil, isApp: false)
+                requests[entry.appIdentifier] = .init(appleID: entry.appIdentifier, name: entry.appTitle, sku: entry.appSKU, storefront: nil)
             }
             countrySales[entry.appIdentifier, default: [:]][entry.countryCode, default: 0] += max(entry.units, 1)
-            if [.download, .redownload, .update].contains(entry.type) {
-                requests[entry.appIdentifier]?.isApp = true
-            }
         }
         for appleID in requests.keys {
             // The storefront outside the US it sold best in, for an app the US lookup cannot see.
@@ -197,10 +194,9 @@ final class AppStoreConnectAPI {
                     if let storefront = app.storefront, let found = try? await self.iTunesLookup(appRequest: app, country: storefront) {
                         return found
                     }
-                    // Removed from sale or unreleased: keep it from the report alone, so its sales
-                    // still have a row, drawn with a placeholder icon.
-                    guard app.isApp else { return nil }
-                    return ACApp(appleID: app.appleID, name: app.name, sku: app.sku, version: "", price: 0, currentVersionReleaseDate: "", iconURL100: nil, iconURL512: nil)
+                    // Removed from sale or unreleased: left out of the app list, though its sales
+                    // still count toward the totals.
+                    return nil
                 }
             }
 
@@ -250,15 +246,13 @@ final class AppStoreConnectAPI {
         let name: String
         let sku: String
         var storefront: String?
-        /// Whether any row was a download, redownload, or update — the rows only an app has.
-        var isApp: Bool
     }
 
     // Icons come from the public iTunes lookup rather than App Store Connect. The ASC API only exposes
     // icons per build (`Build.iconAssetToken`, via /v1/builds?filter[app]=…), which needs a Developer,
     // App Manager, or Admin key — Sales/Finance keys can read reports but not builds.
     // The lookup is per storefront (US unless `country` is given) and finds nothing for a removed or
-    // unreleased app; `getApps` retries and then falls back to the report row.
+    // unreleased app; `getApps` retries and then leaves the app out.
     private func iTunesLookup(appRequest: ITunesAppRequest, country: String?) async throws -> ACApp {
         var query = "https://itunes.apple.com/lookup?id=" + appRequest.appleID
         if let country {
