@@ -20,6 +20,7 @@ struct AppSalesApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     #if os(macOS)
+    @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
     @AppStorage(UserDefaults.Key.aiUsageMenuBarExtra, store: UserDefaults.shared) private var showsMenuBarExtra = false
     #endif
 

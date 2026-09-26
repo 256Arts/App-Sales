@@ -381,6 +381,9 @@ enum DockIcon {
 
     static var hasWindow: Bool { windows > 0 }
 
+    /// Whether closing the last window should leave the app running, for the menu bar extra.
+    static var keepsRunning: Bool { showsMenuBarExtra }
+
     static func windowOpened() {
         windows += 1
         update()
@@ -402,6 +405,13 @@ enum DockIcon {
         let policy: NSApplication.ActivationPolicy = windows == 0 && showsMenuBarExtra ? .accessory : .regular
         guard NSApplication.shared.activationPolicy() != policy else { return }
         NSApplication.shared.setActivationPolicy(policy)
+    }
+}
+
+/// A `Window` scene quits the app when it closes, which would take the menu bar extra with it.
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        !DockIcon.keepsRunning
     }
 }
 
