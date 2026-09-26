@@ -66,7 +66,8 @@ struct HomeView: View {
                         data: data,
                         websiteTraffic: websiteTraffic[app.appleID],
                         showsWebsite: googleAnalytics.property != nil,
-                        analytics: appStoreAnalytics)
+                        analytics: appStoreAnalytics,
+                        account: selectedKey)
                         .id(appleID)
                 } else {
                     ProgressView()

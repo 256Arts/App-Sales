@@ -120,6 +120,7 @@ class ACDataCache {
         let collection = CacheObjectCollection(objects: cacheObjects)
         saveCollection(collection)
         AnalyticsCache.clear(account: apiKey)
+        CustomerReviewsCache.clear(account: apiKey)
     }
 
     public static func clearCache() {
