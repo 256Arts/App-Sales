@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(AdmobSwiftUI)
+import AdmobSwiftUI
+#endif
 
 struct HomeView: View {
     
@@ -20,6 +23,10 @@ struct HomeView: View {
     @State private var preferredColumn = NavigationSplitViewColumn.detail
     /// Whether the summary has the width for its figures to stand larger over the chart.
     @State private var isWide = false
+
+    #if canImport(AdmobSwiftUI)
+    @StateObject private var nativeAdViewModel = NativeAdViewModel(adUnitID: "ca-app-pub-8282547272443688/5107419575")
+    #endif
 
     @Environment(AccountManager.self) var accountManager
 
@@ -257,6 +264,19 @@ struct HomeView: View {
 
                     if let summary = loader.summary {
                         InsightsView(summary: summary)
+
+                        #if canImport(AdmobSwiftUI)
+                        if ExperienceManager.shared.shouldShowAds {
+                            Section {
+                                NativeAdView(nativeViewModel: nativeAdViewModel, style: .banner)
+                                    .frame(height: 100)
+                                    .listRowInsets(.all, 0)
+                                    .onAppear {
+                                        nativeAdViewModel.refreshAd()
+                                    }
+                            }
+                        }
+                        #endif
 
                         AIUsageSection(refreshCount: refreshCount)
                     }

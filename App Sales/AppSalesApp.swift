@@ -65,10 +65,17 @@ struct AppSalesApp: App {
             .environment(apiKeysProvider)
             .onAppear {
                 appLaunchCount += 1
-                if [5, 20, 50, 100].contains(appLaunchCount) {
+                if ExperienceManager.shared.launchCountsToAskForReview.contains(appLaunchCount) {
                     requestReview()
                 }
             }
+            #if canImport(AdmobSwiftUI)
+            // Tracking is asked only while the app is active; the system skips the prompt otherwise
+            .task(id: scenePhase) {
+                guard scenePhase == .active else { return }
+                await ExperienceManager.shared.requestTrackingThenStartAds()
+            }
+            #endif
             .alert("Event Intro", isPresented: $showingEvent) {
                 Button("OK") { }
             } message: {

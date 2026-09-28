@@ -59,4 +59,4 @@ The data flow is a one-way pipeline from the App Store Connect API to SwiftUI vi
 - The **demo account path** (`Account.demoAccount` / `ACData.example`) is the way to exercise the UI without real credentials — preserve it when refactoring the fetch pipeline.
 
 ## Dependencies (SwiftPM, resolved in the Xcode project)
-`appstoreconnect-swift-sdk` (API client), `GzipSwift` (decompress reports), `SwiftCSV` (parse TSV), `KeychainAccess` (credential storage).
+`appstoreconnect-swift-sdk` (API client), `GzipSwift` (decompress reports), `SwiftCSV` (parse TSV), `KeychainAccess` (credential storage), `AdmobSwiftUI` (iOS only — a native ad above the Summary's AI usage; every use sits behind `#if canImport(AdmobSwiftUI)`, and `ExperienceManager` holds it, and the tracking prompt, back until the reader is past the first review request).

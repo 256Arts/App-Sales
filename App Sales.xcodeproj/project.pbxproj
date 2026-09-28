@@ -28,6 +28,7 @@
 		45E8C4A52612531E007F9B0E /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 45E8C4942612531D007F9B0E /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		45E8C4BD261267FB007F9B0E /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 45E8C4BC261267FB007F9B0E /* Gzip */; };
 		45E8C4C0261268D4007F9B0E /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 45E8C4BF261268D4007F9B0E /* SwiftCSV */; };
+		1BAD5A000000000000000001 /* AdmobSwiftUI in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 1BAD5A000000000000000002 /* AdmobSwiftUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,6 +127,7 @@
 				App.icon,
 				AppSalesApp.swift,
 				AppShortcuts.xcstrings,
+				ExperienceManager.swift,
 				Info.plist,
 				InfoPlist.xcstrings,
 				Intents/AppSalesShortcuts.swift,
@@ -178,6 +180,7 @@
 			membershipExceptions = (
 				AppSalesApp.swift,
 				AppShortcuts.xcstrings,
+				ExperienceManager.swift,
 				Info.plist,
 				InfoPlist.xcstrings,
 				Intents/AppSalesShortcuts.swift,
@@ -214,6 +217,7 @@
 				App.icon,
 				AppSalesApp.swift,
 				AppShortcuts.xcstrings,
+				ExperienceManager.swift,
 				Info.plist,
 				InfoPlist.xcstrings,
 				Intents/AppSalesShortcuts.swift,
@@ -334,6 +338,7 @@
 				456187F426F66FE400FAE4F8 /* KeychainAccess in Frameworks */,
 				45E8C4BD261267FB007F9B0E /* Gzip in Frameworks */,
 				45CAC1092615CB8100FF63E7 /* AppStoreConnect-Swift-SDK in Frameworks */,
+				1BAD5A000000000000000001 /* AdmobSwiftUI in Frameworks */,
 			);
 		};
 		45E8C4912612531D007F9B0E /* Frameworks */ = {
@@ -514,6 +519,7 @@
 				45E8C4BF261268D4007F9B0E /* SwiftCSV */,
 				45CAC1082615CB8100FF63E7 /* AppStoreConnect-Swift-SDK */,
 				456187F326F66FE400FAE4F8 /* KeychainAccess */,
+				1BAD5A000000000000000002 /* AdmobSwiftUI */,
 			);
 			productName = "AC Widget";
 			productReference = 45E8C47D2612512E007F9B0E /* App Sales.app */;
@@ -594,6 +600,7 @@
 				45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */,
 				45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */,
 				456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				1BAD5A000000000000000003 /* XCRemoteSwiftPackageReference "AdmobSwiftUI" */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 45E8C47E2612512E007F9B0E /* Products */;
@@ -1315,6 +1322,14 @@
 				minimumVersion = 0.6.0;
 			};
 		};
+		1BAD5A000000000000000003 /* XCRemoteSwiftPackageReference "AdmobSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dearhui/AdmobSwiftUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1397,6 +1412,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */;
 			productName = SwiftCSV;
+		};
+		1BAD5A000000000000000002 /* AdmobSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BAD5A000000000000000003 /* XCRemoteSwiftPackageReference "AdmobSwiftUI" */;
+			productName = AdmobSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
