@@ -1,0 +1,213 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Get my ${applicationName} AI usage" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "Meine ${applicationName} KI-Nutzung abrufen",
+              "Wie viel Claude habe ich noch in ${applicationName}",
+              "Wie viel KI-Nutzung ist in ${applicationName} noch übrig",
+              "Meine KI-Limits in ${applicationName} prüfen"
+            ]
+          }
+        },
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Get my ${applicationName} AI usage",
+              "How much Claude have I got left in ${applicationName}",
+              "How much AI usage is left in ${applicationName}",
+              "Check my AI limits in ${applicationName}"
+            ]
+          }
+        },
+        "es" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "Obtener mi uso de IA en ${applicationName}",
+              "Cuánto Claude me queda en ${applicationName}",
+              "Cuánto uso de IA queda en ${applicationName}",
+              "Comprobar mis límites de IA en ${applicationName}"
+            ]
+          }
+        },
+        "fr" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "Obtenir mon utilisation de l'IA sur ${applicationName}",
+              "Combien de Claude me reste-t-il sur ${applicationName}",
+              "Combien d'utilisation de l'IA reste-t-il sur ${applicationName}",
+              "Vérifier mes limites d'IA sur ${applicationName}"
+            ]
+          }
+        },
+        "ja" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "${applicationName}のAI使用状況を取得",
+              "${applicationName}でClaudeの残り使用量はどれくらい",
+              "${applicationName}で残っているAI使用量は",
+              "${applicationName}のAI上限を確認"
+            ]
+          }
+        },
+        "zh-Hans" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "获取我在${applicationName}的 AI 使用情况",
+              "我在${applicationName}还剩多少 Claude 用量",
+              "${applicationName}中还剩多少 AI 使用量",
+              "查看我在${applicationName}的 AI 限额"
+            ]
+          }
+        }
+      }
+    },
+    "Get my ${applicationName} sales by app" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "Meine ${applicationName} Verkäufe nach App abrufen",
+              "Welche meiner Apps hat sich in ${applicationName} am besten verkauft",
+              "Meine App-Aufschlüsselung in ${applicationName} anzeigen"
+            ]
+          }
+        },
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Get my ${applicationName} sales by app",
+              "Which of my apps sold best in ${applicationName}",
+              "Show my app breakdown in ${applicationName}"
+            ]
+          }
+        },
+        "es" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "Obtener mis ventas por app en ${applicationName}",
+              "Cuál de mis apps vendió mejor en ${applicationName}",
+              "Mostrar el desglose de mis apps en ${applicationName}"
+            ]
+          }
+        },
+        "fr" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "Obtenir mes ventes par application sur ${applicationName}",
+              "Quelle est l'application qui s'est le mieux vendue sur ${applicationName}",
+              "Afficher la répartition de mes applications sur ${applicationName}"
+            ]
+          }
+        },
+        "ja" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "${applicationName}のアプリ別売上を取得",
+              "${applicationName}でどのアプリが一番売れた",
+              "${applicationName}のアプリ別詳細を表示"
+            ]
+          }
+        },
+        "zh-Hans" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "获取我在${applicationName}按应用的销售数据",
+              "在${applicationName}中我哪个应用卖得最好",
+              "显示我在${applicationName}的应用分类明细"
+            ]
+          }
+        }
+      }
+    },
+    "Get my ${applicationName} summary" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "Meine ${applicationName} Übersicht abrufen",
+              "Wie viel haben meine Apps in ${applicationName} eingenommen",
+              "Wie laufen meine Apps in ${applicationName}",
+              "Meine Verkäufe in ${applicationName} prüfen"
+            ]
+          }
+        },
+        "en" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Get my ${applicationName} summary",
+              "How much did my apps make in ${applicationName}",
+              "How are my apps doing in ${applicationName}",
+              "Check my sales in ${applicationName}"
+            ]
+          }
+        },
+        "es" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "Obtener mi resumen de ${applicationName}",
+              "Cuánto ganaron mis apps en ${applicationName}",
+              "Cómo van mis apps en ${applicationName}",
+              "Comprobar mis ventas en ${applicationName}"
+            ]
+          }
+        },
+        "fr" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "Obtenir mon résumé sur ${applicationName}",
+              "Combien mes applications ont-elles rapporté sur ${applicationName}",
+              "Comment se portent mes applications sur ${applicationName}",
+              "Vérifier mes ventes sur ${applicationName}"
+            ]
+          }
+        },
+        "ja" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "${applicationName}の概要を取得",
+              "${applicationName}でアプリはどれくらい儲かった",
+              "${applicationName}でアプリの状況はどう",
+              "${applicationName}の売上を確認"
+            ]
+          }
+        },
+        "zh-Hans" : {
+          "stringSet" : {
+            "state" : "machine_translated",
+            "values" : [
+              "获取我在${applicationName}的摘要",
+              "我的应用在${applicationName}赚了多少钱",
+              "我的应用在${applicationName}表现如何",
+              "查看我在${applicationName}的销售额"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

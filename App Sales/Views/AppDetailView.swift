@@ -1,0 +1,400 @@
+import SwiftUI
+import Charts
+
+/// Everything App Sales knows about one app: its sales over the last 30 days and the devices they
+/// came from, its webpage's views, its App Store analytics, and what its customers are saying.
+struct AppDetailView: View {
+
+    let app: AppPerformanceSummary
+    let data: ACData
+    let websiteTraffic: WebPageTraffic?
+    /// Whether Google Analytics is connected, so the webpage can be set before it has any views.
+    let showsWebsite: Bool
+    let analytics: AnalyticsAvailability?
+    /// The account whose reviews are read.
+    let account: Account?
+
+    @State private var editingWebsitePage: AppPerformanceSummary?
+    @State private var reviews: CustomerReviewsAvailability?
+    @State private var reviewsError: String?
+    @Environment(\.openURL) private var openURL
+
+    /// The same 30 days as the home screen's downloads and proceeds.
+    private let range = (Calendar.autoupdatingCurrent.date(byAdding: .day, value: -30, to: .now) ?? .now)..<Date.now
+
+    private var acApps: [ACApp] {
+        data.apps.filter { $0.appleID == app.appleID }
+    }
+
+    var body: some View {
+        List {
+            Section {
+                HStack(spacing: 14) {
+                    AppIconView(app: app, length: 72)
+                        .shadow(color: .black.opacity(0.15), radius: 6, y: 3)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(app.name)
+                            .font(.title2.bold())
+                            // The screenshot walk waits on this before photographing the app's page.
+                            .accessibilityIdentifier("AppDetail.Name")
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
+                        Text(priceString)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer(minLength: 0)
+                }
+                .padding(.vertical, 4)
+                .listRowBackground(Color.clear)
+                .listRowInsets(.horizontal, 0)
+            }
+
+            Section {
+                Chart(dailyDownloads, id: \.date) { day in
+                    BarMark(x: .value("Day", day.date, unit: .day), y: .value("Downloads", day.downloads))
+                }
+                .chartXScale(domain: range.lowerBound...range.upperBound)
+                .frame(height: 160)
+                .accessibilityLabel("Downloads by day")
+
+                LabeledContent {
+                    Text(app.downloads, format: .number)
+                } label: {
+                    Label("Downloads", systemImage: "arrow.down.app")
+                }
+                LabeledContent {
+                    Text(NumberFormatter.currency.string(from: NSNumber(value: app.proceeds)) ?? "")
+                } label: {
+                    Label("Proceeds", systemImage: "dollarsign.circle")
+                }
+                LabeledContent {
+                    Text(Int(data.getTotal(for: .updates, in: range, filteredApps: acApps)), format: .number)
+                } label: {
+                    Label("Updates", systemImage: "arrow.triangle.2.circlepath")
+                }
+                LabeledContent {
+                    Text(Int(data.getTotal(for: .iap, in: range, filteredApps: acApps)), format: .number)
+                } label: {
+                    Label("In-App Purchases", systemImage: "cart")
+                }
+            } header: {
+                Text("Last 30 Days")
+            }
+
+            if !devices.isEmpty {
+                Section("Downloads by Device") {
+                    ForEach(devices, id: \.device) { row in
+                        LabeledContent {
+                            Text(row.downloads, format: .number)
+                        } label: {
+                            Label(row.device.name, systemImage: row.device.symbol)
+                        }
+                    }
+                }
+            }
+
+            if showsWebsite {
+                Section("Webpage") {
+                    LabeledContent {
+                        if let views = websiteTraffic?.views {
+                            Text(views, format: .number)
+                        } else {
+                            Text("—")
+                                .accessibilityLabel("Not available")
+                        }
+                    } label: {
+                        Label("Page Views", systemImage: "globe")
+                    }
+                }
+            }
+
+            if let analytics {
+                Section {
+                    switch analytics {
+                    case .ready(let analytics):
+                        AnalyticsTotalsRows(totals: analytics.totals(for: app.appleID), downloads: Int(data.getTotal(for: .downloads, in: analytics.range, filteredApps: acApps)))
+                    case .preparing:
+                        Text("App Store Connect is preparing analytics reports for your apps. The first ones usually arrive within two days.")
+                            .foregroundStyle(.secondary)
+                    case .needsAdminKey:
+                        Text("Analytics reports need to be turned on once with an API key that has the Admin role. After that, a Sales and Reports key can read them.")
+                            .foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Text("App Store Analytics")
+                } footer: {
+                    if case .ready(let analytics) = analytics {
+                        Text("30 days through \(analytics.range.upperBound.addingTimeInterval(-1), format: .dateTime.month().day()), the latest reported.")
+                    }
+                }
+            }
+
+            if account != nil {
+                reviewsSection
+            }
+        }
+        .navigationTitle(app.name)
+        #if !os(macOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+        .toolbar {
+            ToolbarItem {
+                Button("View on the App Store", image: .logoAppstore) {
+                    openURL(app.url)
+                }
+                .help("View on the App Store")
+            }
+            if websiteTraffic?.url != nil || showsWebsite {
+                #if !os(visionOS)
+                ToolbarSpacer(.fixed)
+                #endif
+                ToolbarItem {
+                    webpageButton
+                }
+            }
+        }
+        .websitePageEditor(for: $editingWebsitePage, currentURL: websiteTraffic?.url)
+        .task {
+            await loadReviews()
+        }
+    }
+
+    private var reviewsSection: some View {
+        Section {
+            switch reviews {
+            case .ready(let reviews) where reviews.total == 0:
+                Text("No one has written a review yet.")
+                    .foregroundStyle(.secondary)
+            case .ready(let reviews):
+                RatingsSummary(reviews: reviews)
+                ForEach(reviews.recent) { review in
+                    ReviewRow(review: review)
+                }
+            case .needsCustomerSupportKey:
+                Text("Reading reviews needs an API key with the Customer Support role, or one above it such as App Manager or Admin.")
+                    .foregroundStyle(.secondary)
+            case nil:
+                if let reviewsError {
+                    Text(reviewsError)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                }
+            }
+        } header: {
+            Text("Ratings and Reviews")
+        } footer: {
+            if case .ready(let reviews) = reviews, reviews.total > 0 {
+                Text("Written reviews from every country. Ratings left without a review are not included.")
+            }
+        }
+    }
+
+    /// Shows the last fetch at once, then replaces it if it has gone stale.
+    private func loadReviews() async {
+        guard let account else { return }
+        let api = CustomerReviewsAPI(account: account)
+        if let cached = api.cached(appleID: app.appleID) {
+            reviews = .ready(cached)
+        }
+        do {
+            reviews = try await api.getReviews(appleID: app.appleID)
+            reviewsError = nil
+        } catch {
+            reviewsError = error.localizedDescription
+        }
+    }
+
+    /// Opens the webpage, with setting it as the secondary action, which macOS shows behind a chevron.
+    @ViewBuilder private var webpageButton: some View {
+        switch (websiteTraffic?.url, showsWebsite) {
+        case (let url?, true):
+            Menu {
+                setWebpageButton
+            } label: {
+                Label("Open Webpage", systemImage: "safari")
+            } primaryAction: {
+                openURL(url)
+            }
+            .help("Open Webpage")
+        case (let url?, false):
+            Button("Open Webpage", systemImage: "safari") {
+                openURL(url)
+            }
+            .help("Open Webpage")
+        case (nil, _):
+            setWebpageButton
+                .help("Set Webpage…")
+        }
+    }
+
+    private var setWebpageButton: some View {
+        Button("Set Webpage…", systemImage: "pencil") {
+            editingWebsitePage = app
+        }
+    }
+
+    private var priceString: String {
+        guard app.price > 0 else { return String(localized: "Free") }
+
+        return NumberFormatter.currency.string(from: NSNumber(value: app.price)) ?? ""
+    }
+
+    private var dailyDownloads: [(date: Date, downloads: Int)] {
+        data.getRawData(for: .downloads, startDate: range.lowerBound, endDate: range.upperBound, filteredApps: acApps)
+            .map { (date: $0.1, downloads: Int($0.0)) }
+    }
+
+    /// Most downloads first, with the report's device names folded into the ones App Sales knows.
+    private var devices: [(device: ACDevice, downloads: Int)] {
+        let byDevice = Dictionary(data.getDevices(.downloads, lastNDays: 30, filteredApps: acApps).map { (ACDevice($0.0), Int($0.1)) }, uniquingKeysWith: +)
+
+        return byDevice
+            .filter { $0.value > 0 }
+            .map { (device: $0.key, downloads: $0.value) }
+            .sorted { $0.downloads > $1.downloads }
+    }
+}
+
+/// The funnel from being seen to being used, as one row per figure.
+private struct AnalyticsTotalsRows: View {
+
+    let totals: AnalyticsTotals
+    let downloads: Int
+
+    var body: some View {
+        LabeledContent {
+            Text(totals.impressions, format: .number)
+        } label: {
+            Label("Impressions", systemImage: "eye")
+        }
+        LabeledContent {
+            Text(totals.pageViews, format: .number)
+        } label: {
+            Label("Product Page Views", systemImage: "doc.text.magnifyingglass")
+        }
+        LabeledContent {
+            Text(downloads, format: .number)
+        } label: {
+            Label("Downloads", systemImage: "arrow.down.app")
+        }
+        LabeledContent {
+            if let rate = totals.conversionRate(downloads: downloads) {
+                Text(rate, format: .percent.precision(.fractionLength(0...1)))
+            } else {
+                Text("—")
+                    .accessibilityLabel("Not available")
+            }
+        } label: {
+            Label("Conversion Rate", systemImage: "percent")
+        }
+        LabeledContent {
+            Text(totals.sessions, format: .number)
+        } label: {
+            Label("Sessions", systemImage: "hand.tap")
+        }
+        LabeledContent {
+            Text(totals.averageDailyActiveDevices, format: .number)
+        } label: {
+            Label("Daily Active Devices", systemImage: "person.2")
+        }
+    }
+}
+
+/// The average, and a bar per star rating showing its share, the way the App Store draws them.
+private struct RatingsSummary: View {
+
+    let reviews: CustomerReviews
+
+    var body: some View {
+        HStack(spacing: 20) {
+            VStack(spacing: 0) {
+                Text(reviews.average ?? 0, format: .number.precision(.fractionLength(1)))
+                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                Text("out of 5")
+                    .font(.caption.bold())
+                    .foregroundStyle(.secondary)
+            }
+
+            VStack(alignment: .trailing, spacing: 3) {
+                ForEach((1...5).reversed(), id: \.self) { stars in
+                    HStack(spacing: 6) {
+                        StarRating(rating: stars, showsEmptyStars: false)
+                            .font(.system(size: 7))
+                            .frame(width: 44, alignment: .trailing)
+                        ProgressView(value: Double(reviews.count(stars: stars)), total: Double(max(reviews.total, 1)))
+                            .tint(.secondary)
+                    }
+                }
+                Text("^[\(reviews.total) Review](inflect: true)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 4)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("\(reviews.average ?? 0, format: .number.precision(.fractionLength(1))) out of 5, from ^[\(reviews.total) review](inflect: true)"))
+    }
+}
+
+private struct ReviewRow: View {
+
+    let review: CustomerReviews.Review
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                StarRating(rating: review.rating)
+                    .font(.caption)
+                Spacer()
+                if let date = review.date {
+                    Text(date, format: .dateTime.month().day().year())
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            if let title = review.title, !title.isEmpty {
+                Text(title)
+                    .bold()
+            }
+            if let body = review.body, !body.isEmpty {
+                Text(body)
+            }
+            let byline = [review.nickname, review.territoryName].compactMap(\.self).filter { !$0.isEmpty }
+            if !byline.isEmpty {
+                Text(byline.joined(separator: " · "))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.vertical, 2)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct StarRating: View {
+
+    let rating: Int
+    var showsEmptyStars = true
+
+    var body: some View {
+        HStack(spacing: 1) {
+            ForEach(1...(showsEmptyStars ? 5 : rating), id: \.self) { star in
+                Image(systemName: star <= rating ? "star.fill" : "star")
+            }
+        }
+        .foregroundStyle(.orange)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("\(rating) out of 5 stars"))
+    }
+}
+
+#Preview {
+    NavigationStack {
+        AppDetailView(app: ACData.example.getAppSummaries()[0], data: .example, websiteTraffic: nil, showsWebsite: false, analytics: .ready(.example(for: .example)), account: .demoAccount)
+    }
+}
