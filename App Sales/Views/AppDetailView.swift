@@ -321,6 +321,8 @@ private extension ACDevice {
         case .desktop: .teal
         case .appleWatch: .pink
         case .appleTV: .indigo
+        case .appleVision: .orange
+        case .iPod: .mint
         case .unknown: .gray
         }
     }

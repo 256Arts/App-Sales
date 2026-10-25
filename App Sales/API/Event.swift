@@ -44,14 +44,21 @@ enum ACDevice: String, CaseIterable, Identifiable {
     case iPad
     case appleWatch
     case appleTV
+    case appleVision
+    case iPod
     case unknown
 
+    /// Apple documents iPhone, iPad, iPod touch, Desktop, Apple TV, and Apple Vision.
     init(_ deviceString: String?) {
         switch deviceString {
         case "iPhone":
             self = .iPhone
         case "iPad":
             self = .iPad
+        case "iPod", "iPod touch":
+            self = .iPod
+        case "Apple Vision", "Apple Vision Pro":
+            self = .appleVision
         case "Desktop":
             self = .desktop
         case "Apple Watch":
@@ -75,6 +82,8 @@ enum ACDevice: String, CaseIterable, Identifiable {
         case .desktop: "Mac"
         case .appleWatch: "Apple Watch"
         case .appleTV: "Apple TV"
+        case .appleVision: "Apple Vision Pro"
+        case .iPod: "iPod touch"
         case .unknown: String(localized: "Other")
         }
     }
@@ -91,6 +100,10 @@ enum ACDevice: String, CaseIterable, Identifiable {
             return "watchface.applewatch.case"
         case .appleTV:
             return "appletv"
+        case .appleVision:
+            return "vision.pro"
+        case .iPod:
+            return "ipodtouch"
         case .unknown:
             return "questionmark"
         }
