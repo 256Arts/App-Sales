@@ -94,7 +94,7 @@ struct AppDetailView: View {
 
             if !devices.isEmpty {
                 Section("Downloads by Device") {
-                    DownloadsPie(shares: devices, showsSymbols: true)
+                    DownloadsPie(shares: devices)
                         .frame(height: 180)
                         .padding(.vertical, 8)
 
@@ -106,7 +106,7 @@ struct AppDetailView: View {
                             Label {
                                 Text(share.name)
                             } icon: {
-                                Image(systemName: share.symbol)
+                                DownloadShareBadge(badge: share.badge)
                                     .foregroundStyle(share.color)
                             }
                         }

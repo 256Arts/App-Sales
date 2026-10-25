@@ -4,19 +4,39 @@ import Charts
 /// One slice of a downloads pie: a device or a region, and how many downloads came from it.
 struct DownloadShare: Identifiable {
     let name: String
-    let symbol: String
+    let badge: Badge
     let color: Color
     let downloads: Int
 
     var id: String { name }
+
+    /// What stands for the share on its slice: an SF Symbol, or an emoji such as a flag.
+    enum Badge {
+        case symbol(String)
+        case emoji(String)
+    }
 }
 
-/// Downloads as a pie, each slice in its share's colour and labelled on the slice with its
-/// percentage, and its symbol when `showsSymbols` is set — enough, for devices, to need no legend.
+/// A share's symbol or emoji, at the current font size.
+struct DownloadShareBadge: View {
+
+    let badge: DownloadShare.Badge
+
+    var body: some View {
+        switch badge {
+        case .symbol(let name):
+            Image(systemName: name)
+        case .emoji(let emoji):
+            Text(verbatim: emoji)
+        }
+    }
+}
+
+/// Downloads as a pie, each slice in its share's colour and marked with its badge, unless it is
+/// too thin to hold one.
 struct DownloadsPie: View {
 
     let shares: [DownloadShare]
-    var showsSymbols = false
 
     private var total: Int {
         shares.reduce(0) { $0 + $1.downloads }
@@ -29,18 +49,10 @@ struct DownloadsPie: View {
                 .cornerRadius(4)
                 .foregroundStyle(by: .value("Name", share.name))
                 .annotation(position: .overlay) {
-                    // A slice too thin to hold its label goes without; the rest of the pie still adds up.
-                    if fraction >= 0.1 {
-                        VStack(spacing: 1) {
-                            if showsSymbols {
-                                Image(systemName: share.symbol)
-                                    .font(.caption)
-                            }
-                            Text(fraction, format: .percent.precision(.fractionLength(0)))
-                                .font(.caption2.bold())
-                                .monospacedDigit()
-                        }
-                        .foregroundStyle(.white)
+                    if fraction >= 0.05 {
+                        DownloadShareBadge(badge: share.badge)
+                            .font(.title3)
+                            .foregroundStyle(.white)
                     }
                 }
                 .accessibilityLabel(share.name)
@@ -51,13 +63,13 @@ struct DownloadsPie: View {
     }
 }
 
-/// A small pie for the summary, which shows two side by side. Shares with symbols of their own
-/// carry them on the slices; the rest name their colours in a legend beneath.
+/// A small pie for the summary, which shows two side by side, with a legend beneath for badges
+/// that do not name their share on their own.
 struct DownloadsPieCard: View {
 
     let title: LocalizedStringKey
     let shares: [DownloadShare]
-    var showsSymbols = false
+    var showsLegend = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -65,17 +77,15 @@ struct DownloadsPieCard: View {
                 .font(.subheadline.bold())
                 .foregroundStyle(.secondary)
 
-            DownloadsPie(shares: shares, showsSymbols: showsSymbols)
+            DownloadsPie(shares: shares)
                 .frame(height: 130)
                 .frame(maxWidth: .infinity)
 
-            if !showsSymbols {
+            if showsLegend {
                 VStack(alignment: .leading, spacing: 4) {
                     ForEach(shares) { share in
                         HStack(spacing: 6) {
-                            Circle()
-                                .fill(share.color)
-                                .frame(width: 8, height: 8)
+                            DownloadShareBadge(badge: share.badge)
                             Text(share.name)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.8)
@@ -134,12 +144,15 @@ enum SalesRegion: CaseIterable {
         }
     }
 
-    var symbol: String {
+    /// A flag to stand for the region: one of its biggest markets', or Europe's own.
+    var flag: String {
         switch self {
-        case .unitedStatesAndCanada, .latinAmerica: "globe.americas"
-        case .europe, .africaMiddleEastAndIndia: "globe.europe.africa"
-        case .asiaPacific: "globe.asia.australia"
-        case .unknown: "questionmark"
+        case .unitedStatesAndCanada: "🇺🇸"
+        case .europe: "🇪🇺"
+        case .asiaPacific: "🇯🇵"
+        case .latinAmerica: "🇧🇷"
+        case .africaMiddleEastAndIndia: "🇮🇳"
+        case .unknown: "🌐"
         }
     }
 
@@ -177,7 +190,7 @@ extension ACData {
         let byDevice = Dictionary(getDevices(.downloads, lastNDays: 30, filteredApps: filteredApps).map { (ACDevice($0.0), Int($0.1)) }, uniquingKeysWith: +)
         return byDevice
             .filter { $0.value > 0 }
-            .map { DownloadShare(name: $0.key.name, symbol: $0.key.symbol, color: $0.key.color, downloads: $0.value) }
+            .map { DownloadShare(name: $0.key.name, badge: .symbol($0.key.symbol), color: $0.key.color, downloads: $0.value) }
             .sorted { $0.downloads > $1.downloads }
     }
 
@@ -187,7 +200,7 @@ extension ACData {
         let byRegion = Dictionary(getEntries(for: .downloads, startDate: startDate, filteredApps: filteredApps).map { (SalesRegion(countryCode: $0.countryCode), $0.units) }, uniquingKeysWith: +)
         return byRegion
             .filter { $0.value > 0 }
-            .map { DownloadShare(name: $0.key.name, symbol: $0.key.symbol, color: $0.key.color, downloads: $0.value) }
+            .map { DownloadShare(name: $0.key.name, badge: .emoji($0.key.flag), color: $0.key.color, downloads: $0.value) }
             .sorted { $0.downloads > $1.downloads }
     }
 }

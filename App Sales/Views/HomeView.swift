@@ -278,8 +278,8 @@ struct HomeView: View {
                     if !devices.isEmpty || !regions.isEmpty {
                         Section("Downloads, Last 30 Days") {
                             HStack(alignment: .top, spacing: isWide ? 32 : 20) {
-                                DownloadsPieCard(title: "Devices", shares: devices, showsSymbols: true)
-                                DownloadsPieCard(title: "Regions", shares: regions)
+                                DownloadsPieCard(title: "Devices", shares: devices)
+                                DownloadsPieCard(title: "Regions", shares: regions, showsLegend: true)
                             }
                             .padding(.vertical, 8)
                         }
