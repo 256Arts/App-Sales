@@ -38,7 +38,7 @@ enum EventType: String, CaseIterable, Codable {
     }
 }
 
-enum ACDevice: String, CaseIterable, Identifiable {
+enum ACDevice: Hashable {
     case desktop
     case iPhone
     case iPad
@@ -46,7 +46,8 @@ enum ACDevice: String, CaseIterable, Identifiable {
     case appleTV
     case appleVision
     case iPod
-    case unknown
+    /// A device the report names that App Sales has no case for, under the report's own name.
+    case other(String)
 
     /// Apple documents iPhone, iPad, iPod touch, Desktop, Apple TV, and Apple Vision.
     init(_ deviceString: String?) {
@@ -65,13 +66,11 @@ enum ACDevice: String, CaseIterable, Identifiable {
             self = .appleWatch
         case "Apple TV":
             self = .appleTV
+        case let name?:
+            self = .other(name.trimmingCharacters(in: .whitespaces))
         default:
-            self = .unknown
+            self = .other("")
         }
-    }
-
-    var id: String {
-        self.rawValue
     }
 
     /// Apple's product names, which are the same in every language.
@@ -84,7 +83,7 @@ enum ACDevice: String, CaseIterable, Identifiable {
         case .appleTV: "Apple TV"
         case .appleVision: "Apple Vision Pro"
         case .iPod: "iPod touch"
-        case .unknown: String(localized: "Other")
+        case .other(let name): ["", "UNKNOWN"].contains(name) ? String(localized: "Other") : name
         }
     }
 
@@ -104,7 +103,7 @@ enum ACDevice: String, CaseIterable, Identifiable {
             return "vision.pro"
         case .iPod:
             return "ipodtouch"
-        case .unknown:
+        case .other:
             return "questionmark"
         }
     }
