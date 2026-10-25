@@ -121,6 +121,17 @@ struct ACData: Codable {
         Double(getRawData(for: type, startDate: range.lowerBound, endDate: range.upperBound, filteredApps: filteredApps).reduce(0, { $0 + $1.0 }))
     }
 
+    /// One metric for every day in `range`, oldest first, with days that sold nothing at zero
+    /// rather than skipped, so a line drawn through them falls to the axis instead of across the gap.
+    func dailyTotals(for type: InfoType, in range: Range<Date>, filteredApps: [ACApp] = []) -> [DailyValue] {
+        let calendar = Calendar.autoupdatingCurrent
+        let totals = Dictionary(getRawData(for: type, startDate: range.lowerBound, endDate: range.upperBound, filteredApps: filteredApps)
+            .map { (calendar.startOfDay(for: $0.1), Double($0.0)) }, uniquingKeysWith: +)
+        return sequence(first: calendar.startOfDay(for: range.lowerBound)) { calendar.date(byAdding: .day, value: 1, to: $0) }
+            .prefix { $0 < range.upperBound }
+            .map { DailyValue(date: $0, value: totals[$0] ?? 0) }
+    }
+
     /// The 30-day-vs-previous-30-day rollup the home screen and the widget show.
     func getPerformanceSummary() -> PerformanceSummary {
         let thirtyDaysAgo = ACData.date(daysAgo: 30)
@@ -221,6 +232,12 @@ struct ACData: Codable {
 
 /// A reproducible generator, so `ACData.example` is the same dataset on every launch.
 /// SplitMix64: short enough to read, and more than good enough for demo numbers.
+/// One day's figure, for a line chart.
+struct DailyValue: Hashable {
+    let date: Date
+    let value: Double
+}
+
 private struct SeededGenerator: RandomNumberGenerator {
     private var state: UInt64
 

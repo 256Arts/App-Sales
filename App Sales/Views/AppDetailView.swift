@@ -265,19 +265,9 @@ struct AppDetailView: View {
     /// A point per day for downloads and proceeds, with days that sold nothing at zero rather than
     /// skipped, plus active devices for the days the analytics reports cover.
     private var dailySeries: [ChartPoint] {
-        let calendar = Calendar.autoupdatingCurrent
-        func byDay(_ type: InfoType) -> [Date: Double] {
-            Dictionary(data.getRawData(for: type, startDate: range.lowerBound, endDate: range.upperBound, filteredApps: acApps)
-                .map { (calendar.startOfDay(for: $0.1), Double($0.0)) }, uniquingKeysWith: +)
-        }
-        let downloads = byDay(.downloads)
-        let proceeds = byDay(.proceeds)
-        let days = Array(sequence(first: calendar.startOfDay(for: range.lowerBound)) { calendar.date(byAdding: .day, value: 1, to: $0) }
-            .prefix { $0 < range.upperBound })
-
-        var points = days.flatMap { day in
-            [ChartPoint(series: "Downloads", date: day, value: downloads[day] ?? 0),
-             ChartPoint(series: "Proceeds", date: day, value: proceeds[day] ?? 0)]
+        var points = [("Downloads", InfoType.downloads), ("Proceeds", .proceeds)].flatMap { series, type in
+            data.dailyTotals(for: type, in: range, filteredApps: acApps)
+                .map { ChartPoint(series: series, date: $0.date, value: $0.value) }
         }
         if case .ready(let analytics) = analytics {
             points += (analytics.days[app.appleID] ?? [:])

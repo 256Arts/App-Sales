@@ -24,6 +24,8 @@ struct HomeView: View {
     @State private var preferredColumn = NavigationSplitViewColumn.detail
     /// Whether the summary has the width for its figures to stand larger over the chart.
     @State private var isWide = false
+    /// The stat the chart's legend has picked to chart app by app, day by day, in place of the bars.
+    @State private var chartedStat: AppListSort?
 
     #if canImport(AdmobSwiftUI)
     @StateObject private var nativeAdViewModel = NativeAdViewModel(adUnitID: "ca-app-pub-8282547272443688/5107419575")
@@ -194,35 +196,44 @@ struct HomeView: View {
                         if let summary = loader.summary {
                             let availableActiveDevices = appCounts(of: summary.apps)[.activeDevices]
                             let activeDevices = chartShowsActiveDevices ? availableActiveDevices : nil
+                            // Back to the bars once the stat it picked is off the chart.
+                            let shownStat = chartedStat == .activeDevices && activeDevices == nil ? nil : chartedStat
                             VStack(alignment: .leading, spacing: 16) {
-                                // In the chart's order, each figure's icon in its bars' colour, so the row doubles as the legend.
+                                // In the chart's order, each figure's icon in its bars' colour, so the row doubles as the
+                                // legend — and picking a figure charts it app by app.
                                 HStack(alignment: .top, spacing: isWide ? 32 : 16) {
-                                    SummaryStat(
-                                        name: "Downloads",
-                                        value: summary.downloads.formatted(),
-                                        systemImage: "arrow.down.app",
-                                        color: .blue,
-                                        isLarge: isWide,
-                                        change: summary.downloadsPercentageChange)
-                                    SummaryStat(
-                                        name: "Proceeds",
-                                        value: NumberFormatter.currency.string(from: NSNumber(value: summary.proceeds)) ?? "",
-                                        systemImage: "dollarsign.circle",
-                                        color: .green,
-                                        isLarge: isWide,
-                                        change: summary.proceedsPercentageChange,
-                                        // The screenshot walk waits on this before its first shot,
-                                        // so a capture cannot beat the fetched data onto the screen.
-                                        identifier: "Summary.Proceeds")
+                                    legendEntry(.downloads, charted: shownStat) {
+                                        SummaryStat(
+                                            name: "Downloads",
+                                            value: summary.downloads.formatted(),
+                                            systemImage: "arrow.down.app",
+                                            color: .blue,
+                                            isLarge: isWide,
+                                            change: summary.downloadsPercentageChange)
+                                    }
+                                    legendEntry(.proceeds, charted: shownStat) {
+                                        SummaryStat(
+                                            name: "Proceeds",
+                                            value: NumberFormatter.currency.string(from: NSNumber(value: summary.proceeds)) ?? "",
+                                            systemImage: "dollarsign.circle",
+                                            color: .green,
+                                            isLarge: isWide,
+                                            change: summary.proceedsPercentageChange,
+                                            // The screenshot walk waits on this before its first shot,
+                                            // so a capture cannot beat the fetched data onto the screen.
+                                            identifier: "Summary.Proceeds")
+                                    }
                                     if let activeDevices {
                                         let total = summary.apps.reduce(0) { $0 + (activeDevices[$1.appleID] ?? 0) }
-                                        SummaryStat(
-                                            name: AppListSort.activeDevices.title,
-                                            value: total.formatted(),
-                                            systemImage: AppListSort.activeDevices.systemImage,
-                                            color: .orange,
-                                            isLarge: isWide,
-                                            caption: "a day")
+                                        legendEntry(.activeDevices, charted: shownStat) {
+                                            SummaryStat(
+                                                name: AppListSort.activeDevices.title,
+                                                value: total.formatted(),
+                                                systemImage: AppListSort.activeDevices.systemImage,
+                                                color: .orange,
+                                                isLarge: isWide,
+                                                caption: "a day")
+                                        }
                                     } else if chartShowsActiveDevices && isLoadingAppStoreAnalytics {
                                         // Holds the legend's place while the analytics reports load.
                                         SummaryStat(
@@ -240,16 +251,23 @@ struct HomeView: View {
                                     chartMenu(activeDevicesAvailable: availableActiveDevices != nil)
                                 }
 
-                                DownloadsAndProceedsChart(
-                                    apps: chartSort(activeDevices: activeDevices).sort(summary.apps, counts: activeDevices ?? [:]),
-                                    iconLength: 32,
-                                    activeDevices: activeDevices)
-                                    .chartLegend(.hidden)
-                                    #if os(visionOS)
-                                    .frame(height: 300)
-                                    #else
-                                    .frame(height: 400)
-                                    #endif
+                                Group {
+                                    if let shownStat {
+                                        let lines = trends(of: shownStat, data: data, apps: summary.apps, activeDevices: activeDevices)
+                                        AppTrendsChart(trends: lines.0, stat: shownStat, range: lines.1)
+                                    } else {
+                                        DownloadsAndProceedsChart(
+                                            apps: chartSort(activeDevices: activeDevices).sort(summary.apps, counts: activeDevices ?? [:]),
+                                            iconLength: 32,
+                                            activeDevices: activeDevices)
+                                            .chartLegend(.hidden)
+                                    }
+                                }
+                                #if os(visionOS)
+                                .frame(height: 300)
+                                #else
+                                .frame(height: 400)
+                                #endif
                             }
                             .padding(.vertical)
                             .onGeometryChange(for: Bool.self) { $0.size.width >= 600 } action: { isWide = $0 }
@@ -327,6 +345,54 @@ struct HomeView: View {
         await fetchData(useMemoization: false)
     }
     
+    /// A legend figure that charts its stat app by app when picked, and the bars again when picked
+    /// twice; the others fade while one is charted.
+    private func legendEntry(_ stat: AppListSort, charted: AppListSort?, @ViewBuilder label: () -> some View) -> some View {
+        Button {
+            withAnimation { chartedStat = charted == stat ? nil : stat }
+        } label: {
+            label()
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .opacity(charted == nil || charted == stat ? 1 : 0.4)
+        .accessibilityAddTraits(charted == stat ? .isSelected : [])
+        .accessibilityHint(charted == stat ? Text("Shows every stat again") : Text("Charts each app's figure by day"))
+    }
+
+    /// The most apps the line chart draws, past which its lines tangle into one another.
+    private static let trendLimit = 8
+
+    /// The best few apps by `stat`, a line each, over the days its figures cover: the summary's 30
+    /// days for sales, and the analytics reports' own 30 for active devices, which lag a few days.
+    private func trends(of stat: AppListSort, data: ACData, apps: [AppPerformanceSummary], activeDevices: [String: Int]?) -> ([AppTrend], Range<Date>) {
+        let apps = stat.sort(apps, counts: activeDevices ?? [:])
+            .filter { app in
+                switch stat {
+                case .proceeds: app.proceeds > 0
+                case .activeDevices: (activeDevices?[app.appleID] ?? 0) > 0
+                default: app.downloads > 0
+                }
+            }
+            .prefix(Self.trendLimit)
+
+        if stat == .activeDevices, case .ready(let analytics) = appStoreAnalytics {
+            let trends = apps.map { app in
+                AppTrend(app: app, days: (analytics.days[app.appleID] ?? [:])
+                    .sorted { $0.key < $1.key }
+                    .map { DailyValue(date: $0.key, value: Double($0.value.activeDevices)) })
+            }
+            return (trends, analytics.range)
+        }
+
+        let range = (Calendar.autoupdatingCurrent.date(byAdding: .day, value: -30, to: .now) ?? .now)..<Date.now
+        let type: InfoType = stat == .proceeds ? .proceeds : .downloads
+        let trends = apps.map { app in
+            AppTrend(app: app, days: data.dailyTotals(for: type, in: range, filteredApps: data.apps.filter { $0.appleID == app.appleID }))
+        }
+        return (trends, range)
+    }
+
     /// The figures the chart can be sorted by, in the order its bars stand.
     private static let chartSorts: [AppListSort] = [.downloads, .proceeds, .activeDevices]
 
