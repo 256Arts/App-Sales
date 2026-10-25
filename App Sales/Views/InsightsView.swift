@@ -3,8 +3,8 @@ import SwiftUI
 import FoundationModels
 #endif
 
-/// A "Insights" section that uses on-device Apple Intelligence (Foundation Models)
-/// to summarize the developer's recent performance, once asked to. Renders nothing on platforms or
+/// A collapsed "Insights" disclosure that uses on-device Apple Intelligence (Foundation Models)
+/// to summarize the developer's recent performance, once opened. Renders nothing on platforms or
 /// devices where the model is unavailable, so it is safe to drop into any list.
 struct InsightsView: View {
 
@@ -15,7 +15,7 @@ struct InsightsView: View {
             // A screenshot run shows a fixed insight: the model is unavailable in the simulator, so
             // the section would not render there at all, and on the Mac it writes something
             // different every run. Neither makes a repeatable shot.
-            InsightsSection {
+            InsightsSection(isExpanded: .constant(true)) {
                 Text(ScreenshotMode.insight)
             }
         } else {
@@ -28,19 +28,23 @@ struct InsightsView: View {
     }
 }
 
-/// The Insights section's chrome, shared by the generated insight and the screenshot run's fixed one.
+/// The Insights section's chrome, shared by the generated insight and the screenshot run's fixed one:
+/// one row until opened, so it takes no more room than the reader gives it.
 private struct InsightsSection<Content: View>: View {
 
+    @Binding var isExpanded: Bool
     var showsDisclaimer = true
     @ViewBuilder let content: Content
 
     var body: some View {
         Section {
-            content
-        } header: {
-            Label("Insights", systemImage: "lightbulb")
+            DisclosureGroup(isExpanded: $isExpanded) {
+                content
+            } label: {
+                Label("Insights", systemImage: "apple.intelligence")
+            }
         } footer: {
-            if showsDisclaimer {
+            if isExpanded && showsDisclaimer {
                 Text("Generated on-device by Apple Intelligence. May contain mistakes.")
             }
         }
@@ -64,9 +68,9 @@ final class InsightsStore {
 
     private(set) var insight = ""
     private(set) var failed = false
-    /// Whether the reader asked for insights. Nothing is generated until they do; after that, new
-    /// figures are written about as they arrive, until the app quits.
-    var isRequested = false
+    /// Whether the reader has the insights open. Nothing is generated until they do; while open, new
+    /// figures are written about as they arrive. Closing keeps the text for the next look.
+    var isExpanded = false
 
     /// The numbers `insight` describes. Generation only restarts when they change.
     private var key: String?
@@ -154,12 +158,8 @@ private struct AppleIntelligenceInsights: View {
 
     var body: some View {
         if case .available = model.availability {
-            InsightsSection(showsDisclaimer: store.isRequested && !store.insight.isEmpty) {
-                if !store.isRequested {
-                    Button("Summarize My Sales", systemImage: "apple.intelligence") {
-                        store.isRequested = true
-                    }
-                } else if store.failed {
+            InsightsSection(isExpanded: $store.isExpanded, showsDisclaimer: !store.insight.isEmpty) {
+                if store.failed {
                     Label("Couldn't generate insights right now.", systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.secondary)
                 } else if store.insight.isEmpty {
@@ -173,10 +173,10 @@ private struct AppleIntelligenceInsights: View {
                         .textSelection(.enabled)
                 }
             }
-            // Runs once asked, then on appear and whenever the figures change; the store ignores a
-            // repeat of numbers it has already written about, which is what a scroll back looks like.
-            .task(id: store.isRequested ? InsightsStore.key(for: summary) : nil) {
-                guard store.isRequested else { return }
+            // Runs once opened, then on appear and whenever the figures change; the store ignores a
+            // repeat of numbers it has already written about, which is what a scroll back or reopen looks like.
+            .task(id: store.isExpanded ? InsightsStore.key(for: summary) : nil) {
+                guard store.isExpanded else { return }
 
                 store.generate(for: summary)
             }

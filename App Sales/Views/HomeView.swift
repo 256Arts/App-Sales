@@ -14,6 +14,7 @@ struct HomeView: View {
     @State private var websiteTraffic: [String: WebPageTraffic] = [:]
     @State private var editingWebsitePage: AppPerformanceSummary?
     @State private var appStoreAnalytics: AnalyticsAvailability?
+    @State private var isLoadingAppStoreAnalytics = false
     /// What `appStoreAnalytics` was last loaded for, and when, since the reports only change daily.
     @State private var appStoreAnalyticsLoad: (query: AppStoreAnalyticsQuery, date: Date)?
     /// Counts pulls to refresh, so the AI usage below the sales refreshes along with them.
@@ -222,6 +223,16 @@ struct HomeView: View {
                                             color: .orange,
                                             isLarge: isWide,
                                             caption: "a day")
+                                    } else if chartShowsActiveDevices && isLoadingAppStoreAnalytics {
+                                        // Holds the legend's place while the analytics reports load.
+                                        SummaryStat(
+                                            name: AppListSort.activeDevices.title,
+                                            value: 1000.formatted(),
+                                            systemImage: AppListSort.activeDevices.systemImage,
+                                            color: .orange,
+                                            isLarge: isWide,
+                                            caption: "a day",
+                                            isLoading: true)
                                     }
 
                                     Spacer(minLength: 0)
@@ -374,6 +385,8 @@ struct HomeView: View {
         if appStoreAnalyticsLoad?.query.accountID != query.accountID {
             appStoreAnalytics = nil
         }
+        isLoadingAppStoreAnalytics = true
+        defer { isLoadingAppStoreAnalytics = false }
         // A failed fetch keeps the last figures rather than blanking every row.
         if let availability = try? await AnalyticsReportsAPI(account: selectedKey).getAnalytics(appleIDs: query.appIDs, sales: data) {
             appStoreAnalytics = availability
@@ -613,6 +626,8 @@ private struct SummaryStat: View {
     var change: Double?
     var caption: LocalizedStringKey?
     var identifier = ""
+    /// Shows `value` and `caption` as placeholders, the figure still on its way.
+    var isLoading = false
 
     private static let percentFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -629,6 +644,8 @@ private struct SummaryStat: View {
                     .foregroundStyle(color)
                     .accessibilityLabel(Text(name))
                 Text(value)
+                    .redacted(reason: isLoading ? .placeholder : [])
+                    .accessibilityLabel(isLoading ? Text("Loading") : Text(value))
             }
             .font((isLarge ? Font.title : .title3).weight(.semibold))
 
@@ -639,6 +656,7 @@ private struct SummaryStat: View {
                 } else if let caption {
                     Text(caption)
                         .foregroundStyle(.secondary)
+                        .redacted(reason: isLoading ? .placeholder : [])
                 }
             }
             .font(isLarge ? .body : .subheadline)
