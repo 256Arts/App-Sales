@@ -156,13 +156,15 @@ enum SalesRegion: CaseIterable {
         }
     }
 
+    /// The main colour of the region's flag. The U.S. and Japan both fly red, so Japan takes the
+    /// pinker crimson its flag actually is.
     var color: Color {
         switch self {
-        case .unitedStatesAndCanada: .blue
-        case .europe: .indigo
-        case .asiaPacific: .orange
+        case .unitedStatesAndCanada: .red
+        case .europe: .blue
+        case .asiaPacific: .pink
         case .latinAmerica: .green
-        case .africaMiddleEastAndIndia: .pink
+        case .africaMiddleEastAndIndia: .orange
         case .unknown: .gray
         }
     }
