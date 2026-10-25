@@ -53,12 +53,20 @@ struct AppDetailView: View {
             }
 
             Section {
-                Chart(dailyDownloads, id: \.date) { day in
-                    BarMark(x: .value("Day", day.date, unit: .day), y: .value("Downloads", day.downloads))
+                Chart(dailySeries) { point in
+                    LineMark(x: .value("Day", point.date, unit: .day), y: .value(point.series, point.value))
+                        .foregroundStyle(by: .value("Data Type", point.series))
+                        .interpolationMethod(.monotone)
                 }
+                // The same colours as the home screen's chart.
+                .chartForegroundStyleScale([
+                    "Downloads": Color.blue,
+                    "Proceeds": Color.green,
+                    "Daily Active Devices": Color.orange
+                ])
                 .chartXScale(domain: range.lowerBound...range.upperBound)
-                .frame(height: 160)
-                .accessibilityLabel("Downloads by day")
+                .frame(height: 180)
+                .padding(.vertical, 4)
 
                 LabeledContent {
                     Text(app.downloads, format: .number)
@@ -86,11 +94,27 @@ struct AppDetailView: View {
 
             if !devices.isEmpty {
                 Section("Downloads by Device") {
+                    Chart(devices, id: \.device) { row in
+                        SectorMark(angle: .value("Downloads", row.downloads), angularInset: 1.5)
+                            .cornerRadius(4)
+                            .foregroundStyle(by: .value("Device", row.device.name))
+                    }
+                    .chartForegroundStyleScale(domain: devices.map(\.device.name), range: devices.map(\.device.color))
+                    .chartLegend(.hidden)
+                    .frame(height: 180)
+                    .padding(.vertical, 8)
+
+                    // The rows double as the pie's legend.
                     ForEach(devices, id: \.device) { row in
                         LabeledContent {
                             Text(row.downloads, format: .number)
                         } label: {
-                            Label(row.device.name, systemImage: row.device.symbol)
+                            Label {
+                                Text(row.device.name)
+                            } icon: {
+                                Image(systemName: row.device.symbol)
+                                    .foregroundStyle(row.device.color)
+                            }
                         }
                     }
                 }
@@ -244,9 +268,30 @@ struct AppDetailView: View {
         return NumberFormatter.currency.string(from: NSNumber(value: app.price)) ?? ""
     }
 
-    private var dailyDownloads: [(date: Date, downloads: Int)] {
-        data.getRawData(for: .downloads, startDate: range.lowerBound, endDate: range.upperBound, filteredApps: acApps)
-            .map { (date: $0.1, downloads: Int($0.0)) }
+    /// A point per day for downloads and proceeds, with days that sold nothing at zero rather than
+    /// skipped, plus active devices for the days the analytics reports cover.
+    private var dailySeries: [ChartPoint] {
+        let calendar = Calendar.autoupdatingCurrent
+        func byDay(_ type: InfoType) -> [Date: Double] {
+            Dictionary(data.getRawData(for: type, startDate: range.lowerBound, endDate: range.upperBound, filteredApps: acApps)
+                .map { (calendar.startOfDay(for: $0.1), Double($0.0)) }, uniquingKeysWith: +)
+        }
+        let downloads = byDay(.downloads)
+        let proceeds = byDay(.proceeds)
+        let days = Array(sequence(first: calendar.startOfDay(for: range.lowerBound)) { calendar.date(byAdding: .day, value: 1, to: $0) }
+            .prefix { $0 < range.upperBound })
+
+        var points = days.flatMap { day in
+            [ChartPoint(series: "Downloads", date: day, value: downloads[day] ?? 0),
+             ChartPoint(series: "Proceeds", date: day, value: proceeds[day] ?? 0)]
+        }
+        if case .ready(let analytics) = analytics {
+            points += (analytics.days[app.appleID] ?? [:])
+                .filter { range.contains($0.key) }
+                .sorted { $0.key < $1.key }
+                .map { ChartPoint(series: "Daily Active Devices", date: $0.key, value: Double($0.value.activeDevices)) }
+        }
+        return points
     }
 
     /// Most downloads first, with the report's device names folded into the ones App Sales knows.
@@ -257,6 +302,27 @@ struct AppDetailView: View {
             .filter { $0.value > 0 }
             .map { (device: $0.key, downloads: $0.value) }
             .sorted { $0.downloads > $1.downloads }
+    }
+}
+
+private struct ChartPoint: Identifiable {
+    let series: String
+    let date: Date
+    let value: Double
+
+    var id: String { "\(series)-\(date.timeIntervalSinceReferenceDate)" }
+}
+
+private extension ACDevice {
+    var color: Color {
+        switch self {
+        case .iPhone: .blue
+        case .iPad: .purple
+        case .desktop: .teal
+        case .appleWatch: .pink
+        case .appleTV: .indigo
+        case .unknown: .gray
+        }
     }
 }
 
