@@ -32,7 +32,7 @@ struct DownloadShareBadge: View {
     }
 }
 
-/// Downloads as a pie, each slice in its share's colour and marked with its badge, unless it is
+/// Downloads as a donut, each slice in its share's colour and marked with its badge, unless it is
 /// too thin to hold one.
 struct DownloadsPie: View {
 
@@ -45,7 +45,7 @@ struct DownloadsPie: View {
     var body: some View {
         Chart(shares) { share in
             let fraction = Double(share.downloads) / Double(max(total, 1))
-            SectorMark(angle: .value("Downloads", share.downloads), angularInset: 1.5)
+            SectorMark(angle: .value("Downloads", share.downloads), innerRadius: .ratio(0.55), angularInset: 1.5)
                 .cornerRadius(4)
                 .foregroundStyle(by: .value("Name", share.name))
                 .annotation(position: .overlay) {
