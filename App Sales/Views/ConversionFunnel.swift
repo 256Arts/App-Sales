@@ -18,9 +18,9 @@ struct FunnelStage: Identifiable {
     }
 }
 
-/// The funnel from the webpage to proceeds: a bar per count, centred and as wide as its share of the
-/// widest, and between each pair the share that made it through. Proceeds are money, not people, so
-/// they close the funnel as a figure per download rather than a bar of their own.
+/// The funnel from the webpage to proceeds, a row per stage: its name, a bar centred and as wide as
+/// its share of the widest, and its figure over the share of the stage before that made it through.
+/// Proceeds are money, not people, so they close the funnel as a figure per download rather than a bar.
 struct ConversionFunnel: View {
 
     let stages: [FunnelStage]
@@ -34,45 +34,52 @@ struct ConversionFunnel: View {
     }
 
     var body: some View {
-        VStack(spacing: 6) {
+        Grid(horizontalSpacing: 12, verticalSpacing: 10) {
             ForEach(Array(stages.enumerated()), id: \.element.id) { index, stage in
-                if index > 0 {
-                    step(from: stages[index - 1], to: stage)
+                GridRow {
+                    Label {
+                        Text(stage.stat.title)
+                    } icon: {
+                        Image(systemName: stage.stat.systemImage)
+                            .symbolVariant(.fill)
+                            .foregroundStyle(stage.color)
+                    }
+                    .gridColumnAlignment(.leading)
+
+                    bar(for: stage)
+
+                    VStack(alignment: .trailing, spacing: 0) {
+                        Text(formatted(stage.value))
+                            .fontWeight(.semibold)
+                        if index > 0 {
+                            step(from: stages[index - 1], to: stage)
+                        }
+                    }
+                    .monospacedDigit()
+                    .gridColumnAlignment(.trailing)
                 }
-                row(for: stage)
+                .lineLimit(1)
+                .accessibilityElement(children: .combine)
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 4)
     }
 
-    private func row(for stage: FunnelStage) -> some View {
-        VStack(spacing: 4) {
-            HStack {
-                Label {
-                    Text(stage.stat.title)
-                } icon: {
-                    Image(systemName: stage.stat.systemImage)
-                        .symbolVariant(.fill)
-                        .foregroundStyle(stage.color)
-                }
-                Spacer()
-                Text(formatted(stage.value))
-                    .fontWeight(.semibold)
-                    .monospacedDigit()
+    @ViewBuilder
+    private func bar(for stage: FunnelStage) -> some View {
+        if let count = stage.count {
+            GeometryReader { proxy in
+                Capsule()
+                    .fill(stage.color.gradient)
+                    // Never thinner than a dot, so a stage that let nobody through still shows.
+                    .frame(width: max(proxy.size.height, proxy.size.width * CGFloat(count) / CGFloat(max(widest, 1))))
+                    .frame(maxWidth: .infinity)
             }
-
-            if let count = stage.count {
-                GeometryReader { proxy in
-                    Capsule()
-                        .fill(stage.color.gradient)
-                        // Never thinner than a dot, so a stage that let nobody through still shows.
-                        .frame(width: max(proxy.size.height, proxy.size.width * CGFloat(count) / CGFloat(max(widest, 1))))
-                        .frame(maxWidth: .infinity)
-                }
-                .frame(height: 22)
-            }
+            .frame(height: 14)
+        } else {
+            Color.clear
+                .frame(height: 14)
         }
-        .accessibilityElement(children: .combine)
     }
 
     /// The share of the stage before that reached this one; or, for proceeds, what each download earned.
@@ -81,14 +88,14 @@ struct ConversionFunnel: View {
         Group {
             switch stage.value {
             case .count(let count) where (previous.count ?? 0) > 0:
-                Text("\(Image(systemName: "arrow.down")) \(Double(count) / Double(previous.count ?? 1), format: .percent.precision(.fractionLength(0...1)))")
+                Text(Double(count) / Double(previous.count ?? 1), format: .percent.precision(.fractionLength(0...1)))
             case .proceeds(let proceeds) where downloads > 0:
-                Text("\(Image(systemName: "arrow.down")) \(NumberFormatter.currency.string(from: NSNumber(value: proceeds / Double(downloads))) ?? "") per download")
+                Text("\(NumberFormatter.currency.string(from: NSNumber(value: proceeds / Double(downloads))) ?? "") per download")
             default:
-                Text(Image(systemName: "arrow.down"))
+                EmptyView()
             }
         }
-        .font(.subheadline)
+        .font(.caption)
         .foregroundStyle(.secondary)
     }
 
