@@ -94,26 +94,20 @@ struct AppDetailView: View {
 
             if !devices.isEmpty {
                 Section("Downloads by Device") {
-                    Chart(devices, id: \.device) { row in
-                        SectorMark(angle: .value("Downloads", row.downloads), angularInset: 1.5)
-                            .cornerRadius(4)
-                            .foregroundStyle(by: .value("Device", row.device.name))
-                    }
-                    .chartForegroundStyleScale(domain: devices.map(\.device.name), range: devices.map(\.device.color))
-                    .chartLegend(.hidden)
-                    .frame(height: 180)
-                    .padding(.vertical, 8)
+                    DownloadsPie(shares: devices)
+                        .frame(height: 180)
+                        .padding(.vertical, 8)
 
                     // The rows double as the pie's legend.
-                    ForEach(devices, id: \.device) { row in
+                    ForEach(devices) { share in
                         LabeledContent {
-                            Text(row.downloads, format: .number)
+                            Text(share.downloads, format: .number)
                         } label: {
                             Label {
-                                Text(row.device.name)
+                                Text(share.name)
                             } icon: {
-                                Image(systemName: row.device.symbol)
-                                    .foregroundStyle(row.device.color)
+                                Image(systemName: share.symbol)
+                                    .foregroundStyle(share.color)
                             }
                         }
                     }
@@ -294,14 +288,8 @@ struct AppDetailView: View {
         return points
     }
 
-    /// Most downloads first, with the report's device names folded into the ones App Sales knows.
-    private var devices: [(device: ACDevice, downloads: Int)] {
-        let byDevice = Dictionary(data.getDevices(.downloads, lastNDays: 30, filteredApps: acApps).map { (ACDevice($0.0), Int($0.1)) }, uniquingKeysWith: +)
-
-        return byDevice
-            .filter { $0.value > 0 }
-            .map { (device: $0.key, downloads: $0.value) }
-            .sorted { $0.downloads > $1.downloads }
+    private var devices: [DownloadShare] {
+        data.downloadsByDevice(filteredApps: acApps)
     }
 }
 
@@ -311,21 +299,6 @@ private struct ChartPoint: Identifiable {
     let value: Double
 
     var id: String { "\(series)-\(date.timeIntervalSinceReferenceDate)" }
-}
-
-private extension ACDevice {
-    var color: Color {
-        switch self {
-        case .iPhone: .blue
-        case .iPad: .purple
-        case .desktop: .teal
-        case .appleWatch: .pink
-        case .appleTV: .indigo
-        case .appleVision: .orange
-        case .iPod: .mint
-        case .unknown: .gray
-        }
-    }
 }
 
 /// The funnel from being seen to being used, as one row per figure.

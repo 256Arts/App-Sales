@@ -273,6 +273,18 @@ struct HomeView: View {
                         }
                     }
 
+                    let devices = data.downloadsByDevice()
+                    let regions = data.downloadsByRegion()
+                    if !devices.isEmpty || !regions.isEmpty {
+                        Section("Downloads, Last 30 Days") {
+                            HStack(alignment: .top, spacing: isWide ? 32 : 20) {
+                                DownloadsPieCard(title: "Devices", shares: devices)
+                                DownloadsPieCard(title: "Regions", shares: regions)
+                            }
+                            .padding(.vertical, 8)
+                        }
+                    }
+
                     if let summary = loader.summary {
                         InsightsView(summary: summary)
 
