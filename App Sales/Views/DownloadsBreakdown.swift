@@ -11,31 +11,53 @@ struct DownloadShare: Identifiable {
     var id: String { name }
 }
 
-/// Downloads as a pie, each slice in its share's colour. The legend is left to the caller.
+/// Downloads as a pie, each slice in its share's colour and labelled on the slice with its
+/// percentage, and its symbol when `showsSymbols` is set — enough, for devices, to need no legend.
 struct DownloadsPie: View {
 
     let shares: [DownloadShare]
+    var showsSymbols = false
+
+    private var total: Int {
+        shares.reduce(0) { $0 + $1.downloads }
+    }
 
     var body: some View {
         Chart(shares) { share in
+            let fraction = Double(share.downloads) / Double(max(total, 1))
             SectorMark(angle: .value("Downloads", share.downloads), angularInset: 1.5)
                 .cornerRadius(4)
                 .foregroundStyle(by: .value("Name", share.name))
+                .annotation(position: .overlay) {
+                    // A slice too thin to hold its label goes without; the rest of the pie still adds up.
+                    if fraction >= 0.1 {
+                        VStack(spacing: 1) {
+                            if showsSymbols {
+                                Image(systemName: share.symbol)
+                                    .font(.caption)
+                            }
+                            Text(fraction, format: .percent.precision(.fractionLength(0)))
+                                .font(.caption2.bold())
+                                .monospacedDigit()
+                        }
+                        .foregroundStyle(.white)
+                    }
+                }
+                .accessibilityLabel(share.name)
+                .accessibilityValue(Text(fraction, format: .percent.precision(.fractionLength(0))))
         }
         .chartForegroundStyleScale(domain: shares.map(\.name), range: shares.map(\.color))
         .chartLegend(.hidden)
     }
 }
 
-/// A small pie over a compact legend, for the summary, which shows two side by side.
+/// A small pie for the summary, which shows two side by side. Shares with symbols of their own
+/// carry them on the slices; the rest name their colours in a legend beneath.
 struct DownloadsPieCard: View {
 
     let title: LocalizedStringKey
     let shares: [DownloadShare]
-
-    private var total: Int {
-        shares.reduce(0) { $0 + $1.downloads }
-    }
+    var showsSymbols = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -43,27 +65,26 @@ struct DownloadsPieCard: View {
                 .font(.subheadline.bold())
                 .foregroundStyle(.secondary)
 
-            DownloadsPie(shares: shares)
-                .frame(height: 110)
+            DownloadsPie(shares: shares, showsSymbols: showsSymbols)
+                .frame(height: 130)
                 .frame(maxWidth: .infinity)
 
-            VStack(alignment: .leading, spacing: 4) {
-                ForEach(shares) { share in
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Circle()
-                            .fill(share.color)
-                            .frame(width: 8, height: 8)
-                        Text(share.name)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                        Spacer(minLength: 4)
-                        Text(Double(share.downloads) / Double(max(total, 1)), format: .percent.precision(.fractionLength(0)))
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
+            if !showsSymbols {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(shares) { share in
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(share.color)
+                                .frame(width: 8, height: 8)
+                            Text(share.name)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                        }
+                        .font(.caption)
                     }
-                    .font(.caption)
-                    .accessibilityElement(children: .combine)
                 }
+                // The slices already speak for themselves.
+                .accessibilityHidden(true)
             }
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)

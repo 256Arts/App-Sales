@@ -94,7 +94,7 @@ struct AppDetailView: View {
 
             if !devices.isEmpty {
                 Section("Downloads by Device") {
-                    DownloadsPie(shares: devices)
+                    DownloadsPie(shares: devices, showsSymbols: true)
                         .frame(height: 180)
                         .padding(.vertical, 8)
 
