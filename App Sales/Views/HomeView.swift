@@ -291,6 +291,18 @@ struct HomeView: View {
                         }
                     }
 
+                    if let summary = loader.summary, let funnel = funnel(data: data, summary: summary) {
+                        Section {
+                            ConversionFunnel(stages: funnel.stages)
+                        } header: {
+                            Text("Funnel")
+                        } footer: {
+                            if let range = funnel.range {
+                                Text("30 days through \(range.upperBound.addingTimeInterval(-1), format: .dateTime.month().day()), the latest App Store analytics.")
+                            }
+                        }
+                    }
+
                     let devices = data.downloadsByDevice()
                     let regions = data.downloadsByRegion()
                     if !devices.isEmpty || !regions.isEmpty {
@@ -358,6 +370,37 @@ struct HomeView: View {
         .opacity(charted == nil || charted == stat ? 1 : 0.4)
         .accessibilityAddTraits(charted == stat ? .isSelected : [])
         .accessibilityHint(charted == stat ? Text("Shows every stat again") : Text("Charts each app's figure by day"))
+    }
+
+    /// From the webpage to proceeds, leaving out whatever is not connected. Downloads and proceeds
+    /// are counted over the analytics reports' days when there are any, so each step compares like
+    /// with like; `range` is those days. Nil without a stage ahead of downloads, as there is no funnel.
+    private func funnel(data: ACData, summary: PerformanceSummary) -> (stages: [FunnelStage], range: Range<Date>?)? {
+        var stages: [FunnelStage] = []
+        if googleAnalytics.property != nil, !websiteTraffic.isEmpty {
+            stages.append(FunnelStage(stat: .websiteViews, color: .teal, value: .count(websiteTraffic.values.reduce(0) { $0 + $1.views })))
+        }
+
+        var range: Range<Date>?
+        var downloads = summary.downloads
+        var proceeds = summary.proceeds
+        var activeDevices: Int?
+        if case .ready(let analytics) = appStoreAnalytics, !analytics.isEmpty {
+            let totals = analytics.totals()
+            range = analytics.range
+            downloads = Int(data.getTotal(for: .downloads, in: analytics.range))
+            proceeds = data.getTotal(for: .proceeds, in: analytics.range)
+            activeDevices = totals.averageDailyActiveDevices
+            stages.append(FunnelStage(stat: .appStoreViews, color: .indigo, value: .count(totals.pageViews)))
+        }
+        guard !stages.isEmpty else { return nil }
+
+        stages.append(FunnelStage(stat: .downloads, color: .blue, value: .count(downloads)))
+        if let activeDevices {
+            stages.append(FunnelStage(stat: .activeDevices, color: .orange, value: .count(activeDevices)))
+        }
+        stages.append(FunnelStage(stat: .proceeds, color: .green, value: .proceeds(proceeds)))
+        return (stages, range)
     }
 
     /// The most apps the line chart draws, past which its lines tangle into one another.
