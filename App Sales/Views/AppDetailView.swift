@@ -323,7 +323,7 @@ private extension ACDevice {
         case .appleTV: .indigo
         case .appleVision: .orange
         case .iPod: .mint
-        case .other: .gray
+        case .unknown: .gray
         }
     }
 }
