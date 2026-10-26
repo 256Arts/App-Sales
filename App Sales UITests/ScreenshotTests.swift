@@ -76,7 +76,7 @@ final class ScreenshotTests: XCTestCase {
         if toggle.exists {
             toggle.tap()
         } else {
-            app.navigationBars.buttons.element(boundBy: 0).tap()
+            backButton.tap()
         }
     }
     #elseif !os(watchOS)
@@ -298,4 +298,12 @@ final class ScreenshotTests: XCTestCase {
     }
 
     #endif
+
+    /// The navigation bar's back button — on the iPhone Duo's outer screen it sits in a strip outside
+    /// the bar, identified only as "BackButton".
+    private var backButton: XCUIElement {
+        let duo = app.buttons["BackButton"]
+        return duo.exists ? duo : app.navigationBars.buttons.element(boundBy: 0)
+    }
 }
+
