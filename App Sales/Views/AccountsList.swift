@@ -55,7 +55,7 @@ struct AccountsList: View {
                 }
             }
 
-            if GoogleSignIn.isAvailable {
+            if showsGoogleAnalytics {
                 Section("Web Analytics") {
                     // A ForEach of one, so the sign-in swipes to delete like every other account.
                     ForEach(googleAnalytics.isConnected ? ["google"] : [], id: \.self) { _ in
@@ -84,7 +84,7 @@ struct AccountsList: View {
                 }
             }
 
-            if GoogleSignIn.isAvailable {
+            if showsAdMob {
                 Section {
                     ForEach(adMob.isConnected ? ["admob"] : [], id: \.self) { _ in
                         Label("AdMob", systemImage: "rectangle.stack.badge.play")
@@ -171,6 +171,15 @@ struct AccountsList: View {
         } set: {
             keyID = $0
         }
+    }
+
+    // Google services enrich App Store Connect data, so they wait for an account — unless one is already signed in, to keep its sign-out reachable.
+    private var showsGoogleAnalytics: Bool {
+        GoogleSignIn.isAvailable && (!accountManager.accounts.isEmpty || googleAnalytics.isConnected)
+    }
+
+    private var showsAdMob: Bool {
+        GoogleSignIn.isAvailable && (!accountManager.accounts.isEmpty || adMob.isConnected)
     }
 
     private func signOutOfGoogleAnalytics() {

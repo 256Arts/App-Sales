@@ -12,6 +12,8 @@ Your App Store Connect sales, downloads, and proceeds — in an app, on your Hom
 
 - **Sales at a glance** — 30-day proceeds, downloads, updates, and in-app purchases, compared with the 30 days before, for every app on your account.
 - **Per-app pages** — daily charts, downloads by device, ratings and latest reviews, and App Store impressions and page views from the Analytics Reports API.
+- **Ad earnings** — sign in to AdMob and each app's estimated ad revenue counts toward its proceeds.
+- **Website traffic** — connect Google Analytics to see 30-day page views for each app's website.
 - **Widgets** — Home Screen, Lock Screen, and desktop widgets, plus Apple Watch complications.
 - **Apple Watch** — a standalone watch app; accounts sync over iCloud Keychain.
 - **AI usage limits** — Claude and Codex rate limits in the app, a widget, and a Mac menu bar extra.
