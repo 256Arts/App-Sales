@@ -18,6 +18,8 @@ enum EventType: String, CaseIterable, Codable {
     case iap
     case restoredIap
     case update
+    /// AdMob earnings, from `AdMob` rather than a sales report.
+    case ad
     case unknown
 
     init(_ productTypeIdentifier: String?) {
@@ -84,7 +86,7 @@ enum ACDevice: String, CaseIterable, Identifiable {
         case .appleTV: "Apple TV"
         case .appleVision: "Apple Vision Pro"
         case .iPod: "iPod touch"
-        case .unknown: String(localized: "Other")
+        case .unknown: String(localized: "Unknown")
         }
     }
 

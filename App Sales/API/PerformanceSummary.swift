@@ -6,6 +6,9 @@ struct PerformanceSummary {
     let prevDownloads: Int
     let proceeds: Double
     let prevProceeds: Double
+    /// The part of `proceeds` that is AdMob earnings rather than App Store sales.
+    let adProceeds: Double
+    let prevAdProceeds: Double
     /// Every app, best-selling first. Views that only have room for a few take `topApps`.
     let apps: [AppPerformanceSummary]
 
@@ -38,6 +41,8 @@ struct AppPerformanceSummary: Identifiable {
     let iconURL: URL?
     let downloads: Int
     let proceeds: Double
+    /// The part of `proceeds` that is AdMob earnings.
+    let adProceeds: Double
     let price: Double
 
     var url: URL {

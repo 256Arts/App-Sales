@@ -146,6 +146,7 @@
 				Views/DownloadsBreakdown.swift,
 				Views/ConversionFunnel.swift,
 				Views/HomeView.swift,
+				Views/InsightsView.swift,
 				Views/NewAccountView.swift,
 				Views/WebsitePageEditor.swift,
 				WidgetShots.swift,

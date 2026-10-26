@@ -16,6 +16,9 @@ struct AccountsList: View {
     @State private var googleAnalyticsProperties: [GoogleAnalyticsProperty] = []
     @State private var googleAnalyticsError: Error?
 
+    @State private var adMob = AdMob.shared
+    @State private var adMobError: Error?
+
     @State private var showingAddAccount: Bool = false
     @State private var cachedEntries: Int = 0
     @State private var updateSheetVisible = false
@@ -52,7 +55,7 @@ struct AccountsList: View {
                 }
             }
 
-            if GoogleAnalytics.isAvailable {
+            if GoogleSignIn.isAvailable {
                 Section("Web Analytics") {
                     // A ForEach of one, so the sign-in swipes to delete like every other account.
                     ForEach(googleAnalytics.isConnected ? ["google"] : [], id: \.self) { _ in
@@ -78,6 +81,33 @@ struct AccountsList: View {
                 }
                 .task(id: googleAnalytics.isConnected) {
                     await loadGoogleAnalyticsProperties()
+                }
+            }
+
+            if GoogleSignIn.isAvailable {
+                Section {
+                    ForEach(adMob.isConnected ? ["admob"] : [], id: \.self) { _ in
+                        Label("AdMob", systemImage: "rectangle.stack.badge.play")
+                            .contextMenu {
+                                Button("Sign Out", systemImage: "xmark", role: .destructive, action: adMob.disconnect)
+                            }
+                    }
+                    .onDelete { _ in adMob.disconnect() }
+
+                    if !adMob.isConnected {
+                        Button("Sign In to AdMob", systemImage: "plus") {
+                            Task { await connectAdMob() }
+                        }
+                    }
+
+                    if let adMobError {
+                        Text(adMobError.localizedDescription)
+                            .foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Text("Ads")
+                } footer: {
+                    Text("Estimated ad earnings count toward proceeds.")
                 }
             }
 
@@ -165,12 +195,25 @@ struct AccountsList: View {
         googleAnalyticsError = nil
         let request = GoogleAnalytics.signInRequest()
         do {
-            let callback = try await webAuthenticationSession.authenticate(using: request.url, callback: .customScheme(GoogleAnalytics.callbackScheme), additionalHeaderFields: [:])
+            let callback = try await webAuthenticationSession.authenticate(using: request.url, callback: .customScheme(GoogleSignIn.callbackScheme), additionalHeaderFields: [:])
             try await googleAnalytics.connect(callback: callback, verifier: request.verifier)
         } catch ASWebAuthenticationSessionError.canceledLogin {
             return
         } catch {
             googleAnalyticsError = error
+        }
+    }
+
+    private func connectAdMob() async {
+        adMobError = nil
+        let request = AdMob.signInRequest()
+        do {
+            let callback = try await webAuthenticationSession.authenticate(using: request.url, callback: .customScheme(GoogleSignIn.callbackScheme), additionalHeaderFields: [:])
+            try await adMob.connect(callback: callback, verifier: request.verifier)
+        } catch ASWebAuthenticationSessionError.canceledLogin {
+            return
+        } catch {
+            adMobError = error
         }
     }
 

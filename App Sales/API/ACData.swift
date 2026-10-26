@@ -148,9 +148,18 @@ struct ACData: Codable {
             prevDownloads: Int(getTotal(for: .downloads, in: previousRange)),
             proceeds: getTotal(for: .proceeds, in: range),
             prevProceeds: getTotal(for: .proceeds, in: previousRange),
+            adProceeds: getAdTotal(in: range),
+            prevAdProceeds: getAdTotal(in: previousRange),
             apps: getAppSummaries(in: range))
     }
     
+    /// The AdMob earnings within `getTotal(for: .proceeds, …)`, in the display currency.
+    func getAdTotal(in range: Range<Date>, filteredApps: [ACApp] = []) -> Double {
+        Double(getEntries(for: .proceeds, startDate: range.lowerBound, endDate: range.upperBound, filteredApps: filteredApps)
+            .filter { $0.type == .ad }
+            .reduce(0) { $0 + $1.proceeds * Float($1.units) })
+    }
+
     // MARK: Get by app
     func getAppSummaries() -> [AppPerformanceSummary] {
         getAppSummaries(in: ACData.date(daysAgo: 30)..<Date.now)
@@ -167,6 +176,7 @@ struct ACData: Codable {
                     iconURL: app.iconURL100,
                     downloads: Int(getTotal(for: .downloads, in: range, filteredApps: [app])),
                     proceeds: getTotal(for: .proceeds, in: range, filteredApps: [app]),
+                    adProceeds: getAdTotal(in: range, filteredApps: [app]),
                     price: app.price)
             }
             .sorted(by: { $0.downloads > $1.downloads })
@@ -177,8 +187,9 @@ struct ACData: Codable {
     }
 
     // MARK: Getting Dates
+    /// The last day Apple reported. Ad earnings arrive the same day, so they do not count.
     func latestReportingDate() -> Date {
-        return entries.map({ $0.date }).reduce(Date.distantPast, { $0 > $1 ? $0 : $1 })
+        return entries.filter({ $0.type != .ad }).map({ $0.date }).reduce(Date.distantPast, { $0 > $1 ? $0 : $1 })
     }
     
     static let example = createMockData(60)

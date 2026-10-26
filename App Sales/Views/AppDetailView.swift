@@ -49,7 +49,6 @@ struct AppDetailView: View {
                 }
                 .padding(.vertical, 4)
                 .listRowBackground(Color.clear)
-                .listRowInsets(.horizontal, 0)
             }
 
             Section {
@@ -77,6 +76,19 @@ struct AppDetailView: View {
                     Text(NumberFormatter.currency.string(from: NSNumber(value: app.proceeds)) ?? "")
                 } label: {
                     Label("Proceeds", systemImage: "dollarsign.circle")
+                }
+                if app.adProceeds > 0 {
+                    // Where the proceeds above came from, for an app that also earns from ads.
+                    LabeledContent {
+                        Text(NumberFormatter.currency.string(from: NSNumber(value: app.proceeds - app.adProceeds)) ?? "")
+                    } label: {
+                        Label("App Store Sales", image: .logoAppstore)
+                    }
+                    LabeledContent {
+                        Text(NumberFormatter.currency.string(from: NSNumber(value: app.adProceeds)) ?? "")
+                    } label: {
+                        Label("Ad Earnings", systemImage: "rectangle.stack.badge.play")
+                    }
                 }
                 LabeledContent {
                     Text(Int(data.getTotal(for: .updates, in: range, filteredApps: acApps)), format: .number)

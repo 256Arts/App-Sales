@@ -1,5 +1,4 @@
 import Foundation
-import CryptoKit
 import KeychainAccess
 
 /// A Google Analytics 4 property: one website's worth of traffic.
@@ -17,24 +16,6 @@ struct WebPageTraffic: Hashable {
     let views: Int
 }
 
-enum GoogleAnalyticsError: LocalizedError {
-    case notConnected
-    /// Google refused the saved sign-in: revoked, expired, or the password changed.
-    case signInExpired
-    case google(String)
-
-    var errorDescription: String? {
-        switch self {
-        case .notConnected:
-            String(localized: "You are not signed in to Google Analytics.")
-        case .signInExpired:
-            String(localized: "Your Google sign-in has expired. Sign in to Google Analytics again.")
-        case .google(let message):
-            message
-        }
-    }
-}
-
 /// The reader's Google Analytics connection: who signed in, which property is their website, and
 /// which page on it is about each app — so the home screen can put web page views next to downloads.
 ///
@@ -47,10 +28,7 @@ final class GoogleAnalytics {
 
     static let shared = GoogleAnalytics()
 
-    /// The OAuth client, of Google Cloud's "iOS" type, which has no secret and redirects to a custom
-    /// scheme. Empty hides the feature entirely, so a build without one never offers a broken sign-in.
-    static let clientID = "1019038999237-h5sj3hoc6v80214172tkemuqvkhkcfnb.apps.googleusercontent.com"
-    static var isAvailable: Bool { !clientID.isEmpty }
+    private static let service = "Google Analytics"
 
     private struct Connection: Codable {
         var refreshToken: String
@@ -62,7 +40,7 @@ final class GoogleAnalytics {
     private var connection: Connection? {
         didSet { persist() }
     }
-    private var accessToken: (token: String, expires: Date)?
+    private var accessToken: GoogleSignIn.Token?
 
     var isConnected: Bool { connection != nil }
     var property: GoogleAnalyticsProperty? { connection?.property }
@@ -106,47 +84,14 @@ final class GoogleAnalytics {
 
     // MARK: Sign In
 
-    /// The custom scheme Google redirects an iOS-type client back to: its client ID, reversed.
-    static var callbackScheme: String {
-        "com.googleusercontent.apps." + clientID.replacingOccurrences(of: ".apps.googleusercontent.com", with: "")
-    }
-    private static var redirectURI: String { callbackScheme + ":/oauthredirect" }
-
-    /// The sign-in page to open, and the PKCE verifier to hand back to `connect(callback:verifier:)`.
     static func signInRequest() -> (url: URL, verifier: String) {
-        let verifier = Data((0..<32).map { _ in UInt8.random(in: .min ... .max) }).base64URLEncoded
-        let challenge = Data(SHA256.hash(data: Data(verifier.utf8))).base64URLEncoded
-
-        var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")
-        components?.queryItems = [
-            URLQueryItem(name: "client_id", value: clientID),
-            URLQueryItem(name: "redirect_uri", value: redirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: "https://www.googleapis.com/auth/analytics.readonly"),
-            URLQueryItem(name: "code_challenge", value: challenge),
-            URLQueryItem(name: "code_challenge_method", value: "S256"),
-        ]
-        return (components?.url ?? URL(filePath: "/"), verifier)
+        GoogleSignIn.request(scope: "https://www.googleapis.com/auth/analytics.readonly")
     }
 
     /// Finishes signing in with the URL the browser session was redirected to.
     func connect(callback: URL, verifier: String) async throws {
-        let items = URLComponents(url: callback, resolvingAgainstBaseURL: false)?.queryItems ?? []
-        guard let code = items.first(where: { $0.name == "code" })?.value else {
-            throw GoogleAnalyticsError.google(items.first(where: { $0.name == "error" })?.value ?? "Google did not sign you in.")
-        }
-
-        let response = try await Self.token([
-            "grant_type": "authorization_code",
-            "code": code,
-            "code_verifier": verifier,
-            "redirect_uri": Self.redirectURI,
-        ])
-        guard let refreshToken = response.refreshToken else {
-            throw GoogleAnalyticsError.google("Google did not grant offline access.")
-        }
-
-        accessToken = (response.accessToken, .now.addingTimeInterval(response.expiresIn - 60))
+        let (token, refreshToken) = try await GoogleSignIn.finish(callback: callback, verifier: verifier)
+        accessToken = token
         connection = Connection(refreshToken: refreshToken)
         // Most people have one website; do not make them pick it.
         let properties = try await properties()
@@ -155,47 +100,17 @@ final class GoogleAnalytics {
         }
     }
 
-    private struct TokenResponse: Decodable {
-        let accessToken: String
-        let expiresIn: TimeInterval
-        let refreshToken: String?
-    }
-
-    private static func token(_ parameters: [String: String]) async throws -> TokenResponse {
-        var components = URLComponents()
-        components.queryItems = (parameters.merging(["client_id": clientID]) { $1 })
-            .map { URLQueryItem(name: $0.key, value: $0.value) }
-
-        var request = URLRequest(url: URL(string: "https://oauth2.googleapis.com/token") ?? URL(filePath: "/"))
-        request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        // Form encoding reads a bare `+` as a space.
-        request.httpBody = Data((components.percentEncodedQuery ?? "").replacingOccurrences(of: "+", with: "%2B").utf8)
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        if (response as? HTTPURLResponse)?.statusCode == 200 {
-            return try decoder.decode(TokenResponse.self, from: data)
-        }
-
-        struct TokenError: Decodable { let error: String; let errorDescription: String? }
-        let error = try? decoder.decode(TokenError.self, from: data)
-        if error?.error == "invalid_grant" { throw GoogleAnalyticsError.signInExpired }
-        throw GoogleAnalyticsError.google(error?.errorDescription ?? error?.error ?? String(localized: "Google could not sign you in."))
-    }
-
     private func validAccessToken() async throws -> String {
-        if let accessToken, accessToken.expires > .now { return accessToken.token }
-        guard let connection else { throw GoogleAnalyticsError.notConnected }
+        if let accessToken, accessToken.expires > .now { return accessToken.accessToken }
+        guard let connection else { throw GoogleSignInError.notConnected(service: Self.service) }
 
         do {
-            let response = try await Self.token(["grant_type": "refresh_token", "refresh_token": connection.refreshToken])
-            accessToken = (response.accessToken, .now.addingTimeInterval(response.expiresIn - 60))
-            return response.accessToken
-        } catch GoogleAnalyticsError.signInExpired {
+            let token = try await GoogleSignIn.refresh(connection.refreshToken, service: Self.service)
+            accessToken = token
+            return token.accessToken
+        } catch GoogleSignInError.signInExpired {
             disconnect()
-            throw GoogleAnalyticsError.signInExpired
+            throw GoogleSignInError.signInExpired(service: Self.service)
         }
     }
 
@@ -236,7 +151,7 @@ final class GoogleAnalytics {
     /// path component spells the app's name — `256arts.com/spritepencil` for Sprite Pencil. Apps with
     /// no page are left out.
     func traffic(for apps: [(appleID: String, name: String)]) async throws -> [String: WebPageTraffic] {
-        guard let property else { throw GoogleAnalyticsError.notConnected }
+        guard let property else { throw GoogleSignInError.notConnected(service: Self.service) }
 
         struct Report: Decodable {
             struct Row: Decodable {
@@ -321,33 +236,7 @@ final class GoogleAnalytics {
         }
     }
 
-    private struct ErrorResponse: Decodable {
-        struct Body: Decodable { let message: String }
-        let error: Body
-    }
-
     private func send<T: Decodable>(_ request: URLRequest) async throws -> T {
-        var request = request
-        request.setValue("Bearer \(try await validAccessToken())", forHTTPHeaderField: "Authorization")
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-        if (response as? HTTPURLResponse)?.statusCode == 200 {
-            return try JSONDecoder().decode(T.self, from: data)
-        }
-
-        if (response as? HTTPURLResponse)?.statusCode == 401 {
-            accessToken = nil
-        }
-        throw GoogleAnalyticsError.google((try? JSONDecoder().decode(ErrorResponse.self, from: data))?.error.message ?? "Google Analytics could not be reached.")
-    }
-}
-
-extension Data {
-    /// Base64 without padding, and URL-safe, as PKCE requires.
-    var base64URLEncoded: String {
-        base64EncodedString()
-            .replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "=", with: "")
+        try await GoogleSignIn.send(request, accessToken: try await validAccessToken(), service: Self.service) { accessToken = nil }
     }
 }

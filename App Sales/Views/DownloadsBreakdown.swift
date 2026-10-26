@@ -38,38 +38,60 @@ struct DownloadsPie: View {
 
     let shares: [DownloadShare]
 
+    private static let innerRadius = 0.55
+
     private var total: Int {
         shares.reduce(0) { $0 + $1.downloads }
     }
 
     var body: some View {
         Chart(shares) { share in
-            let fraction = Double(share.downloads) / Double(max(total, 1))
-            SectorMark(angle: .value("Downloads", share.downloads), innerRadius: .ratio(0.55), angularInset: 1.5)
+            SectorMark(angle: .value("Downloads", share.downloads), innerRadius: .ratio(Self.innerRadius), angularInset: 1.5)
                 .cornerRadius(4)
                 .foregroundStyle(by: .value("Name", share.name))
-                .annotation(position: .overlay) {
-                    if fraction >= 0.05 {
-                        DownloadShareBadge(badge: share.badge)
-                            .font(.title3)
-                            .foregroundStyle(.white)
-                    }
-                }
                 .accessibilityLabel(share.name)
-                .accessibilityValue(Text(fraction, format: .percent.precision(.fractionLength(0))))
+                .accessibilityValue(Text(Double(share.downloads) / Double(max(total, 1)), format: .percent.precision(.fractionLength(0))))
         }
         .chartForegroundStyleScale(domain: shares.map(\.name), range: shares.map(\.color))
         .chartLegend(.hidden)
+        // Placed by hand: an overlay annotation sits out by the ring's outer edge, not across its middle.
+        .chartOverlay { proxy in
+            GeometryReader { geometry in
+                if let plotFrame = proxy.plotFrame {
+                    let frame = geometry[plotFrame]
+                    let radius = min(frame.width, frame.height) / 2 * (1 + Self.innerRadius) / 2
+                    ForEach(badges, id: \.share.id) { badge in
+                        DownloadShareBadge(badge: badge.share.badge)
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                            .position(
+                                x: frame.midX + radius * sin(badge.angle),
+                                y: frame.midY - radius * cos(badge.angle))
+                    }
+                }
+            }
+            .accessibilityHidden(true)
+        }
+    }
+
+    /// The slices wide enough to hold a badge, each with the angle through its middle, clockwise
+    /// from the top, where the chart starts.
+    private var badges: [(share: DownloadShare, angle: Double)] {
+        var start = 0.0
+        return shares.compactMap { share in
+            let fraction = Double(share.downloads) / Double(max(total, 1))
+            defer { start += fraction }
+            return fraction >= 0.05 ? (share, (start + fraction / 2) * 2 * .pi) : nil
+        }
     }
 }
 
-/// A small pie for the summary, which shows two side by side, with a legend beneath for badges
-/// that do not name their share on their own.
+/// A small pie for the summary, which shows two side by side, with a legend beneath, as a badge
+/// does not name its share on its own.
 struct DownloadsPieCard: View {
 
     let title: LocalizedStringKey
     let shares: [DownloadShare]
-    var showsLegend = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -81,21 +103,20 @@ struct DownloadsPieCard: View {
                 .frame(height: 130)
                 .frame(maxWidth: .infinity)
 
-            if showsLegend {
-                VStack(alignment: .leading, spacing: 4) {
-                    ForEach(shares) { share in
-                        HStack(spacing: 6) {
-                            DownloadShareBadge(badge: share.badge)
-                            Text(share.name)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
-                        }
-                        .font(.caption)
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(shares) { share in
+                    HStack(spacing: 6) {
+                        DownloadShareBadge(badge: share.badge)
+                            .foregroundStyle(share.color)
+                        Text(share.name)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
+                    .font(.caption)
                 }
-                // The slices already speak for themselves.
-                .accessibilityHidden(true)
             }
+            // The slices already speak for themselves.
+            .accessibilityHidden(true)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
     }
@@ -170,7 +191,17 @@ enum SalesRegion: CaseIterable {
     }
 }
 
+extension SalesRegion {
+    func share(downloads: Int = 0) -> DownloadShare {
+        DownloadShare(name: name, badge: .emoji(flag), color: color, downloads: downloads)
+    }
+}
+
 extension ACDevice {
+    func share(downloads: Int = 0) -> DownloadShare {
+        DownloadShare(name: name, badge: .symbol(symbol), color: color, downloads: downloads)
+    }
+
     var color: Color {
         switch self {
         case .iPhone: .blue
@@ -186,23 +217,41 @@ extension ACDevice {
 }
 
 extension ACData {
-    /// Last 30 days' downloads by device, most first, with the report's device names folded into
+    /// Last 30 days' downloads by device, most first and "Unknown" (or "Other") last, with the report's device names folded into
     /// the ones App Sales knows. Every app's when `filteredApps` is empty.
     func downloadsByDevice(filteredApps: [ACApp] = []) -> [DownloadShare] {
         let byDevice = Dictionary(getDevices(.downloads, lastNDays: 30, filteredApps: filteredApps).map { (ACDevice($0.0), Int($0.1)) }, uniquingKeysWith: +)
         return byDevice
             .filter { $0.value > 0 }
-            .map { DownloadShare(name: $0.key.name, badge: .symbol($0.key.symbol), color: $0.key.color, downloads: $0.value) }
-            .sorted { $0.downloads > $1.downloads }
+            .map { $0.key.share(downloads: $0.value) }
+            .slices(foldingInto: ACDevice.unknown.share())
     }
 
-    /// Last 30 days' downloads by App Store region, most first.
+    /// Last 30 days' downloads by App Store region, most first and "Other" last.
     func downloadsByRegion(filteredApps: [ACApp] = []) -> [DownloadShare] {
         let startDate = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -30, to: .now) ?? .now
         let byRegion = Dictionary(getEntries(for: .downloads, startDate: startDate, filteredApps: filteredApps).map { (SalesRegion(countryCode: $0.countryCode), $0.units) }, uniquingKeysWith: +)
         return byRegion
             .filter { $0.value > 0 }
-            .map { DownloadShare(name: $0.key.name, badge: .emoji($0.key.flag), color: $0.key.color, downloads: $0.value) }
+            .map { $0.key.share(downloads: $0.value) }
+            .slices(foldingInto: SalesRegion.unknown.share())
+    }
+}
+
+extension [DownloadShare] {
+    /// The shares a pie can draw, most first. At the Summary's size, one under 2% is lost to the
+    /// slices' insets and corner radius, so it shows as nothing but a wider gap; those fold into `other`, which is left out
+    /// in turn if they still come to a sliver together. `other` keeps its own name while at least half of it is its own.
+    func slices(foldingInto other: DownloadShare) -> [DownloadShare] {
+        let total = reduce(0) { $0 + $1.downloads }
+        let isSliver = { (downloads: Int) in Double(downloads) < Double(total) * 0.02 }
+        let kept = filter { $0.id != other.id && !isSliver($0.downloads) }
             .sorted { $0.downloads > $1.downloads }
+        let rest = total - kept.reduce(0) { $0 + $1.downloads }
+        guard rest > 0, !isSliver(rest) else { return kept }
+
+        let own = filter { $0.id == other.id }.reduce(0) { $0 + $1.downloads }
+        let name = own * 2 >= rest ? other.name : String(localized: "Other")
+        return kept + [DownloadShare(name: name, badge: other.badge, color: other.color, downloads: rest)]
     }
 }

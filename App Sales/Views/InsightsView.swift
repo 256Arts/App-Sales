@@ -9,6 +9,7 @@ import FoundationModels
 struct InsightsView: View {
 
     let summary: PerformanceSummary
+    var funnel: [FunnelStage] = []
 
     var body: some View {
         if ScreenshotMode.isActive {
@@ -16,14 +17,33 @@ struct InsightsView: View {
             // the section would not render there at all, and on the Mac it writes something
             // different every run. Neither makes a repeatable shot.
             InsightsSection(isExpanded: .constant(true)) {
-                Text(ScreenshotMode.insight)
+                MarkdownText(ScreenshotMode.insight)
             }
         } else {
             #if canImport(FoundationModels)
             if #available(iOS 26, macOS 26, visionOS 26, *) {
-                AppleIntelligenceInsights(summary: summary)
+                AppleIntelligenceInsights(summary: summary, funnel: funnel)
             }
             #endif
+        }
+    }
+}
+
+/// The model writes inline Markdown — bold above all — so it is rendered rather than shown as
+/// asterisks. A stream cut mid-span parses as best it can; text that will not parse shows as written.
+private struct MarkdownText: View {
+
+    let markdown: String
+
+    init(_ markdown: String) {
+        self.markdown = markdown
+    }
+
+    var body: some View {
+        if let attributed = try? AttributedString(markdown: markdown, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)) {
+            Text(attributed)
+        } else {
+            Text(verbatim: markdown)
         }
     }
 }
@@ -78,16 +98,16 @@ final class InsightsStore {
 
     private init() {}
 
-    /// Starts generating for `summary`, unless the insight on hand already describes it.
-    func generate(for summary: PerformanceSummary) {
-        let key = Self.key(for: summary)
+    /// Starts generating for `summary` and `funnel`, unless the insight on hand already describes them.
+    func generate(for summary: PerformanceSummary, funnel: [FunnelStage]) {
+        let key = Self.key(for: summary, funnel: funnel)
         guard key != self.key else { return }
 
         self.key = key
         task?.cancel()
         insight = ""
         failed = false
-        task = Task { await self.write(key: key, prompt: Self.prompt(for: summary)) }
+        task = Task { await self.write(key: key, prompt: Self.prompt(for: summary, funnel: funnel)) }
     }
 
     private func write(key: String, prompt: String) async {
@@ -97,7 +117,9 @@ final class InsightsStore {
                 You are an analyst helping an App Store developer understand their sales. \
                 Given 30-day metrics compared to the previous 30 days, write 2 to 3 short, \
                 specific takeaways as a single short paragraph. Call out the overall trend, \
-                and the standout or struggling app when one is clear. Be concise, factual, \
+                and the standout or struggling app when one is clear. When a conversion funnel \
+                is given, note the weakest step if it stands out. When proceeds are split into \
+                App Store sales and ad earnings, say which is driving the change. Be concise, factual, \
                 and encouraging but honest. Never invent numbers that aren't provided.
                 """
             }
@@ -119,19 +141,31 @@ final class InsightsStore {
 
     /// Identifies a summary by the figures the prompt actually reports, so a refetch that returns
     /// the same day's numbers does not rewrite the paragraph.
-    static func key(for summary: PerformanceSummary) -> String {
-        "\(summary.downloads)-\(summary.prevDownloads)-\(Int(summary.proceeds))-\(Int(summary.prevProceeds))"
+    static func key(for summary: PerformanceSummary, funnel: [FunnelStage]) -> String {
+        ([summary.downloads, summary.prevDownloads, Int(summary.proceeds), Int(summary.prevProceeds), Int(summary.adProceeds), Int(summary.prevAdProceeds)] + funnel.map(\.count))
+            .map(String.init)
+            .joined(separator: "-")
     }
 
-    private static func prompt(for summary: PerformanceSummary) -> String {
+    private static func prompt(for summary: PerformanceSummary, funnel: [FunnelStage]) -> String {
         let currency = NumberFormatter.currency
-        let proceeds = currency.string(from: NSNumber(value: summary.proceeds)) ?? "\(summary.proceeds)"
-        let prevProceeds = currency.string(from: NSNumber(value: summary.prevProceeds)) ?? "\(summary.prevProceeds)"
+        func money(_ value: Double) -> String { currency.string(from: NSNumber(value: value)) ?? "\(value)" }
+        // Only a reader with ads gets the split, so the model does not write about ad earnings of zero.
+        let hasAds = summary.adProceeds > 0 || summary.prevAdProceeds > 0
+
+        var proceedsLine = "Proceeds: \(money(summary.proceeds)) (previously \(money(summary.prevProceeds)))"
+        if hasAds {
+            proceedsLine += "\n- App Store sales: \(money(summary.proceeds - summary.adProceeds)) (previously \(money(summary.prevProceeds - summary.prevAdProceeds)))"
+            proceedsLine += "\n- Ad earnings: \(money(summary.adProceeds)) (previously \(money(summary.prevAdProceeds)))"
+        }
 
         let appLines = summary.topApps
             .map { app in
-                let appProceeds = currency.string(from: NSNumber(value: app.proceeds)) ?? "\(app.proceeds)"
-                return "- \(app.name): \(app.downloads) downloads, \(appProceeds) proceeds"
+                var line = "- \(app.name): \(app.downloads) downloads, \(money(app.proceeds)) proceeds"
+                if hasAds {
+                    line += " (\(money(app.proceeds - app.adProceeds)) App Store sales, \(money(app.adProceeds)) ad earnings)"
+                }
+                return line
             }
             .joined(separator: "\n")
 
@@ -139,11 +173,35 @@ final class InsightsStore {
         Last 30 days vs. the previous 30 days:
 
         Downloads: \(summary.downloads) (previously \(summary.prevDownloads))
-        Proceeds: \(proceeds) (previously \(prevProceeds))
+        \(proceedsLine)
 
         Top apps over the last 30 days:
         \(appLines.isEmpty ? "- (no app breakdown available)" : appLines)
+        \(funnel.isEmpty ? "" : "\nConversion funnel over the latest 30 days of App Store analytics, each step with the share of the step before that reached it:\n" + funnelLines(funnel))
         """
+    }
+
+    private static func funnelLines(_ funnel: [FunnelStage]) -> String {
+        funnel.enumerated()
+            .map { index, stage in
+                var line = "- \(name(of: stage.stat)): \(stage.count)"
+                if index > 0, funnel[index - 1].count > 0 {
+                    line += " (\((Double(stage.count) / Double(funnel[index - 1].count)).formatted(.percent.precision(.fractionLength(0...1)))))"
+                }
+                return line
+            }
+            .joined(separator: "\n")
+    }
+
+    /// The stage's name for the model, which reads English whatever the reader's language.
+    private static func name(of stat: AppListSort) -> String {
+        switch stat {
+        case .websiteViews: "Developer website page views"
+        case .appStoreViews: "App Store product page views"
+        case .downloads: "Downloads"
+        case .activeDevices: "Average daily active devices"
+        default: stat.rawValue
+        }
     }
 }
 
@@ -151,6 +209,7 @@ final class InsightsStore {
 private struct AppleIntelligenceInsights: View {
 
     let summary: PerformanceSummary
+    let funnel: [FunnelStage]
 
     @State private var store = InsightsStore.shared
 
@@ -169,16 +228,16 @@ private struct AppleIntelligenceInsights: View {
                             .foregroundStyle(.secondary)
                     }
                 } else {
-                    Text(store.insight)
+                    MarkdownText(store.insight)
                         .textSelection(.enabled)
                 }
             }
             // Runs once opened, then on appear and whenever the figures change; the store ignores a
             // repeat of numbers it has already written about, which is what a scroll back or reopen looks like.
-            .task(id: store.isExpanded ? InsightsStore.key(for: summary) : nil) {
+            .task(id: store.isExpanded ? InsightsStore.key(for: summary, funnel: funnel) : nil) {
                 guard store.isExpanded else { return }
 
-                store.generate(for: summary)
+                store.generate(for: summary, funnel: funnel)
             }
         }
     }

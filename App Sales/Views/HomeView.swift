@@ -27,6 +27,11 @@ struct HomeView: View {
     /// The stat the chart's legend has picked to chart app by app, day by day, in place of the bars.
     @State private var chartedStat: AppListSort?
 
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    #endif
+
     #if canImport(AdmobSwiftUI)
     @StateObject private var nativeAdViewModel = NativeAdViewModel(adUnitID: "ca-app-pub-8282547272443688/5107419575")
     #endif
@@ -263,11 +268,7 @@ struct HomeView: View {
                                             .chartLegend(.hidden)
                                     }
                                 }
-                                #if os(visionOS)
-                                .frame(height: 300)
-                                #else
-                                .frame(height: 400)
-                                #endif
+                                .frame(height: chartHeight)
                             }
                             .padding(.vertical)
                             .onGeometryChange(for: Bool.self) { $0.size.width >= 600 } action: { isWide = $0 }
@@ -291,32 +292,27 @@ struct HomeView: View {
                         }
                     }
 
-                    if let summary = loader.summary, let funnel = funnel(data: data, summary: summary) {
-                        Section {
-                            ConversionFunnel(stages: funnel.stages)
-                        } header: {
-                            Text("Funnel")
-                        } footer: {
-                            if let range = funnel.range {
-                                Text("30 days through \(range.upperBound.addingTimeInterval(-1), format: .dateTime.month().day()), the latest App Store analytics.")
-                            }
-                        }
-                    }
-
                     let devices = data.downloadsByDevice()
                     let regions = data.downloadsByRegion()
                     if !devices.isEmpty || !regions.isEmpty {
-                        Section("Downloads, Last 30 Days") {
+                        Section {
                             HStack(alignment: .top, spacing: isWide ? 32 : 20) {
-                                DownloadsPieCard(title: "Devices", shares: devices)
-                                DownloadsPieCard(title: "Regions", shares: regions, showsLegend: true)
+                                DownloadsPieCard(title: "Downloads by Device", shares: devices)
+                                DownloadsPieCard(title: "Downloads by Region", shares: regions)
                             }
                             .padding(.vertical, 8)
                         }
                     }
 
+                    let funnel = loader.summary.flatMap { funnel(data: data, summary: $0) }
+                    if let funnel {
+                        Section("Funnel") {
+                            ConversionFunnel(stages: funnel)
+                        }
+                    }
+
                     if let summary = loader.summary {
-                        InsightsView(summary: summary)
+                        InsightsView(summary: summary, funnel: funnel ?? [])
 
                         #if canImport(AdmobSwiftUI)
                         if ExperienceManager.shared.shouldShowAds {
@@ -372,35 +368,48 @@ struct HomeView: View {
         .accessibilityHint(charted == stat ? Text("Shows every stat again") : Text("Charts each app's figure by day"))
     }
 
-    /// From the webpage to proceeds, leaving out whatever is not connected. Downloads and proceeds
-    /// are counted over the analytics reports' days when there are any, so each step compares like
-    /// with like; `range` is those days. Nil without a stage ahead of downloads, as there is no funnel.
-    private func funnel(data: ACData, summary: PerformanceSummary) -> (stages: [FunnelStage], range: Range<Date>?)? {
+    /// From the webpage to active devices, leaving out whatever is not connected. Downloads are
+    /// counted over the analytics reports' days when there are any, so each step compares like with
+    /// like. Nil without a stage ahead of downloads, as there is no funnel.
+    private func funnel(data: ACData, summary: PerformanceSummary) -> [FunnelStage]? {
         var stages: [FunnelStage] = []
         if googleAnalytics.property != nil, !websiteTraffic.isEmpty {
-            stages.append(FunnelStage(stat: .websiteViews, color: .teal, value: .count(websiteTraffic.values.reduce(0) { $0 + $1.views })))
+            stages.append(FunnelStage(stat: .websiteViews, color: .teal, count: websiteTraffic.values.reduce(0) { $0 + $1.views }))
         }
 
-        var range: Range<Date>?
         var downloads = summary.downloads
-        var proceeds = summary.proceeds
         var activeDevices: Int?
         if case .ready(let analytics) = appStoreAnalytics, !analytics.isEmpty {
             let totals = analytics.totals()
-            range = analytics.range
             downloads = Int(data.getTotal(for: .downloads, in: analytics.range))
-            proceeds = data.getTotal(for: .proceeds, in: analytics.range)
             activeDevices = totals.averageDailyActiveDevices
-            stages.append(FunnelStage(stat: .appStoreViews, color: .indigo, value: .count(totals.pageViews)))
+            stages.append(FunnelStage(stat: .appStoreViews, color: .indigo, count: totals.pageViews))
         }
         guard !stages.isEmpty else { return nil }
 
-        stages.append(FunnelStage(stat: .downloads, color: .blue, value: .count(downloads)))
+        stages.append(FunnelStage(stat: .downloads, color: .blue, count: downloads))
         if let activeDevices {
-            stages.append(FunnelStage(stat: .activeDevices, color: .orange, value: .count(activeDevices)))
+            stages.append(FunnelStage(stat: .activeDevices, color: .orange, count: activeDevices))
         }
-        stages.append(FunnelStage(stat: .proceeds, color: .green, value: .proceeds(proceeds)))
-        return (stages, range)
+        return stages
+    }
+
+    /// The summary chart's height: shorter on a phone, and much shorter turned on its side, where
+    /// it would otherwise fill the screen.
+    private var chartHeight: CGFloat {
+        #if os(visionOS)
+        300
+        #elseif os(iOS)
+        if verticalSizeClass == .compact {
+            300
+        } else if horizontalSizeClass == .compact {
+            360
+        } else {
+            420
+        }
+        #else
+        420
+        #endif
     }
 
     /// The most apps the line chart draws, past which its lines tangle into one another.
@@ -523,7 +532,7 @@ struct HomeView: View {
     }
 
     private func loadWebsiteTraffic() async {
-        guard GoogleAnalytics.isAvailable, googleAnalytics.property != nil, let apps = loader.summary?.apps else {
+        guard GoogleSignIn.isAvailable, googleAnalytics.property != nil, let apps = loader.summary?.apps else {
             websiteTraffic = [:]
             return
         }

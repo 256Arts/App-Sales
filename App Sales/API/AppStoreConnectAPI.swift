@@ -117,7 +117,11 @@ final class AppStoreConnectAPI {
         let acdata = ACData(entries: entries, currency: localCurrency, apps: apps ?? [])
         ACDataCache.saveData(data: acdata, emptyDates: emptyDates, apiKey: self.account)
 
-        return acdata
+        // Ad earnings join after the sales are cached, since `AdMob` keeps a cache of its own, and
+        // after the app lookup, since they belong to apps already found. A failed fetch costs only the ads.
+        guard await AdMob.shared.isConnected, let earnings = try? await AdMob.shared.earnings() else { return acdata }
+
+        return ACData(entries: entries + Event.ads(earnings, apps: acdata.apps, currency: localCurrency), currency: localCurrency, apps: acdata.apps)
     }
 
     private func parseApiResult(_ result: Data, localCurrency: Currency) -> [Event] {
