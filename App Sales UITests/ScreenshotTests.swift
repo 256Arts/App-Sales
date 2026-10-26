@@ -44,6 +44,12 @@ final class ScreenshotTests: XCTestCase {
         settle()
         capture("01-home")
 
+        // The same Summary scrolled to the pies and the funnel beneath its chart.
+        if scrollToFunnel() {
+            settle()
+            capture("02-funnel")
+        }
+
         // The watch has no app list or app pages, only the summary.
         #if !os(watchOS)
         let row = element("AppRow.\(Self.featuredApp)")
@@ -52,7 +58,7 @@ final class ScreenshotTests: XCTestCase {
         #if os(iOS)
         if UIDevice.current.userInterfaceIdiom == .phone {
             settle()
-            capture("02-apps")
+            capture("03-apps")
         }
         #endif
 
@@ -63,7 +69,26 @@ final class ScreenshotTests: XCTestCase {
         #endif
         guard waitFor(element("AppDetail.Name"), "\(Self.featuredApp)'s page") else { return }
         settle()
-        capture("03-app")
+        capture("04-app")
+        #endif
+    }
+
+    /// Swipes the Summary up until the funnel's last stage is on screen, so the pies above it are
+    /// still in frame. Reports whether it got there; the watch's Summary has neither.
+    private func scrollToFunnel() -> Bool {
+        #if os(watchOS)
+        return false
+        #else
+        let stage = element("Funnel")
+        for _ in 0..<8 {
+            if stage.exists, stage.isHittable { return true }
+            #if os(macOS)
+            app.windows.firstMatch.scroll(byDeltaX: 0, deltaY: -300)
+            #else
+            app.swipeUp(velocity: .slow)
+            #endif
+        }
+        return stage.exists && stage.isHittable
         #endif
     }
 
