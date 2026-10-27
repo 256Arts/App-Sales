@@ -34,7 +34,7 @@ struct AccountsList: View {
             }
 
             if !isEmpty {
-                Section("Accounts") {
+                Section {
                     ForEach(accountManager.accounts) { account in
                         NavigationLink(destination: AccountDetailView(account)) {
                             LabeledContent {
