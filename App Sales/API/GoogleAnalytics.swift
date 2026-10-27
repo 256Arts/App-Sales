@@ -16,12 +16,14 @@ struct WebPageTraffic: Hashable {
     let views: Int
 }
 
-/// The reader's Google Analytics connection: who signed in, which property is their website, and
-/// which page on it is about each app — so the home screen can put web page views next to downloads.
+/// The reader's Google Analytics sign-ins, which of each one's properties are their websites, and
+/// which page on them is about each app — so the home screen can put web page views next to downloads.
 ///
 /// Signing in is the app's job (it needs a browser session); everything after that is plain HTTP, so
-/// this stays watchOS-clean. The connection is one per reader rather than per App Store Connect
-/// account, and lives in the same iCloud-synchronized Keychain, so it follows them to every device.
+/// this stays watchOS-clean. The sign-ins are per reader rather than per App Store Connect account —
+/// several, since a work site often sits behind a managed Google account — and traffic is read from
+/// every chosen website at once, each app finding its own page by name. They live in the same
+/// iCloud-synchronized Keychain, so they follow the reader to every device.
 @MainActor
 @Observable
 final class GoogleAnalytics {
@@ -31,20 +33,26 @@ final class GoogleAnalytics {
     private static let service = "Google Analytics"
 
     private struct Connection: Codable {
-        var refreshToken: String
-        var property: GoogleAnalyticsProperty?
+        var account: GoogleAccount
+        var websites: [GoogleAnalyticsProperty] = []
+    }
+
+    private struct Stored: Codable {
+        var connections: [Connection] = []
         /// Keyed by the app's Apple ID.
         var pageURLs: [String: URL] = [:]
     }
 
-    private var connection: Connection? {
+    private var stored = Stored() {
         didSet { persist() }
     }
-    private var accessToken: GoogleSignIn.Token?
+    @ObservationIgnored private let tokens = GoogleAccessTokens(service: service)
 
-    var isConnected: Bool { connection != nil }
-    var property: GoogleAnalyticsProperty? { connection?.property }
-    var pageURLs: [String: URL] { connection?.pageURLs ?? [:] }
+    var accounts: [GoogleAccount] { stored.connections.map(\.account) }
+    var isConnected: Bool { !stored.connections.isEmpty }
+    /// Every chosen website, across all sign-ins.
+    var websites: [GoogleAnalyticsProperty] { stored.connections.flatMap(\.websites) }
+    var pageURLs: [String: URL] { stored.pageURLs }
 
     private static let keychain = Keychain(service: "com.jaydenirwin.appsales")
         .synchronizable(true)
@@ -53,33 +61,43 @@ final class GoogleAnalytics {
     private init() {
         // A screenshot run stays off the real Keychain, as `AccountManager` does.
         guard !ScreenshotMode.isActive,
-              let data = try? Self.keychain.getData(Self.keychainKey) else { return }
+              let data = try? Self.keychain.getData(Self.keychainKey),
+              let stored = try? JSONDecoder().decode(Stored.self, from: data) else { return }
 
-        connection = try? JSONDecoder().decode(Connection.self, from: data)
+        self.stored = stored
     }
 
     private func persist() {
         guard !ScreenshotMode.isActive else { return }
 
-        if let connection, let data = try? JSONEncoder().encode(connection) {
+        if !stored.connections.isEmpty || !stored.pageURLs.isEmpty, let data = try? JSONEncoder().encode(stored) {
             try? Self.keychain.set(data, key: Self.keychainKey)
         } else {
             try? Self.keychain.remove(Self.keychainKey)
         }
     }
 
-    func setProperty(_ property: GoogleAnalyticsProperty) {
-        connection?.property = property
+    func websites(of account: GoogleAccount) -> [GoogleAnalyticsProperty] {
+        stored.connections.first { $0.account.id == account.id }?.websites ?? []
+    }
+
+    func setWebsite(_ property: GoogleAnalyticsProperty, isChosen: Bool, of account: GoogleAccount) {
+        guard let index = stored.connections.firstIndex(where: { $0.account.id == account.id }) else { return }
+
+        stored.connections[index].websites.removeAll { $0.id == property.id }
+        if isChosen {
+            stored.connections[index].websites.append(property)
+        }
     }
 
     /// - Parameter url: `nil` forgets the app's page.
     func setPageURL(_ url: URL?, for appleID: String) {
-        connection?.pageURLs[appleID] = url
+        stored.pageURLs[appleID] = url
     }
 
-    func disconnect() {
-        connection = nil
-        accessToken = nil
+    func disconnect(_ account: GoogleAccount) {
+        stored.connections.removeAll { $0.account.id == account.id }
+        tokens.remove(account)
     }
 
     // MARK: Sign In
@@ -88,36 +106,28 @@ final class GoogleAnalytics {
         GoogleSignIn.request(scope: "https://www.googleapis.com/auth/analytics.readonly")
     }
 
-    /// Finishes signing in with the URL the browser session was redirected to.
+    /// Finishes signing in with the URL the browser session was redirected to. Signing in again as
+    /// an account already here renews it, keeping its websites.
     func connect(callback: URL, verifier: String) async throws {
-        let (token, refreshToken) = try await GoogleSignIn.finish(callback: callback, verifier: verifier)
-        accessToken = token
-        connection = Connection(refreshToken: refreshToken)
-        // Most people have one website; do not make them pick it.
-        let properties = try await properties()
-        if properties.count == 1, let property = properties.first {
-            setProperty(property)
+        let (token, account) = try await GoogleSignIn.finish(callback: callback, verifier: verifier)
+        tokens.store(token, for: account)
+        if let index = stored.connections.firstIndex(where: { $0.account.id == account.id }) {
+            stored.connections[index].account = account
+            return
         }
-    }
 
-    private func validAccessToken() async throws -> String {
-        if let accessToken, accessToken.expires > .now { return accessToken.accessToken }
-        guard let connection else { throw GoogleSignInError.notConnected(service: Self.service) }
-
-        do {
-            let token = try await GoogleSignIn.refresh(connection.refreshToken, service: Self.service)
-            accessToken = token
-            return token.accessToken
-        } catch GoogleSignInError.signInExpired {
-            disconnect()
-            throw GoogleSignInError.signInExpired(service: Self.service)
+        stored.connections.append(Connection(account: account))
+        // Most people have one website; do not make them pick it.
+        let properties = try await properties(of: account)
+        if properties.count == 1, let property = properties.first {
+            setWebsite(property, isChosen: true, of: account)
         }
     }
 
     // MARK: Reading
 
-    /// Every property the signed-in Google account can read, grouped the way Analytics lists them.
-    func properties() async throws -> [GoogleAnalyticsProperty] {
+    /// Every property the account can read, grouped the way Analytics lists them.
+    func properties(of account: GoogleAccount) async throws -> [GoogleAnalyticsProperty] {
         struct Page: Decodable {
             struct Account: Decodable {
                 struct Property: Decodable { let property: String; let displayName: String }
@@ -135,7 +145,7 @@ final class GoogleAnalytics {
             components?.queryItems = [URLQueryItem(name: "pageSize", value: "200")]
             if let pageToken { components?.queryItems?.append(URLQueryItem(name: "pageToken", value: pageToken)) }
 
-            let page: Page = try await send(URLRequest(url: components?.url ?? URL(filePath: "/")))
+            let page: Page = try await send(URLRequest(url: components?.url ?? URL(filePath: "/")), as: account)
             for account in page.accountSummaries ?? [] {
                 properties += (account.propertySummaries ?? []).map {
                     GoogleAnalyticsProperty(id: $0.property, name: $0.displayName, accountName: account.displayName)
@@ -147,12 +157,45 @@ final class GoogleAnalytics {
     }
 
     /// Each app's page traffic over the last 30 days, the window the home screen counts downloads in,
-    /// keyed by Apple ID. An app's page is the one the reader set or, failing that, any page whose last
-    /// path component spells the app's name — `256arts.com/spritepencil` for Sprite Pencil. Apps with
-    /// no page are left out.
+    /// keyed by Apple ID. An app's page is the one the reader set or, failing that, any page on any
+    /// chosen website whose last path component spells the app's name — `256arts.com/spritepencil`
+    /// for Sprite Pencil. Apps with no page are left out. A website that cannot be read is skipped,
+    /// unless none can.
     func traffic(for apps: [(appleID: String, name: String)]) async throws -> [String: WebPageTraffic] {
-        guard let property else { throw GoogleSignInError.notConnected(service: Self.service) }
+        let reports = stored.connections.flatMap { connection in connection.websites.map { (connection.account, $0) } }
+        guard !reports.isEmpty else { throw GoogleSignInError.notConnected(service: Self.service) }
 
+        var pages: [WebPage: Int] = [:]
+        var failure: Error?
+        await withTaskGroup(of: Result<[WebPage: Int], Error>.self) { group in
+            for (account, property) in reports {
+                group.addTask {
+                    do { return .success(try await self.pages(of: property, as: account)) } catch { return .failure(error) }
+                }
+            }
+            for await result in group {
+                switch result {
+                case .success(let report): pages.merge(report, uniquingKeysWith: +)
+                case .failure(let error): failure = error
+                }
+            }
+        }
+        if pages.isEmpty, let failure { throw failure }
+
+        var traffic: [String: WebPageTraffic] = [:]
+        for app in apps {
+            if let url = pageURLs[app.appleID] {
+                traffic[app.appleID] = WebPageTraffic(url: url, views: pages[WebPage(url)] ?? 0)
+            } else if let match = Self.page(named: app.name, in: pages) {
+                traffic[app.appleID] = WebPageTraffic(url: match.page.url, views: match.views)
+            }
+        }
+        return traffic
+    }
+
+    /// Every page of one website and its views. One report of every page, rather than one per app,
+    /// so matching by name costs nothing extra.
+    private func pages(of property: GoogleAnalyticsProperty, as account: GoogleAccount) async throws -> [WebPage: Int] {
         struct Report: Decodable {
             struct Row: Decodable {
                 struct Value: Decodable { let value: String }
@@ -162,7 +205,6 @@ final class GoogleAnalytics {
             let rows: [Row]?
         }
 
-        // One report of every page, rather than one per app, so matching by name costs nothing extra.
         let body: [String: Any] = [
             "dateRanges": [["startDate": "30daysAgo", "endDate": "today"]],
             "dimensions": [["name": "hostName"], ["name": "pagePath"]],
@@ -175,7 +217,7 @@ final class GoogleAnalytics {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let report: Report = try await send(request)
+        let report: Report = try await send(request, as: account)
 
         // The same page is often reachable with and without `www.` and a trailing slash; those count together.
         var pages: [WebPage: Int] = [:]
@@ -184,16 +226,7 @@ final class GoogleAnalytics {
             let page = WebPage(host: row.dimensionValues[0].value, path: row.dimensionValues[1].value)
             pages[page, default: 0] += Int(row.metricValues.first?.value ?? "") ?? 0
         }
-
-        var traffic: [String: WebPageTraffic] = [:]
-        for app in apps {
-            if let url = pageURLs[app.appleID] {
-                traffic[app.appleID] = WebPageTraffic(url: url, views: pages[WebPage(url)] ?? 0)
-            } else if let match = Self.page(named: app.name, in: pages) {
-                traffic[app.appleID] = WebPageTraffic(url: match.page.url, views: match.views)
-            }
-        }
-        return traffic
+        return pages
     }
 
     /// The most viewed page whose last path component is the app's name, with or without its
@@ -236,7 +269,12 @@ final class GoogleAnalytics {
         }
     }
 
-    private func send<T: Decodable>(_ request: URLRequest) async throws -> T {
-        try await GoogleSignIn.send(request, accessToken: try await validAccessToken(), service: Self.service) { accessToken = nil }
+    private func send<T: Decodable>(_ request: URLRequest, as account: GoogleAccount) async throws -> T {
+        do {
+            return try await tokens.send(request, as: account)
+        } catch GoogleSignInError.signInExpired {
+            disconnect(account)
+            throw GoogleSignInError.signInExpired(service: Self.service)
+        }
     }
 }

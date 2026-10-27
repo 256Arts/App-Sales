@@ -80,7 +80,7 @@ struct HomeView: View {
                         app: app,
                         data: data,
                         websiteTraffic: websiteTraffic[app.appleID],
-                        showsWebsite: googleAnalytics.property != nil,
+                        showsWebsite: !googleAnalytics.websites.isEmpty,
                         analytics: appStoreAnalytics,
                         account: selectedKey)
                         .id(appleID)
@@ -105,7 +105,7 @@ struct HomeView: View {
         .task(id: AppStoreAnalyticsQuery(accountID: selectedKey?.id, appIDs: loader.data?.apps.map(\.appleID) ?? [])) {
             await loadAppStoreAnalytics()
         }
-        .task(id: WebsiteTrafficQuery(property: googleAnalytics.property, pageURLs: googleAnalytics.pageURLs, appIDs: loader.summary?.apps.map(\.appleID) ?? [])) {
+        .task(id: WebsiteTrafficQuery(websites: googleAnalytics.websites, pageURLs: googleAnalytics.pageURLs, appIDs: loader.summary?.apps.map(\.appleID) ?? [])) {
             await loadWebsiteTraffic()
         }
         .onChange(of: keyID) {
@@ -141,7 +141,7 @@ struct HomeView: View {
                         Link(destination: app.url) {
                             Label("View on the App Store", image: "logo.appstore")
                         }
-                        if googleAnalytics.property != nil {
+                        if !googleAnalytics.websites.isEmpty {
                             if let url = websiteTraffic[app.appleID]?.url {
                                 Link(destination: url) {
                                     Label("Open Webpage", systemImage: "safari")
@@ -373,7 +373,7 @@ struct HomeView: View {
     /// like. Nil without a stage ahead of downloads, as there is no funnel.
     private func funnel(data: ACData, summary: PerformanceSummary) -> [FunnelStage]? {
         var stages: [FunnelStage] = []
-        if googleAnalytics.property != nil, !websiteTraffic.isEmpty {
+        if !googleAnalytics.websites.isEmpty, !websiteTraffic.isEmpty {
             stages.append(FunnelStage(stat: .websiteViews, color: .teal, count: websiteTraffic.values.reduce(0) { $0 + $1.views }))
         }
 
@@ -524,15 +524,15 @@ struct HomeView: View {
         }
     }
 
-    /// What the website traffic depends on, so it reloads when the website, a page, or the apps change.
+    /// What the website traffic depends on, so it reloads when a website, a page, or the apps change.
     private struct WebsiteTrafficQuery: Equatable {
-        let property: GoogleAnalyticsProperty?
+        let websites: [GoogleAnalyticsProperty]
         let pageURLs: [String: URL]
         let appIDs: [String]
     }
 
     private func loadWebsiteTraffic() async {
-        guard GoogleSignIn.isAvailable, googleAnalytics.property != nil, let apps = loader.summary?.apps else {
+        guard GoogleSignIn.isAvailable, !googleAnalytics.websites.isEmpty, let apps = loader.summary?.apps else {
             websiteTraffic = [:]
             return
         }

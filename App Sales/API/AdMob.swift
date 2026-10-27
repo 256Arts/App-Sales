@@ -14,12 +14,14 @@ struct AdEarning: Codable, Hashable {
     let earnings: Double
 }
 
-/// The reader's AdMob connection, whose estimated earnings `AppStoreConnectAPI` adds to proceeds as
+/// The reader's AdMob sign-ins, whose estimated earnings `AppStoreConnectAPI` adds to proceeds as
 /// `.ad` events, so every proceeds figure — the summary, each app, the widgets — counts its ads.
 ///
-/// Like `GoogleAnalytics`, one per reader and kept in the synchronizable Keychain, and plain HTTP
-/// after sign-in, so the widget extensions and the watch read it too. Google's refresh tokens do not
-/// rotate, so unlike `AIAssistants` several processes refreshing at once is harmless.
+/// A Google account reaches one publisher account, so a reader with a work and a personal one signs
+/// in with each. Earnings from all of them are matched to apps by App Store ID, so each App Store
+/// Connect account picks up its own. Like `GoogleAnalytics`, kept in the synchronizable Keychain, and
+/// plain HTTP after sign-in, so the widget extensions and the watch read it too. Google's refresh
+/// tokens do not rotate, so unlike `AIAssistants` several processes refreshing at once is harmless.
 @MainActor
 @Observable
 final class AdMob {
@@ -29,17 +31,18 @@ final class AdMob {
     private static let service = "AdMob"
 
     private struct Connection: Codable {
-        var refreshToken: String
+        var account: GoogleAccount
         /// `accounts/pub-…`, the publisher account reports are run against.
-        var account: String?
+        var publisher: String?
     }
 
-    private var connection: Connection? {
+    private var connections: [Connection] = [] {
         didSet { persist() }
     }
-    private var accessToken: GoogleSignIn.Token?
+    @ObservationIgnored private let tokens = GoogleAccessTokens(service: service)
 
-    var isConnected: Bool { connection != nil }
+    var accounts: [GoogleAccount] { connections.map(\.account) }
+    var isConnected: Bool { !connections.isEmpty }
 
     private static let keychain = Keychain(service: "com.jaydenirwin.appsales")
         .synchronizable(true)
@@ -47,30 +50,31 @@ final class AdMob {
 
     private init() {
         guard !ScreenshotMode.isActive,
-              let data = try? Self.keychain.getData(Self.keychainKey) else { return }
+              let data = try? Self.keychain.getData(Self.keychainKey),
+              let connections = try? JSONDecoder().decode([Connection].self, from: data) else { return }
 
-        connection = try? JSONDecoder().decode(Connection.self, from: data)
+        self.connections = connections
     }
 
     private func persist() {
         guard !ScreenshotMode.isActive else { return }
 
-        if let connection, let data = try? JSONEncoder().encode(connection) {
+        if !connections.isEmpty, let data = try? JSONEncoder().encode(connections) {
             try? Self.keychain.set(data, key: Self.keychainKey)
         } else {
             try? Self.keychain.remove(Self.keychainKey)
         }
     }
 
-    func disconnect() {
-        connection = nil
-        accessToken = nil
-        Cache.clear()
+    func disconnect(_ account: GoogleAccount) {
+        connections.removeAll { $0.account.id == account.id }
+        tokens.remove(account)
         salesChanged()
     }
 
-    /// Proceeds memoized or drawn by a widget before the change no longer add up.
+    /// Proceeds cached, memoized, or drawn by a widget before the change no longer add up.
     private func salesChanged() {
+        Cache.clear()
         AppStoreConnectAPI.clearMemoization()
         #if canImport(WidgetKit)
         WidgetCenter.shared.reloadAllTimelines()
@@ -83,31 +87,25 @@ final class AdMob {
         GoogleSignIn.request(scope: "https://www.googleapis.com/auth/admob.readonly")
     }
 
-    /// Finishes signing in with the URL the browser session was redirected to.
+    /// Finishes signing in with the URL the browser session was redirected to. Signing in again as
+    /// an account already here renews it.
     func connect(callback: URL, verifier: String) async throws {
-        let (token, refreshToken) = try await GoogleSignIn.finish(callback: callback, verifier: verifier)
-        accessToken = token
-        connection = Connection(refreshToken: refreshToken)
-        connection?.account = try await publisherAccount()
+        let (token, account) = try await GoogleSignIn.finish(callback: callback, verifier: verifier)
+        tokens.store(token, for: account)
+        let publisher = try await publisherAccount(as: account)
+
+        connections.removeAll { $0.account.id == account.id }
+        connections.append(Connection(account: account, publisher: publisher))
         salesChanged()
     }
 
-    private func validAccessToken() async throws -> String {
-        if let accessToken, accessToken.expires > .now { return accessToken.accessToken }
-        guard let connection else { throw GoogleSignInError.notConnected(service: Self.service) }
-
+    private func send<T: Decodable>(_ request: URLRequest, as account: GoogleAccount) async throws -> T {
         do {
-            let token = try await GoogleSignIn.refresh(connection.refreshToken, service: Self.service)
-            accessToken = token
-            return token.accessToken
+            return try await tokens.send(request, as: account)
         } catch GoogleSignInError.signInExpired {
-            disconnect()
+            disconnect(account)
             throw GoogleSignInError.signInExpired(service: Self.service)
         }
-    }
-
-    private func send<T: Decodable>(_ request: URLRequest) async throws -> T {
-        try await GoogleSignIn.send(request, accessToken: try await validAccessToken(), service: Self.service) { accessToken = nil }
     }
 
     // MARK: Reading
@@ -115,46 +113,69 @@ final class AdMob {
     private static let api = "https://admob.googleapis.com/v1/"
 
     /// A Google sign-in reaches a single AdMob publisher account.
-    private func publisherAccount() async throws -> String {
+    private func publisherAccount(as account: GoogleAccount) async throws -> String {
         struct Response: Decodable {
             struct Account: Decodable { let name: String }
             let account: [Account]?
         }
 
-        let response: Response = try await send(URLRequest(url: URL(string: Self.api + "accounts") ?? URL(filePath: "/")))
-        guard let account = response.account?.first?.name else {
+        let response: Response = try await send(URLRequest(url: URL(string: Self.api + "accounts") ?? URL(filePath: "/")), as: account)
+        guard let publisher = response.account?.first?.name else {
             throw GoogleSignInError.google(String(localized: "This Google account has no AdMob account."))
         }
-        return account
+        return publisher
     }
 
     /// Each app's earnings over the days the sales cache keeps, from the App Group cache while it is
     /// fresh. Earnings are AdMob's estimate, which is what its own dashboard shows until payment.
+    /// A publisher account reached by more than one sign-in is counted once. One that cannot be read
+    /// is skipped, unless none can; either way nothing is cached, so the next fetch tries it again.
     func earnings() async throws -> [AdEarning] {
-        guard let connection else { throw GoogleSignInError.notConnected(service: Self.service) }
+        guard isConnected else { throw GoogleSignInError.notConnected(service: Self.service) }
         if let cached = Cache.earnings(newerThan: Cache.freshness) { return cached }
 
-        let account: String
-        if let saved = connection.account {
-            account = saved
+        var earnings: [AdEarning] = []
+        var publishers: Set<String> = []
+        var failure: Error?
+        for connection in connections {
+            do {
+                let publisher: String
+                if let saved = connection.publisher {
+                    publisher = saved
+                } else {
+                    publisher = try await publisherAccount(as: connection.account)
+                    if let index = connections.firstIndex(where: { $0.account.id == connection.account.id }) {
+                        connections[index].publisher = publisher
+                    }
+                }
+                guard publishers.insert(publisher).inserted else { continue }
+
+                earnings += try await self.earnings(of: publisher, as: connection.account)
+            } catch {
+                failure = error
+            }
+        }
+
+        if let failure {
+            if earnings.isEmpty { throw failure }
         } else {
-            account = try await publisherAccount()
-            self.connection?.account = account
+            Cache.save(earnings)
         }
-
-        async let linkedApps = appStoreIDs(account: account)
-        let report = try await report(account: account)
-        let appStoreIDs = (try? await linkedApps) ?? [:]
-
-        let earnings = report.map {
-            AdEarning(appStoreID: appStoreIDs[$0.appID], appName: $0.appName, date: $0.date, countryCode: $0.countryCode, earnings: $0.earnings)
-        }
-        Cache.save(earnings)
         return earnings
     }
 
+    private func earnings(of publisher: String, as account: GoogleAccount) async throws -> [AdEarning] {
+        async let linkedApps = appStoreIDs(of: publisher, as: account)
+        let report = try await report(of: publisher, as: account)
+        let appStoreIDs = (try? await linkedApps) ?? [:]
+
+        return report.map {
+            AdEarning(appStoreID: appStoreIDs[$0.appID], appName: $0.appName, date: $0.date, countryCode: $0.countryCode, earnings: $0.earnings)
+        }
+    }
+
     /// The App Store ID each AdMob app is linked to, keyed by its `ca-app-pub-…~…` ID.
-    private func appStoreIDs(account: String) async throws -> [String: String] {
+    private func appStoreIDs(of publisher: String, as account: GoogleAccount) async throws -> [String: String] {
         struct Page: Decodable {
             struct App: Decodable {
                 struct Linked: Decodable { let appStoreId: String? }
@@ -168,11 +189,11 @@ final class AdMob {
         var ids: [String: String] = [:]
         var pageToken: String?
         repeat {
-            var components = URLComponents(string: Self.api + account + "/apps")
+            var components = URLComponents(string: Self.api + publisher + "/apps")
             components?.queryItems = [URLQueryItem(name: "pageSize", value: "1000")]
             if let pageToken { components?.queryItems?.append(URLQueryItem(name: "pageToken", value: pageToken)) }
 
-            let page: Page = try await send(URLRequest(url: components?.url ?? URL(filePath: "/")))
+            let page: Page = try await send(URLRequest(url: components?.url ?? URL(filePath: "/")), as: account)
             for app in page.apps ?? [] {
                 ids[app.appId] = app.linkedAppInfo?.appStoreId
             }
@@ -189,7 +210,7 @@ final class AdMob {
         let earnings: Double
     }
 
-    private func report(account: String) async throws -> [ReportRow] {
+    private func report(of publisher: String, as account: GoogleAccount) async throws -> [ReportRow] {
         // The report streams a header, the rows, and a footer as elements of one array.
         struct Element: Decodable {
             struct Row: Decodable {
@@ -217,12 +238,12 @@ final class AdMob {
             ],
         ]
 
-        var request = URLRequest(url: URL(string: Self.api + account + "/networkReport:generate") ?? URL(filePath: "/"))
+        var request = URLRequest(url: URL(string: Self.api + publisher + "/networkReport:generate") ?? URL(filePath: "/"))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let elements: [Element] = try await send(request)
+        let elements: [Element] = try await send(request, as: account)
 
         // The same day an App Store report is dated by: local midnight.
         let formatter = DateFormatter()

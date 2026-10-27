@@ -13,7 +13,6 @@ struct AccountsList: View {
     @State private var connectingAssistant: AIAssistant?
 
     @State private var googleAnalytics = GoogleAnalytics.shared
-    @State private var googleAnalyticsProperties: [GoogleAnalyticsProperty] = []
     @State private var googleAnalyticsError: Error?
 
     @State private var adMob = AdMob.shared
@@ -57,21 +56,26 @@ struct AccountsList: View {
 
             if showsGoogleAnalytics {
                 Section("Web Analytics") {
-                    // A ForEach of one, so the sign-in swipes to delete like every other account.
-                    ForEach(googleAnalytics.isConnected ? ["google"] : [], id: \.self) { _ in
-                        Label("Google Analytics", systemImage: "chart.bar.xaxis")
-                            .contextMenu {
-                                Button("Sign Out", systemImage: "xmark", role: .destructive, action: signOutOfGoogleAnalytics)
+                    ForEach(googleAnalytics.accounts) { account in
+                        NavigationLink(destination: GoogleAnalyticsWebsitesView(account: account)) {
+                            LabeledContent {
+                                Text(googleAnalytics.websites(of: account).map(\.name).formatted(.list(type: .and)))
+                            } label: {
+                                Label(account.email, systemImage: "chart.bar.xaxis")
                             }
-                    }
-                    .onDelete { _ in signOutOfGoogleAnalytics() }
-
-                    if googleAnalytics.isConnected {
-                        googleAnalyticsPropertyPicker
-                    } else {
-                        Button("Sign In to Google Analytics", systemImage: "plus") {
-                            Task { await connectGoogleAnalytics() }
                         }
+                        .contextMenu {
+                            Button("Sign Out", systemImage: "xmark", role: .destructive) {
+                                googleAnalytics.disconnect(account)
+                            }
+                        }
+                    }
+                    .onDelete { offsets in
+                        offsets.map { googleAnalytics.accounts[$0] }.forEach(googleAnalytics.disconnect)
+                    }
+
+                    Button("Sign In to Google Analytics", systemImage: "plus") {
+                        Task { await connectGoogleAnalytics() }
                     }
 
                     if let googleAnalyticsError {
@@ -79,25 +83,24 @@ struct AccountsList: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .task(id: googleAnalytics.isConnected) {
-                    await loadGoogleAnalyticsProperties()
-                }
             }
 
             if showsAdMob {
                 Section {
-                    ForEach(adMob.isConnected ? ["admob"] : [], id: \.self) { _ in
-                        Label("AdMob", systemImage: "rectangle.stack.badge.play")
+                    ForEach(adMob.accounts) { account in
+                        Label(account.email, systemImage: "rectangle.stack.badge.play")
                             .contextMenu {
-                                Button("Sign Out", systemImage: "xmark", role: .destructive, action: adMob.disconnect)
+                                Button("Sign Out", systemImage: "xmark", role: .destructive) {
+                                    adMob.disconnect(account)
+                                }
                             }
                     }
-                    .onDelete { _ in adMob.disconnect() }
+                    .onDelete { offsets in
+                        offsets.map { adMob.accounts[$0] }.forEach(adMob.disconnect)
+                    }
 
-                    if !adMob.isConnected {
-                        Button("Sign In to AdMob", systemImage: "plus") {
-                            Task { await connectAdMob() }
-                        }
+                    Button("Sign In to AdMob", systemImage: "plus") {
+                        Task { await connectAdMob() }
                     }
 
                     if let adMobError {
@@ -182,24 +185,6 @@ struct AccountsList: View {
         GoogleSignIn.isAvailable && (!accountManager.accounts.isEmpty || adMob.isConnected)
     }
 
-    private func signOutOfGoogleAnalytics() {
-        googleAnalytics.disconnect()
-        googleAnalyticsProperties = []
-    }
-
-    /// Which of the reader's Google Analytics properties is the website they write about their apps on.
-    @ViewBuilder
-    private var googleAnalyticsPropertyPicker: some View {
-        Picker("Website", selection: Binding(get: { googleAnalytics.property }, set: { $0.map(googleAnalytics.setProperty) })) {
-            if googleAnalytics.property == nil {
-                Text("Choose…").tag(GoogleAnalyticsProperty?.none)
-            }
-            ForEach(googleAnalyticsProperties) { property in
-                Text("\(property.name) (\(property.accountName))").tag(Optional(property))
-            }
-        }
-    }
-
     private func connectGoogleAnalytics() async {
         googleAnalyticsError = nil
         let request = GoogleAnalytics.signInRequest()
@@ -223,16 +208,6 @@ struct AccountsList: View {
             return
         } catch {
             adMobError = error
-        }
-    }
-
-    private func loadGoogleAnalyticsProperties() async {
-        guard googleAnalytics.isConnected else { return }
-
-        do {
-            googleAnalyticsProperties = try await googleAnalytics.properties()
-        } catch {
-            googleAnalyticsError = error
         }
     }
 
@@ -277,6 +252,63 @@ struct AccountStatusSymbol: View {
                 status = APIError(err)
             }
             loading = false
+        }
+    }
+}
+
+/// Which of one Google account's Analytics properties are websites the reader writes about their apps on.
+private struct GoogleAnalyticsWebsitesView: View {
+
+    let account: GoogleAccount
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var googleAnalytics = GoogleAnalytics.shared
+    @State private var properties: [GoogleAnalyticsProperty]?
+    @State private var error: Error?
+
+    var body: some View {
+        List {
+            if let properties {
+                ForEach(Dictionary(grouping: properties, by: \.accountName).sorted { $0.key < $1.key }, id: \.key) { accountName, properties in
+                    Section(accountName) {
+                        ForEach(properties) { property in
+                            let isChosen = googleAnalytics.websites(of: account).contains { $0.id == property.id }
+                            Button {
+                                googleAnalytics.setWebsite(property, isChosen: !isChosen, of: account)
+                            } label: {
+                                LabeledContent(property.name) {
+                                    if isChosen {
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(.tint)
+                                    }
+                                }
+                                .contentShape(.rect)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            } else if let error {
+                Text(error.localizedDescription)
+                    .foregroundStyle(.secondary)
+            } else {
+                ProgressView()
+            }
+
+            Section {
+                Button("Sign Out", role: .destructive) {
+                    googleAnalytics.disconnect(account)
+                    dismiss()
+                }
+            }
+        }
+        .navigationTitle(account.email)
+        .task {
+            do {
+                properties = try await googleAnalytics.properties(of: account)
+            } catch {
+                self.error = error
+            }
         }
     }
 }

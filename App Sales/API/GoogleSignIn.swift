@@ -19,8 +19,17 @@ enum GoogleSignInError: LocalizedError {
     }
 }
 
+/// One Google identity signed in to one service. A reader can have several — a work account managed
+/// by their employer beside a personal one — so each service keeps a list of them.
+struct GoogleAccount: Codable, Hashable, Identifiable {
+    /// Google's stable user ID (`sub`), so signing in again replaces rather than duplicates.
+    let id: String
+    let email: String
+    var refreshToken: String
+}
+
 /// The OAuth plumbing every Google service App Sales reads shares: one client, a PKCE sign-in per
-/// scope, and the token endpoint. Each service keeps its own refresh token, so signing in to one
+/// scope, and the token endpoint. Each service keeps its own refresh tokens, so signing in to one
 /// never asks for another's permission and signing out of one leaves the other alone.
 enum GoogleSignIn {
 
@@ -45,7 +54,8 @@ enum GoogleSignIn {
             URLQueryItem(name: "client_id", value: clientID),
             URLQueryItem(name: "redirect_uri", value: redirectURI),
             URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: scope),
+            // `openid email` names the account, so several sign-ins can be told apart.
+            URLQueryItem(name: "scope", value: "openid email " + scope),
             URLQueryItem(name: "code_challenge", value: challenge),
             URLQueryItem(name: "code_challenge_method", value: "S256"),
         ]
@@ -56,10 +66,11 @@ enum GoogleSignIn {
         let accessToken: String
         let expires: Date
         let refreshToken: String?
+        let idToken: String?
     }
 
     /// Trades the URL the browser session was redirected to for a token that can refresh itself.
-    static func finish(callback: URL, verifier: String) async throws -> (token: Token, refreshToken: String) {
+    static func finish(callback: URL, verifier: String) async throws -> (token: Token, account: GoogleAccount) {
         let items = URLComponents(url: callback, resolvingAgainstBaseURL: false)?.queryItems ?? []
         guard let code = items.first(where: { $0.name == "code" })?.value else {
             throw GoogleSignInError.google(items.first(where: { $0.name == "error" })?.value ?? "Google did not sign you in.")
@@ -74,7 +85,29 @@ enum GoogleSignIn {
         guard let refreshToken = token.refreshToken else {
             throw GoogleSignInError.google("Google did not grant offline access.")
         }
-        return (token, refreshToken)
+        guard let identity = token.idToken.flatMap({ Identity(idToken: $0) }) else {
+            throw GoogleSignInError.google("Google did not say who signed in.")
+        }
+        return (token, GoogleAccount(id: identity.sub, email: identity.email ?? identity.sub, refreshToken: refreshToken))
+    }
+
+    /// The claims of an ID token. It came straight from Google's token endpoint over TLS, so its
+    /// signature is not checked.
+    private struct Identity: Decodable {
+        let sub: String
+        let email: String?
+
+        init?(idToken: String) {
+            let parts = idToken.split(separator: ".")
+            guard parts.count == 3 else { return nil }
+
+            var payload = parts[1].replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+            payload += String(repeating: "=", count: (4 - payload.count % 4) % 4)
+            guard let data = Data(base64Encoded: payload),
+                  let identity = try? JSONDecoder().decode(Self.self, from: data) else { return nil }
+
+            self = identity
+        }
     }
 
     static func refresh(_ refreshToken: String, service: String) async throws -> Token {
@@ -86,6 +119,7 @@ enum GoogleSignIn {
             let accessToken: String
             let expiresIn: TimeInterval
             let refreshToken: String?
+            let idToken: String?
         }
 
         var components = URLComponents()
@@ -103,7 +137,7 @@ enum GoogleSignIn {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         if (response as? HTTPURLResponse)?.statusCode == 200 {
             let response = try decoder.decode(Response.self, from: data)
-            return Token(accessToken: response.accessToken, expires: .now.addingTimeInterval(response.expiresIn - 60), refreshToken: response.refreshToken)
+            return Token(accessToken: response.accessToken, expires: .now.addingTimeInterval(response.expiresIn - 60), refreshToken: response.refreshToken, idToken: response.idToken)
         }
 
         struct TokenError: Decodable { let error: String; let errorDescription: String? }
@@ -132,6 +166,39 @@ enum GoogleSignIn {
             invalidate()
         }
         throw GoogleSignInError.google((try? JSONDecoder().decode(ErrorResponse.self, from: data))?.error.message ?? String(localized: "\(service) could not be reached."))
+    }
+}
+
+/// A service's access tokens, one per signed-in account, held in memory only since each lasts an hour.
+@MainActor
+final class GoogleAccessTokens {
+
+    private let service: String
+    private var tokens: [GoogleAccount.ID: GoogleSignIn.Token] = [:]
+
+    init(service: String) {
+        self.service = service
+    }
+
+    func store(_ token: GoogleSignIn.Token, for account: GoogleAccount) {
+        tokens[account.id] = token
+    }
+
+    func remove(_ account: GoogleAccount) {
+        tokens[account.id] = nil
+    }
+
+    /// Throws `signInExpired` when Google refuses the account's refresh token, for the caller to sign it out.
+    func send<T: Decodable>(_ request: URLRequest, as account: GoogleAccount) async throws -> T {
+        try await GoogleSignIn.send(request, accessToken: try await accessToken(for: account), service: service) { tokens[account.id] = nil }
+    }
+
+    private func accessToken(for account: GoogleAccount) async throws -> String {
+        if let token = tokens[account.id], token.expires > .now { return token.accessToken }
+
+        let token = try await GoogleSignIn.refresh(account.refreshToken, service: service)
+        tokens[account.id] = token
+        return token.accessToken
     }
 }
 
