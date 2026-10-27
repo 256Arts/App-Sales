@@ -1,6 +1,7 @@
 import SwiftUI
 import AuthenticationServices
 
+/// Every account the app reads from, in one list, above the one place to add another.
 struct AccountsList: View {
 
     @AppStorage(UserDefaults.Key.includeRedownloads, store: UserDefaults.shared) var includeRedownloads: Bool = false
@@ -11,143 +12,99 @@ struct AccountsList: View {
 
     @State private var assistants = AIAssistants.shared
     @State private var connectingAssistant: AIAssistant?
-
     @State private var googleAnalytics = GoogleAnalytics.shared
-    @State private var googleAnalyticsError: Error?
-
     @State private var adMob = AdMob.shared
-    @State private var adMobError: Error?
 
     @State private var showingAddAccount: Bool = false
-    @State private var cachedEntries: Int = 0
-    @State private var updateSheetVisible = false
+    /// An App Store Connect key asked to be removed. Its private key cannot be downloaded again, so
+    /// removing it is confirmed.
+    @State private var removingAccount: Account?
+    @State private var signInError: Error?
 
     var body: some View {
         List {
-            Section("App Store Connect") {
-                ForEach(accountManager.accounts) { account in
-                    NavigationLink(destination: AccountDetailView(account)) {
-                        LabeledContent(account.name) {
-                            AccountStatusSymbol(account: account)
-                        }
-                    }
-                }
-                .onDelete(perform: deleteKey)
-
-                if accountManager.accounts.count > 1 {
+            if accountManager.accounts.count > 1 {
+                Section {
                     Picker("Current Account", selection: currentAccount) {
                         ForEach(accountManager.accounts) { account in
                             Text(account.name).tag(account.id)
                         }
                     }
                 }
-
-                Button("Sign In to App Store Connect", systemImage: "plus") {
-                    showingAddAccount.toggle()
-                }
-                .contextMenu {
-                    if accountManager.getApiKey(apiKeyId: "demo") == nil {
-                        Button("Add Demo Account") {
-                            try? accountManager.addApiKey(apiKey: Account.demoAccount)
-                        }
-                    }
-                }
             }
 
-            if showsGoogleAnalytics {
-                Section("Web Analytics") {
+            if !isEmpty {
+                Section("Accounts") {
+                    ForEach(accountManager.accounts) { account in
+                        NavigationLink(destination: AccountDetailView(account)) {
+                            LabeledContent {
+                                AccountStatusSymbol(account: account)
+                            } label: {
+                                AccountLabel(account.name, service: "App Store Connect") {
+                                    Image("logo.appstore")
+                                }
+                            }
+                        }
+                        .contextMenu {
+                            signOutButton { removingAccount = account }
+                        }
+                    }
+                    .onDelete { offsets in
+                        removingAccount = offsets.first.map { accountManager.accounts[$0] }
+                    }
+
                     ForEach(googleAnalytics.accounts) { account in
                         NavigationLink(destination: GoogleAnalyticsWebsitesView(account: account)) {
                             LabeledContent {
                                 Text(googleAnalytics.websites(of: account).map(\.name).formatted(.list(type: .and)))
                             } label: {
-                                Label(account.email, systemImage: "chart.bar.xaxis")
+                                AccountLabel(account.email, service: "Google Analytics") {
+                                    Image(systemName: "chart.bar.xaxis")
+                                }
                             }
                         }
                         .contextMenu {
-                            Button("Sign Out", systemImage: "xmark", role: .destructive) {
-                                googleAnalytics.disconnect(account)
-                            }
+                            signOutButton { googleAnalytics.disconnect(account) }
                         }
                     }
                     .onDelete { offsets in
                         offsets.map { googleAnalytics.accounts[$0] }.forEach(googleAnalytics.disconnect)
                     }
 
-                    Button("Sign In to Google Analytics", systemImage: "plus") {
-                        Task { await connectGoogleAnalytics() }
-                    }
-
-                    if let googleAnalyticsError {
-                        Text(googleAnalyticsError.localizedDescription)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-
-            if showsAdMob {
-                Section {
                     ForEach(adMob.accounts) { account in
-                        Label(account.email, systemImage: "rectangle.stack.badge.play")
-                            .contextMenu {
-                                Button("Sign Out", systemImage: "xmark", role: .destructive) {
-                                    adMob.disconnect(account)
-                                }
-                            }
+                        AccountLabel(account.email, service: "AdMob") {
+                            Image(systemName: "rectangle.stack.badge.play")
+                        }
+                        .contextMenu {
+                            signOutButton { adMob.disconnect(account) }
+                        }
                     }
                     .onDelete { offsets in
                         offsets.map { adMob.accounts[$0] }.forEach(adMob.disconnect)
                     }
 
-                    Button("Sign In to AdMob", systemImage: "plus") {
-                        Task { await connectAdMob() }
-                    }
-
-                    if let adMobError {
-                        Text(adMobError.localizedDescription)
-                            .foregroundStyle(.secondary)
-                    }
-                } header: {
-                    Text("Ads")
-                } footer: {
-                    Text("Estimated ad earnings count toward proceeds.")
-                }
-            }
-
-            Section("AI Assistants") {
-                ForEach(assistants.connected) { assistant in
-                    Label(assistant.name, systemImage: assistant.systemImage)
-                        .contextMenu {
-                            Button("Sign Out", systemImage: "xmark", role: .destructive) {
-                                assistants.disconnect(assistant)
-                            }
+                    ForEach(assistants.connected) { assistant in
+                        AccountLabel(assistant.name, service: "Usage Limits") {
+                            Image(systemName: assistant.systemImage)
                         }
-                }
-                .onDelete { offsets in
-                    offsets.map { assistants.connected[$0] }.forEach(assistants.disconnect)
-                }
-
-                ForEach(AIAssistant.allCases.filter { !assistants.connected.contains($0) }) { assistant in
-                    Button("Sign In to \(assistant.name)", systemImage: "plus") {
-                        connectingAssistant = assistant
+                        .contextMenu {
+                            signOutButton { assistants.disconnect(assistant) }
+                        }
+                    }
+                    .onDelete { offsets in
+                        offsets.map { assistants.connected[$0] }.forEach(assistants.disconnect)
                     }
                 }
             }
 
-//            Section {
-//                Toggle("INCLUDE_REDOWNLOADS", isOn: $includeRedownloads)
-//                Text("Cached entries: \(cachedEntries)")
-//                    .onAppear {
-//                        self.cachedEntries = ACDataCache.numberOfEntriesCached()
-//                    }
-//
-//                Button("Clear cache", role: .destructive) {
-//                    AppStoreConnectAPI.clearMemoization()
-//                    Account.clearMemoization()
-//                    ACDataCache.clearCache()
-//                    self.cachedEntries = ACDataCache.numberOfEntriesCached()
-//                }
-//            }
+            Section {
+                addAccountMenu
+
+                if let signInError {
+                    Text(signInError.localizedDescription)
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
         .navigationTitle("Accounts")
         .toolbar {
@@ -157,6 +114,14 @@ struct AccountsList: View {
                 }
             }
         }
+        .confirmationDialog("Sign out of \(removingAccount?.name ?? "")?", isPresented: Binding(get: { removingAccount != nil }, set: { if !$0 { removingAccount = nil } }), presenting: removingAccount) { account in
+            Button("Sign Out", role: .destructive) {
+                ACDataCache.clearCache(apiKey: account)
+                accountManager.deleteApiKeys(keys: [account])
+            }
+        } message: { _ in
+            Text("Signing in again needs the API key's private key file, which App Store Connect does not let you download twice.")
+        }
         .sheet(isPresented: $showingAddAccount) {
             NavigationStack {
                 NewAccountView()
@@ -164,6 +129,64 @@ struct AccountsList: View {
         }
         .sheet(item: $connectingAssistant) { assistant in
             AIUsageSignInSheet(assistant: assistant)
+        }
+    }
+
+    private var isEmpty: Bool {
+        accountManager.accounts.isEmpty && !googleAnalytics.isConnected && !adMob.isConnected && assistants.connected.isEmpty
+    }
+
+    /// The one sign-out every account row offers on a long press, beside its swipe to delete.
+    private func signOutButton(action: @escaping () -> Void) -> some View {
+        Button("Sign Out", systemImage: "rectangle.portrait.and.arrow.right", role: .destructive, action: action)
+    }
+
+    private var addAccountMenu: some View {
+        Menu {
+            Button {
+                showingAddAccount = true
+            } label: {
+                Text("App Store Connect")
+                Text("Sales, downloads, and proceeds")
+                Image("logo.appstore")
+            }
+
+            // Google services enrich App Store Connect data, so they wait for an account.
+            if GoogleSignIn.isAvailable, !accountManager.accounts.isEmpty {
+                Button {
+                    Task { await signIn(request: GoogleAnalytics.signInRequest(), connect: googleAnalytics.connect) }
+                } label: {
+                    Text("Google Analytics")
+                    Text("Views of each app's webpage")
+                    Image(systemName: "chart.bar.xaxis")
+                }
+                Button {
+                    Task { await signIn(request: AdMob.signInRequest(), connect: adMob.connect) }
+                } label: {
+                    Text("AdMob")
+                    Text("Estimated ad earnings count toward proceeds")
+                    Image(systemName: "rectangle.stack.badge.play")
+                }
+            }
+
+            ForEach(AIAssistant.allCases.filter { !assistants.connected.contains($0) }) { assistant in
+                Button {
+                    connectingAssistant = assistant
+                } label: {
+                    Text(assistant.name)
+                    Text("Usage limits")
+                    Image(systemName: assistant.systemImage)
+                }
+            }
+
+            if accountManager.getApiKey(apiKeyId: "demo") == nil {
+                Divider()
+                Button("Demo Account", systemImage: "theatermasks") {
+                    try? accountManager.addApiKey(apiKey: Account.demoAccount)
+                }
+            }
+        } label: {
+            Label("Add Account", systemImage: "plus")
         }
     }
 
@@ -176,45 +199,39 @@ struct AccountsList: View {
         }
     }
 
-    // Google services enrich App Store Connect data, so they wait for an account — unless one is already signed in, to keep its sign-out reachable.
-    private var showsGoogleAnalytics: Bool {
-        GoogleSignIn.isAvailable && (!accountManager.accounts.isEmpty || googleAnalytics.isConnected)
-    }
-
-    private var showsAdMob: Bool {
-        GoogleSignIn.isAvailable && (!accountManager.accounts.isEmpty || adMob.isConnected)
-    }
-
-    private func connectGoogleAnalytics() async {
-        googleAnalyticsError = nil
-        let request = GoogleAnalytics.signInRequest()
+    /// Runs a Google sign-in in a browser session and hands its callback to the service.
+    private func signIn(request: (url: URL, verifier: String), connect: (URL, String) async throws -> Void) async {
+        signInError = nil
         do {
             let callback = try await webAuthenticationSession.authenticate(using: request.url, callback: .customScheme(GoogleSignIn.callbackScheme), additionalHeaderFields: [:])
-            try await googleAnalytics.connect(callback: callback, verifier: request.verifier)
+            try await connect(callback, request.verifier)
         } catch ASWebAuthenticationSessionError.canceledLogin {
             return
         } catch {
-            googleAnalyticsError = error
+            signInError = error
         }
     }
+}
 
-    private func connectAdMob() async {
-        adMobError = nil
-        let request = AdMob.signInRequest()
-        do {
-            let callback = try await webAuthenticationSession.authenticate(using: request.url, callback: .customScheme(GoogleSignIn.callbackScheme), additionalHeaderFields: [:])
-            try await adMob.connect(callback: callback, verifier: request.verifier)
-        } catch ASWebAuthenticationSessionError.canceledLogin {
-            return
-        } catch {
-            adMobError = error
-        }
+/// An account's name over the service it signs in to.
+private struct AccountLabel<Icon: View>: View {
+    let name: String
+    let service: LocalizedStringKey
+    @ViewBuilder let icon: Icon
+
+    init(_ name: String, service: LocalizedStringKey, @ViewBuilder icon: () -> Icon) {
+        self.name = name
+        self.service = service
+        self.icon = icon()
     }
 
-    private func deleteKey(at offsets: IndexSet) {
-        let keys = offsets.map({ accountManager.accounts[$0] })
-        keys.forEach { ACDataCache.clearCache(apiKey: $0) }
-        accountManager.deleteApiKeys(keys: keys)
+    var body: some View {
+        Label {
+            Text(name)
+            Text(service)
+        } icon: {
+            icon
+        }
     }
 }
 
