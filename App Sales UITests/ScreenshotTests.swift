@@ -79,16 +79,28 @@ final class ScreenshotTests: XCTestCase {
         #if os(watchOS)
         return false
         #else
-        let stage = element("Funnel")
-        for _ in 0..<8 {
-            if stage.exists, stage.isHittable { return true }
+        let stage = app.descendants(matching: .any)["Funnel.Last"]
+        let window = app.windows.firstMatch
+        func inView() -> Bool { stage.exists && stage.isHittable && stage.frame.maxY <= window.frame.maxY }
+        // Small steps on the Mac, whose short window would otherwise scroll the pies out of frame.
+        #if os(macOS)
+        let steps = 30
+        #else
+        let steps = 8
+        #endif
+        for _ in 0..<steps {
+            if inView() { return true }
             #if os(macOS)
-            app.windows.firstMatch.scroll(byDeltaX: 0, deltaY: -300)
+            // Below the chart, which sits at the window's centre and would take the scroll itself.
+            app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.9)).scroll(byDeltaX: 0, deltaY: -80)
+            #elseif os(visionOS)
+            // visionOS has no scene for a swipe on the app itself, so swipe the Summary's own list.
+            app.collectionViews.containing(.any, identifier: "Summary.Proceeds").firstMatch.swipeUp(velocity: .slow)
             #else
             app.swipeUp(velocity: .slow)
             #endif
         }
-        return stage.exists && stage.isHittable
+        return inView()
         #endif
     }
 

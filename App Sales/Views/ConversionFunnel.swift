@@ -55,6 +55,8 @@ struct ConversionFunnel: View {
                     .frame(height: 8)
                 }
                 .accessibilityElement(children: .combine)
+                // The screenshot walk scrolls until this is in view.
+                .accessibilityIdentifier(index == stages.count - 1 ? "Funnel.Last" : "")
             }
         }
         .padding(.vertical, 4)
