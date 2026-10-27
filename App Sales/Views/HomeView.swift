@@ -394,12 +394,11 @@ struct HomeView: View {
         return stages
     }
 
-    /// The summary chart's height: shorter on a phone, and much shorter turned on its side, where
-    /// it would otherwise fill the screen.
+    /// The summary chart's height: shorter on a phone, much shorter turned on its side, where it
+    /// would otherwise fill the screen, and as short on a Mac or Vision Pro, where a window that
+    /// starts small would otherwise be all chart.
     private var chartHeight: CGFloat {
-        #if os(visionOS)
-        300
-        #elseif os(iOS)
+        #if os(iOS)
         if verticalSizeClass == .compact {
             300
         } else if horizontalSizeClass == .compact {
@@ -408,7 +407,7 @@ struct HomeView: View {
             420
         }
         #else
-        420
+        300
         #endif
     }
 
