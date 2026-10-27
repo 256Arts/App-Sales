@@ -179,7 +179,8 @@ struct AccountsList: View {
                 }
             }
 
-            if accountManager.getApiKey(apiKeyId: "demo") == nil {
+            // The demo is for a first look, so it goes once anything is signed in, itself included.
+            if isEmpty {
                 Divider()
                 Button("Demo Account", systemImage: "theatermasks") {
                     try? accountManager.addApiKey(apiKey: Account.demoAccount)
