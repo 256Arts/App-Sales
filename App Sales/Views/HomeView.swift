@@ -228,8 +228,10 @@ struct HomeView: View {
                                             // so a capture cannot beat the fetched data onto the screen.
                                             identifier: "Summary.Proceeds")
                                     }
-                                    if let activeDevices {
-                                        let total = summary.apps.reduce(0) { $0 + (activeDevices[$1.appleID] ?? 0) }
+                                    if activeDevices != nil, case .ready(let analytics) = appStoreAnalytics {
+                                        // The account's devices on an average day, the funnel's figure, rather than
+                                        // each app's own average summed, which overcounts apps with fewer days of data.
+                                        let total = analytics.totals().averageDailyActiveDevices
                                         legendEntry(.activeDevices, charted: shownStat) {
                                             SummaryStat(
                                                 name: AppListSort.activeDevices.title,
@@ -292,13 +294,22 @@ struct HomeView: View {
                         }
                     }
 
+                    let income = data.incomeBySource()
+                    // One source would be a full circle, which says nothing.
+                    if income.count > 1 {
+                        Section {
+                            IncomePieCard(shares: income)
+                                .padding(.vertical, 8)
+                        }
+                    }
+
                     let devices = data.downloadsByDevice()
                     let regions = data.downloadsByRegion()
                     if !devices.isEmpty || !regions.isEmpty {
                         Section {
                             HStack(alignment: .top, spacing: isWide ? 32 : 20) {
-                                DownloadsPieCard(title: "Downloads by Device", shares: devices)
-                                DownloadsPieCard(title: "Downloads by Region", shares: regions)
+                                SharePieCard(title: "Downloads by Device", shares: devices)
+                                SharePieCard(title: "Downloads by Region", shares: regions)
                             }
                             .padding(.vertical, 8)
                         }
@@ -368,28 +379,40 @@ struct HomeView: View {
         .accessibilityHint(charted == stat ? Text("Shows every stat again") : Text("Charts each app's figure by day"))
     }
 
-    /// From the webpage to active devices, leaving out whatever is not connected. Downloads are
-    /// counted over the analytics reports' days when there are any, so each step compares like with
-    /// like. Nil without a stage ahead of downloads, as there is no funnel.
+    /// From the webpage to active devices, leaving out whatever is not connected, each with its change
+    /// on the 30 days before. Downloads are counted over the analytics reports' days when there are
+    /// any, so each step compares like with like. Nil without a stage ahead of downloads, as there is
+    /// no funnel.
     private func funnel(data: ACData, summary: PerformanceSummary) -> [FunnelStage]? {
-        var stages: [FunnelStage] = []
-        if !googleAnalytics.websites.isEmpty, !websiteTraffic.isEmpty {
-            stages.append(FunnelStage(stat: .websiteViews, color: .teal, count: websiteTraffic.values.reduce(0) { $0 + $1.views }))
+        func change(_ previous: Int?, _ current: Int) -> Double? {
+            previous.map { PerformanceSummary.percentageChange(from: Double($0), to: Double(current)) }
         }
 
-        var downloads = summary.downloads
-        var activeDevices: Int?
+        var stages: [FunnelStage] = []
+        if !googleAnalytics.websites.isEmpty, !websiteTraffic.isEmpty {
+            let views = websiteTraffic.values.reduce(0) { $0 + $1.views }
+            let previousViews = websiteTraffic.values.reduce(0) { $0 + $1.previousViews }
+            stages.append(FunnelStage(stat: .websiteViews, color: .teal, count: views, change: change(previousViews, views)))
+        }
+
+        var downloads = FunnelStage(stat: .downloads, color: .blue, count: summary.downloads, change: summary.downloadsPercentageChange)
+        var activeDevices: FunnelStage?
         if case .ready(let analytics) = appStoreAnalytics, !analytics.isEmpty {
             let totals = analytics.totals()
-            downloads = Int(data.getTotal(for: .downloads, in: analytics.range))
-            activeDevices = totals.averageDailyActiveDevices
-            stages.append(FunnelStage(stat: .appStoreViews, color: .indigo, count: totals.pageViews))
+            let previous = analytics.previousTotals()
+            let count = Int(data.getTotal(for: .downloads, in: analytics.range))
+            downloads = FunnelStage(stat: .downloads, color: .blue, count: count,
+                                    change: change(Int(data.getTotal(for: .downloads, in: analytics.previousRange)), count))
+            activeDevices = FunnelStage(stat: .activeDevices, color: .orange, count: totals.averageDailyActiveDevices,
+                                        change: change(previous?.averageDailyActiveDevices, totals.averageDailyActiveDevices))
+            stages.append(FunnelStage(stat: .appStoreViews, color: .indigo, count: totals.pageViews,
+                                      change: change(previous?.pageViews, totals.pageViews)))
         }
         guard !stages.isEmpty else { return nil }
 
-        stages.append(FunnelStage(stat: .downloads, color: .blue, count: downloads))
+        stages.append(downloads)
         if let activeDevices {
-            stages.append(FunnelStage(stat: .activeDevices, color: .orange, count: activeDevices))
+            stages.append(activeDevices)
         }
         return stages
     }
@@ -758,13 +781,6 @@ private struct SummaryStat: View {
     /// Shows `value` and `caption` as placeholders, the figure still on its way.
     var isLoading = false
 
-    private static let percentFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .percent
-        formatter.negativePrefix = ""
-        return formatter
-    }()
-
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
@@ -780,8 +796,7 @@ private struct SummaryStat: View {
 
             Group {
                 if let change {
-                    Text("\(Image(systemName: change < 0 ? "arrow.down.forward" : "arrow.up.forward"))\(Self.percentFormatter.string(from: NSNumber(value: change)) ?? "")")
-                        .foregroundStyle(change < 0 ? Color.red : Color.green)
+                    PercentChange(change: change)
                 } else if let caption {
                     Text(caption)
                         .foregroundStyle(.secondary)
@@ -794,6 +809,24 @@ private struct SummaryStat: View {
         .minimumScaleFactor(0.7)
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier(identifier)
+    }
+}
+
+/// A change on the period before: an arrow and an unsigned percentage, green up and red down.
+struct PercentChange: View {
+
+    let change: Double
+
+    private static let percentFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .percent
+        formatter.negativePrefix = ""
+        return formatter
+    }()
+
+    var body: some View {
+        Text("\(Image(systemName: change < 0 ? "arrow.down.forward" : "arrow.up.forward"))\(Self.percentFormatter.string(from: NSNumber(value: change)) ?? "")")
+            .foregroundStyle(change < 0 ? Color.red : Color.green)
     }
 }
 

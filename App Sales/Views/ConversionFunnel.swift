@@ -5,16 +5,31 @@ struct FunnelStage: Identifiable {
     let stat: AppListSort
     let color: Color
     let count: Int
+    /// The change on the 30 days before, when there is a figure to compare with.
+    var change: Double?
 
     var id: AppListSort { stat }
 }
 
-/// The funnel from the webpage to active devices, a row per stage: its name and figure, with the share
-/// of the stage before that made it through, over a bar centred and as wide as its share of the widest,
+/// The funnel from the webpage to active devices, a row per stage: its name, figure, and trend, with
+/// the share of the stage before that made it through, over a bar centred and as wide as its share of the widest,
 /// so the bars taper like a funnel across the full width.
 struct ConversionFunnel: View {
 
     let stages: [FunnelStage]
+
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #endif
+
+    /// Trends only where there is room for them: a compact row has no space beside the share and figure.
+    private var showsTrends: Bool {
+        #if os(iOS)
+        horizontalSizeClass == .regular
+        #else
+        true
+        #endif
+    }
 
     private var widest: Int {
         stages.map(\.count).max() ?? 0
@@ -41,6 +56,11 @@ struct ConversionFunnel: View {
                         Text(stage.count.formatted())
                             .fontWeight(.semibold)
                             .layoutPriority(1)
+                        if showsTrends, let change = stage.change {
+                            PercentChange(change: change)
+                                .font(.caption)
+                                .layoutPriority(1)
+                        }
                     }
                     .lineLimit(1)
                     .monospacedDigit()
@@ -66,10 +86,10 @@ struct ConversionFunnel: View {
 #Preview {
     List {
         ConversionFunnel(stages: [
-            FunnelStage(stat: .websiteViews, color: .teal, count: 4_200),
-            FunnelStage(stat: .appStoreViews, color: .indigo, count: 12_800),
-            FunnelStage(stat: .downloads, color: .blue, count: 3_100),
-            FunnelStage(stat: .activeDevices, color: .orange, count: 840),
+            FunnelStage(stat: .websiteViews, color: .teal, count: 4_200, change: 0.12),
+            FunnelStage(stat: .appStoreViews, color: .indigo, count: 12_800, change: -0.04),
+            FunnelStage(stat: .downloads, color: .blue, count: 3_100, change: 0.08),
+            FunnelStage(stat: .activeDevices, color: .orange, count: 840, change: 0.21),
         ])
     }
 }

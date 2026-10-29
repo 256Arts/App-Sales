@@ -175,7 +175,7 @@ final class AppStoreConnectAPI {
         // rows become requests.
         var requests: [String: ITunesAppRequest] = [:]
         var countrySales: [String: [String: Int]] = [:]
-        for entry in entries where entry.type != .iap && entry.type != .restoredIap {
+        for entry in entries where ![.iap, .subscription, .restoredIap].contains(entry.type) {
             if requests[entry.appIdentifier] == nil {
                 requests[entry.appIdentifier] = .init(appleID: entry.appIdentifier, name: entry.appTitle, sku: entry.appSKU, storefront: nil)
             }

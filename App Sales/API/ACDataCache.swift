@@ -16,8 +16,9 @@ class ACDataCache {
         let objects: [CacheObject]
     }
 
-    /// How many days of reports are fetched and kept — the home screen and widgets compare the last 30 days with the 30 before.
-    static let retainedDays = 60
+    /// How many days of reports are fetched and kept — the home screen and widgets compare the last 30 days with the 30 before,
+    /// and the funnel does the same over the analytics reports' window, which ends up to a week earlier.
+    static let retainedDays = 70
 
     private struct CacheObject: Codable {
         let apiKeyId: String

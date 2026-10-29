@@ -14,6 +14,8 @@ struct WebPageTraffic: Hashable {
     /// The page counted: the one the reader set, or the one found by the app's name.
     let url: URL
     let views: Int
+    /// Views over the 30 days before.
+    let previousViews: Int
 }
 
 /// The reader's Google Analytics sign-ins, which of each one's properties are their websites, and
@@ -166,8 +168,9 @@ final class GoogleAnalytics {
         guard !reports.isEmpty else { throw GoogleSignInError.notConnected(service: Self.service) }
 
         var pages: [WebPage: Int] = [:]
+        var previousPages: [WebPage: Int] = [:]
         var failure: Error?
-        await withTaskGroup(of: Result<[WebPage: Int], Error>.self) { group in
+        await withTaskGroup(of: Result<PageViews, Error>.self) { group in
             for (account, property) in reports {
                 group.addTask {
                     do { return .success(try await self.pages(of: property, as: account)) } catch { return .failure(error) }
@@ -175,7 +178,9 @@ final class GoogleAnalytics {
             }
             for await result in group {
                 switch result {
-                case .success(let report): pages.merge(report, uniquingKeysWith: +)
+                case .success(let report):
+                    pages.merge(report.current, uniquingKeysWith: +)
+                    previousPages.merge(report.previous, uniquingKeysWith: +)
                 case .failure(let error): failure = error
                 }
             }
@@ -185,17 +190,19 @@ final class GoogleAnalytics {
         var traffic: [String: WebPageTraffic] = [:]
         for app in apps {
             if let url = pageURLs[app.appleID] {
-                traffic[app.appleID] = WebPageTraffic(url: url, views: pages[WebPage(url)] ?? 0)
+                traffic[app.appleID] = WebPageTraffic(url: url, views: pages[WebPage(url)] ?? 0, previousViews: previousPages[WebPage(url)] ?? 0)
             } else if let match = Self.page(named: app.name, in: pages) {
-                traffic[app.appleID] = WebPageTraffic(url: match.page.url, views: match.views)
+                traffic[app.appleID] = WebPageTraffic(url: match.page.url, views: match.views, previousViews: previousPages[match.page] ?? 0)
             }
         }
         return traffic
     }
 
-    /// Every page of one website and its views. One report of every page, rather than one per app,
-    /// so matching by name costs nothing extra.
-    private func pages(of property: GoogleAnalyticsProperty, as account: GoogleAccount) async throws -> [WebPage: Int] {
+    private typealias PageViews = (current: [WebPage: Int], previous: [WebPage: Int])
+
+    /// Every page of one website and its views, over the last 30 days and the 30 before. One report
+    /// of every page, rather than one per app, so matching by name costs nothing extra.
+    private func pages(of property: GoogleAnalyticsProperty, as account: GoogleAccount) async throws -> PageViews {
         struct Report: Decodable {
             struct Row: Decodable {
                 struct Value: Decodable { let value: String }
@@ -206,7 +213,10 @@ final class GoogleAnalytics {
         }
 
         let body: [String: Any] = [
-            "dateRanges": [["startDate": "30daysAgo", "endDate": "today"]],
+            "dateRanges": [
+                ["startDate": "30daysAgo", "endDate": "today", "name": "current"],
+                ["startDate": "61daysAgo", "endDate": "31daysAgo", "name": "previous"],
+            ],
             "dimensions": [["name": "hostName"], ["name": "pagePath"]],
             "metrics": [["name": "screenPageViews"]],
             "limit": 10_000,
@@ -220,11 +230,17 @@ final class GoogleAnalytics {
         let report: Report = try await send(request, as: account)
 
         // The same page is often reachable with and without `www.` and a trailing slash; those count together.
-        var pages: [WebPage: Int] = [:]
+        // With two date ranges, each row ends with a `dateRange` dimension naming its range.
+        var pages: PageViews = ([:], [:])
         for row in report.rows ?? [] {
-            guard row.dimensionValues.count == 2 else { continue }
+            guard row.dimensionValues.count == 3 else { continue }
             let page = WebPage(host: row.dimensionValues[0].value, path: row.dimensionValues[1].value)
-            pages[page, default: 0] += Int(row.metricValues.first?.value ?? "") ?? 0
+            let views = Int(row.metricValues.first?.value ?? "") ?? 0
+            if row.dimensionValues[2].value == "previous" {
+                pages.previous[page, default: 0] += views
+            } else {
+                pages.current[page, default: 0] += views
+            }
         }
         return pages
     }

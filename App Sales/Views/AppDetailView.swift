@@ -106,19 +106,19 @@ struct AppDetailView: View {
 
             if !devices.isEmpty {
                 Section("Downloads by Device") {
-                    DownloadsPie(shares: devices)
+                    SharePie(shares: devices)
                         .frame(height: 180)
                         .padding(.vertical, 8)
 
                     // The rows double as the pie's legend.
                     ForEach(devices) { share in
                         LabeledContent {
-                            Text(share.downloads, format: .number)
+                            Text(Int(share.value), format: .number)
                         } label: {
                             Label {
                                 Text(share.name)
                             } icon: {
-                                DownloadShareBadge(badge: share.badge)
+                                PieShareBadge(badge: share.badge)
                                     .foregroundStyle(share.color)
                             }
                         }
@@ -290,7 +290,7 @@ struct AppDetailView: View {
         return points
     }
 
-    private var devices: [DownloadShare] {
+    private var devices: [PieShare] {
         data.downloadsByDevice(filteredApps: acApps)
     }
 }

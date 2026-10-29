@@ -16,6 +16,8 @@ enum EventType: String, CaseIterable, Codable {
     case download
     case redownload
     case iap
+    /// An auto-renewable or non-renewing subscription, its renewals included.
+    case subscription
     case restoredIap
     case update
     /// AdMob earnings, from `AdMob` rather than a sales report.
@@ -28,8 +30,10 @@ enum EventType: String, CaseIterable, Codable {
             self = .download
         case "3", "3F", "F3":
             self = .redownload
-        case "FI1", "IA1", "IA1-M", "IA9", "IA9-M", "IAY", "IAY-M":
+        case "FI1", "IA1", "IA1-M":
             self = .iap
+        case "IA9", "IA9-M", "IAY", "IAY-M", "IAC", "IAC-M":
+            self = .subscription
         case "IA3":
             self = .restoredIap
         case "7", "7F", "7T", "F7":

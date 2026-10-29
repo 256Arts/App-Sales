@@ -133,10 +133,10 @@ final class AnalyticsReportsAPI {
         }
     }
 
-    /// Every daily instance of the report from the last few weeks, summarized by day. Instances
+    /// Every daily instance of the report from the last two windows, summarized by day. Instances
     /// already in the cache are not downloaded again: once published, one does not change.
     private func summarizedInstances(reportID: String, report: Report, appleID: String, provider: APIProvider) async throws -> [AnalyticsCache.Instance] {
-        let oldest = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -(AppStoreAnalytics.windowDays + 10), to: .now) ?? .distantPast
+        let oldest = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -(AppStoreAnalytics.windowDays * 2 + 10), to: .now) ?? .distantPast
         var recent: [(id: String, processingDate: String)] = []
         let listing = APIEndpoint.v1.analyticsReports.id(reportID).instances.get(parameters: .init(filterGranularity: [.daily], limit: 200))
         for try await page in provider.paged(listing) {
@@ -212,7 +212,7 @@ enum AnalyticsCache {
 
     /// Adds `instances`, and drops ones processed so long ago they can no longer fall in the window.
     static func save(_ instances: [Instance], account: Account) {
-        let oldest = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -60, to: .now) ?? .distantPast
+        let oldest = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -(AppStoreAnalytics.windowDays * 2 + 20), to: .now) ?? .distantPast
         lock.withLock {
             var storage = load()
             var accountInstances = storage[account.id] ?? [:]

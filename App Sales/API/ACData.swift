@@ -52,7 +52,7 @@ struct ACData: Codable {
         case .updates:
             entries = entries.filter({ $0.type == .update })
         case .iap:
-            entries = entries.filter({ $0.type == .iap })
+            entries = entries.filter({ $0.type == .iap || $0.type == .subscription })
         }
 
         return entries
@@ -228,6 +228,30 @@ struct ACData: Codable {
                     device: device,
                     appIdentifier: app.appleID,
                     type: .download))
+            }
+        }
+
+        // Income beyond paid downloads, for the income pie: a subscription, in-app purchases, and
+        // ads. A generator of its own, so the downloads above stay as they were.
+        var incomeGenerator = SeededGenerator(seed: 20261029)
+        let incomeSources: [(app: ACApp, type: EventType, proceeds: ClosedRange<Float>)] = [
+            (.demo1, .subscription, 20...34),
+            (.demo2, .iap, 8...16),
+            (.demo3, .ad, 4...9),
+        ]
+        for day in -days...0 {
+            guard let date = Calendar.current.date(byAdding: .day, value: day, to: .now) else { continue }
+            for source in incomeSources {
+                entries.append(Event(
+                    appTitle: source.app.name,
+                    appSKU: source.app.sku,
+                    units: 1,
+                    proceeds: Float.random(in: source.proceeds, using: &incomeGenerator),
+                    date: date,
+                    countryCode: "US",
+                    device: source.type == .ad ? "" : "iPhone",
+                    appIdentifier: source.app.appleID,
+                    type: source.type))
             }
         }
 

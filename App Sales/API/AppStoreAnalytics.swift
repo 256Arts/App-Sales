@@ -49,14 +49,25 @@ struct AppStoreAnalytics {
     /// Keyed by the app's Apple ID, then by the start of each day.
     let days: [String: [Date: AnalyticsDay]]
     let range: Range<Date>
+    /// The 30 days before `range`, which trends compare against.
+    let previousRange: Range<Date>
+    /// `days`, over `previousRange`. Empty unless the reports reach back across all of it, so a
+    /// trend never compares a full window with a part of one.
+    private let previousDays: [String: [Date: AnalyticsDay]]
 
     init(days: [String: [Date: AnalyticsDay]]) {
         let calendar = Calendar.autoupdatingCurrent
         let latest = days.values.flatMap(\.keys).max() ?? calendar.startOfDay(for: .now)
         let end = calendar.date(byAdding: .day, value: 1, to: latest) ?? latest
         let start = calendar.date(byAdding: .day, value: -Self.windowDays, to: end) ?? latest
+        let previousStart = calendar.date(byAdding: .day, value: -Self.windowDays, to: start) ?? start
         self.range = start..<end
+        self.previousRange = previousStart..<start
         self.days = days.mapValues { $0.filter { (start..<end).contains($0.key) } }
+        // A day's grace, as an app can go a day without a single view.
+        let earliest = days.values.flatMap(\.keys).min() ?? latest
+        let reachesBack = earliest <= (calendar.date(byAdding: .day, value: 1, to: previousStart) ?? previousStart)
+        self.previousDays = reachesBack ? days.mapValues { $0.filter { (previousStart..<start).contains($0.key) } } : [:]
     }
 
     var isEmpty: Bool {
@@ -65,6 +76,15 @@ struct AppStoreAnalytics {
 
     /// Totals for one app, or for every app when `appleID` is `nil`.
     func totals(for appleID: String? = nil) -> AnalyticsTotals {
+        Self.totals(of: days, for: appleID)
+    }
+
+    /// Totals over `previousRange`, or `nil` when the reports do not reach back that far.
+    func previousTotals(for appleID: String? = nil) -> AnalyticsTotals? {
+        previousDays.values.allSatisfy(\.isEmpty) ? nil : Self.totals(of: previousDays, for: appleID)
+    }
+
+    private static func totals(of days: [String: [Date: AnalyticsDay]], for appleID: String?) -> AnalyticsTotals {
         let apps = appleID.map { [days[$0] ?? [:]] } ?? Array(days.values)
         let byDate = apps.reduce(into: [Date: AnalyticsDay]()) { result, app in
             result.merge(app, uniquingKeysWith: +)
@@ -88,7 +108,7 @@ struct AppStoreAnalytics {
 
         var days: [String: [Date: AnalyticsDay]] = [:]
         for (index, app) in data.apps.enumerated() {
-            for offset in 0..<windowDays {
+            for offset in 0..<windowDays * 2 {
                 guard let date = calendar.date(byAdding: .day, value: -offset, to: latest),
                       let nextDate = calendar.date(byAdding: .day, value: 1, to: date) else { continue }
                 let downloads = Int(data.getTotal(for: .downloads, in: date..<nextDate, filteredApps: [app]))

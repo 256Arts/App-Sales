@@ -1,12 +1,12 @@
 import SwiftUI
 import Charts
 
-/// One slice of a downloads pie: a device or a region, and how many downloads came from it.
-struct DownloadShare: Identifiable {
+/// One slice of a pie: a device, a region, or a source of income, and how much came from it.
+struct PieShare: Identifiable {
     let name: String
     let badge: Badge
     let color: Color
-    let downloads: Int
+    let value: Double
 
     var id: String { name }
 
@@ -18,9 +18,9 @@ struct DownloadShare: Identifiable {
 }
 
 /// A share's symbol or emoji, at the current font size.
-struct DownloadShareBadge: View {
+struct PieShareBadge: View {
 
-    let badge: DownloadShare.Badge
+    let badge: PieShare.Badge
 
     var body: some View {
         switch badge {
@@ -32,25 +32,25 @@ struct DownloadShareBadge: View {
     }
 }
 
-/// Downloads as a donut, each slice in its share's colour and marked with its badge, unless it is
+/// Shares as a donut, each slice in its share's colour and marked with its badge, unless it is
 /// too thin to hold one.
-struct DownloadsPie: View {
+struct SharePie: View {
 
-    let shares: [DownloadShare]
+    let shares: [PieShare]
 
     private static let innerRadius = 0.55
 
-    private var total: Int {
-        shares.reduce(0) { $0 + $1.downloads }
+    private var total: Double {
+        shares.reduce(0) { $0 + $1.value }
     }
 
     var body: some View {
         Chart(shares) { share in
-            SectorMark(angle: .value("Downloads", share.downloads), innerRadius: .ratio(Self.innerRadius), angularInset: 1.5)
+            SectorMark(angle: .value("Share", share.value), innerRadius: .ratio(Self.innerRadius), angularInset: 1.5)
                 .cornerRadius(4)
                 .foregroundStyle(by: .value("Name", share.name))
                 .accessibilityLabel(share.name)
-                .accessibilityValue(Text(Double(share.downloads) / Double(max(total, 1)), format: .percent.precision(.fractionLength(0))))
+                .accessibilityValue(Text(share.value / max(total, .leastNonzeroMagnitude), format: .percent.precision(.fractionLength(0))))
         }
         .chartForegroundStyleScale(domain: shares.map(\.name), range: shares.map(\.color))
         .chartLegend(.hidden)
@@ -61,7 +61,7 @@ struct DownloadsPie: View {
                     let frame = geometry[plotFrame]
                     let radius = min(frame.width, frame.height) / 2 * (1 + Self.innerRadius) / 2
                     ForEach(badges, id: \.share.id) { badge in
-                        DownloadShareBadge(badge: badge.share.badge)
+                        PieShareBadge(badge: badge.share.badge)
                             .font(.title3)
                             .foregroundStyle(.white)
                             .position(
@@ -76,10 +76,10 @@ struct DownloadsPie: View {
 
     /// The slices wide enough to hold a badge, each with the angle through its middle, clockwise
     /// from the top, where the chart starts.
-    private var badges: [(share: DownloadShare, angle: Double)] {
+    private var badges: [(share: PieShare, angle: Double)] {
         var start = 0.0
         return shares.compactMap { share in
-            let fraction = Double(share.downloads) / Double(max(total, 1))
+            let fraction = share.value / max(total, .leastNonzeroMagnitude)
             defer { start += fraction }
             return fraction >= 0.05 ? (share, (start + fraction / 2) * 2 * .pi) : nil
         }
@@ -88,10 +88,10 @@ struct DownloadsPie: View {
 
 /// A small pie for the summary, which shows two side by side, with a legend beneath, as a badge
 /// does not name its share on its own.
-struct DownloadsPieCard: View {
+struct SharePieCard: View {
 
     let title: LocalizedStringKey
-    let shares: [DownloadShare]
+    let shares: [PieShare]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -99,14 +99,14 @@ struct DownloadsPieCard: View {
                 .font(.subheadline.bold())
                 .foregroundStyle(.secondary)
 
-            DownloadsPie(shares: shares)
+            SharePie(shares: shares)
                 .frame(height: 130)
                 .frame(maxWidth: .infinity)
 
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(shares) { share in
                     HStack(spacing: 6) {
-                        DownloadShareBadge(badge: share.badge)
+                        PieShareBadge(badge: share.badge)
                             .foregroundStyle(share.color)
                         Text(share.name)
                             .lineLimit(1)
@@ -119,6 +119,103 @@ struct DownloadsPieCard: View {
             .accessibilityHidden(true)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+}
+
+/// The last 30 days' proceeds by where they came from, as a pie beside a legend that gives each
+/// source's amount, since money reads better as a figure than as a slice alone.
+struct IncomePieCard: View {
+
+    let shares: [PieShare]
+
+    /// Whole units: cents only crowd the names out of a legend.
+    private static let amountFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.maximumFractionDigits = 0
+        return formatter
+    }()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Income by Source")
+                .font(.subheadline.bold())
+                .foregroundStyle(.secondary)
+
+            HStack(spacing: 20) {
+                SharePie(shares: shares)
+                    .frame(width: 130, height: 130)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    ForEach(shares) { share in
+                        HStack(spacing: 6) {
+                            PieShareBadge(badge: share.badge)
+                                .foregroundStyle(share.color)
+                                .frame(width: 20)
+                            Text(share.name)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                            Spacer(minLength: 8)
+                            Text(Self.amountFormatter.string(from: NSNumber(value: share.value)) ?? "")
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.subheadline)
+                        .accessibilityElement(children: .combine)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+}
+
+/// Where proceeds come from.
+enum IncomeSource: CaseIterable {
+    case paidApps
+    case subscriptions
+    case inAppPurchases
+    case ads
+
+    init?(_ type: EventType) {
+        switch type {
+        case .download, .redownload: self = .paidApps
+        case .subscription: self = .subscriptions
+        case .iap, .restoredIap: self = .inAppPurchases
+        case .ad: self = .ads
+        case .update, .unknown: return nil
+        }
+    }
+
+    var share: (Double) -> PieShare {
+        { PieShare(name: name, badge: .symbol(symbol), color: color, value: $0) }
+    }
+
+    var name: String {
+        switch self {
+        case .paidApps: String(localized: "Paid Apps")
+        case .subscriptions: String(localized: "Subscriptions")
+        case .inAppPurchases: String(localized: "In-App Purchases")
+        case .ads: String(localized: "Ads")
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .paidApps: "square.and.arrow.down"
+        case .subscriptions: "repeat"
+        case .inAppPurchases: "cart.fill"
+        case .ads: "megaphone.fill"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .paidApps: .blue
+        case .subscriptions: .purple
+        case .inAppPurchases: .orange
+        case .ads: .green
+        }
     }
 }
 
@@ -192,14 +289,14 @@ enum SalesRegion: CaseIterable {
 }
 
 extension SalesRegion {
-    func share(downloads: Int = 0) -> DownloadShare {
-        DownloadShare(name: name, badge: .emoji(flag), color: color, downloads: downloads)
+    func share(downloads: Int = 0) -> PieShare {
+        PieShare(name: name, badge: .emoji(flag), color: color, value: Double(downloads))
     }
 }
 
 extension ACDevice {
-    func share(downloads: Int = 0) -> DownloadShare {
-        DownloadShare(name: name, badge: .symbol(symbol), color: color, downloads: downloads)
+    func share(downloads: Int = 0) -> PieShare {
+        PieShare(name: name, badge: .symbol(symbol), color: color, value: Double(downloads))
     }
 
     var color: Color {
@@ -219,7 +316,7 @@ extension ACDevice {
 extension ACData {
     /// Last 30 days' downloads by device, most first and "Unknown" (or "Other") last, with the report's device names folded into
     /// the ones App Sales knows. Every app's when `filteredApps` is empty.
-    func downloadsByDevice(filteredApps: [ACApp] = []) -> [DownloadShare] {
+    func downloadsByDevice(filteredApps: [ACApp] = []) -> [PieShare] {
         let byDevice = Dictionary(getDevices(.downloads, lastNDays: 30, filteredApps: filteredApps).map { (ACDevice($0.0), Int($0.1)) }, uniquingKeysWith: +)
         return byDevice
             .filter { $0.value > 0 }
@@ -228,7 +325,7 @@ extension ACData {
     }
 
     /// Last 30 days' downloads by App Store region, most first and "Other" last.
-    func downloadsByRegion(filteredApps: [ACApp] = []) -> [DownloadShare] {
+    func downloadsByRegion(filteredApps: [ACApp] = []) -> [PieShare] {
         let startDate = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -30, to: .now) ?? .now
         let byRegion = Dictionary(getEntries(for: .downloads, startDate: startDate, filteredApps: filteredApps).map { (SalesRegion(countryCode: $0.countryCode), $0.units) }, uniquingKeysWith: +)
         return byRegion
@@ -238,20 +335,36 @@ extension ACData {
     }
 }
 
-extension [DownloadShare] {
+extension ACData {
+    /// Last 30 days' proceeds by source, most first, in the display currency. Every source a pie
+    /// would draw as a sliver is left out, as there is no "Other" to fold it into.
+    func incomeBySource(filteredApps: [ACApp] = []) -> [PieShare] {
+        let startDate = Calendar.autoupdatingCurrent.date(byAdding: .day, value: -30, to: .now) ?? .now
+        let bySource = Dictionary(getEntries(for: .proceeds, startDate: startDate, filteredApps: filteredApps)
+            .compactMap { entry in IncomeSource(entry.type).map { ($0, Double(entry.proceeds) * Double(entry.units)) } },
+                                  uniquingKeysWith: +)
+        let total = bySource.values.reduce(0, +)
+        return bySource
+            .filter { $0.value >= total * 0.02 && $0.value > 0 }
+            .sorted { $0.value > $1.value }
+            .map { $0.key.share($0.value) }
+    }
+}
+
+extension [PieShare] {
     /// The shares a pie can draw, most first. At the Summary's size, one under 2% is lost to the
     /// slices' insets and corner radius, so it shows as nothing but a wider gap; those fold into `other`, which is left out
     /// in turn if they still come to a sliver together. `other` keeps its own name while at least half of it is its own.
-    func slices(foldingInto other: DownloadShare) -> [DownloadShare] {
-        let total = reduce(0) { $0 + $1.downloads }
-        let isSliver = { (downloads: Int) in Double(downloads) < Double(total) * 0.02 }
-        let kept = filter { $0.id != other.id && !isSliver($0.downloads) }
-            .sorted { $0.downloads > $1.downloads }
-        let rest = total - kept.reduce(0) { $0 + $1.downloads }
+    func slices(foldingInto other: PieShare) -> [PieShare] {
+        let total = reduce(0) { $0 + $1.value }
+        let isSliver = { (value: Double) in value < total * 0.02 }
+        let kept = filter { $0.id != other.id && !isSliver($0.value) }
+            .sorted { $0.value > $1.value }
+        let rest = total - kept.reduce(0) { $0 + $1.value }
         guard rest > 0, !isSliver(rest) else { return kept }
 
-        let own = filter { $0.id == other.id }.reduce(0) { $0 + $1.downloads }
+        let own = filter { $0.id == other.id }.reduce(0) { $0 + $1.value }
         let name = own * 2 >= rest ? other.name : String(localized: "Other")
-        return kept + [DownloadShare(name: name, badge: other.badge, color: other.color, downloads: rest)]
+        return kept + [PieShare(name: name, badge: other.badge, color: other.color, value: rest)]
     }
 }
