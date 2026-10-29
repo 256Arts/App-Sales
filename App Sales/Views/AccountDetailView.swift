@@ -76,7 +76,6 @@ struct AccountDetailView: View {
                 Button("Delete", systemImage: "trash", role: .destructive) {
                     showingDeleteAlert.toggle()
                 }
-                .foregroundStyle(.red)
             }
             .alert("Delete Account?", isPresented: $showingDeleteAlert) {
                 Button("Delete", role: .destructive) {
