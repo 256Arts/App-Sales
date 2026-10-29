@@ -58,7 +58,7 @@ struct AccountsList: View {
                             LabeledContent {
                                 Text(googleAnalytics.websites(of: account).map(\.name).formatted(.list(type: .and)))
                             } label: {
-                                AccountLabel(account.email, service: "Google Analytics") {
+                                AccountLabel(service: "Google Analytics", email: account.email) {
                                     Image(systemName: "chart.bar.xaxis")
                                 }
                             }
@@ -72,7 +72,7 @@ struct AccountsList: View {
                     }
 
                     ForEach(adMob.accounts) { account in
-                        AccountLabel(account.email, service: "AdMob") {
+                        AccountLabel(service: "AdMob", email: account.email) {
                             Image(systemName: "rectangle.stack.badge.play")
                         }
                         .contextMenu {
@@ -214,22 +214,28 @@ struct AccountsList: View {
     }
 }
 
-/// An account's name over the service it signs in to.
+/// An account's name over the service it signs in to, or for a Google sign-in, the service over its email.
 private struct AccountLabel<Icon: View>: View {
-    let name: String
-    let service: LocalizedStringKey
+    let title: Text
+    let subtitle: Text
     @ViewBuilder let icon: Icon
 
     init(_ name: String, service: LocalizedStringKey, @ViewBuilder icon: () -> Icon) {
-        self.name = name
-        self.service = service
+        self.title = Text(name)
+        self.subtitle = Text(service)
+        self.icon = icon()
+    }
+
+    init(service: LocalizedStringKey, email: String, @ViewBuilder icon: () -> Icon) {
+        self.title = Text(service)
+        self.subtitle = Text(email)
         self.icon = icon()
     }
 
     var body: some View {
         Label {
-            Text(name)
-            Text(service)
+            title
+            subtitle
         } icon: {
             icon
         }
