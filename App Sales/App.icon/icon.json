@@ -1,7 +1,5 @@
 {
-  "fill" : {
-    "automatic-gradient" : "extended-gray:1.00000,1.00000"
-  },
+  "fill" : "system-light",
   "groups" : [
     {
       "layers" : [
@@ -9,18 +7,17 @@
           "fill-specializations" : [
             {
               "value" : {
-                "solid" : "extended-srgb:0.00000,0.47843,1.00000,1.00000"
+                "solid" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
               }
             },
             {
-              "appearance" : "tinted",
+              "appearance" : "dark",
               "value" : {
-                "automatic-gradient" : "extended-gray:1.00000,1.00000"
+                "solid" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
               }
             }
           ],
-          "glass" : true,
-          "image-name" : "Chart.svg",
+          "image-name" : "Chart.png",
           "name" : "Chart"
         }
       ],
@@ -39,30 +36,17 @@
         {
           "fill-specializations" : [
             {
-              "appearance" : "dark",
-              "value" : "automatic"
-            }
-          ],
-          "hidden-specializations" : [
-            {
-              "idiom" : "square",
-              "value" : true
-            }
-          ],
-          "image-name" : "Outline watch.svg",
-          "name" : "Outline watch"
-        },
-        {
-          "fill-specializations" : [
-            {
-              "value" : "automatic"
+              "value" : {
+                "solid" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+              }
             },
             {
-              "appearance" : "tinted",
-              "value" : "automatic"
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+              }
             }
           ],
-          "glass" : true,
           "hidden-specializations" : [
             {
               "value" : false
@@ -72,8 +56,21 @@
               "value" : true
             }
           ],
-          "image-name" : "App.svg",
-          "name" : "Outline"
+          "image-name" : "App Outline.png",
+          "name" : "App Outline"
+        },
+        {
+          "fill" : {
+            "solid" : "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+          },
+          "hidden-specializations" : [
+            {
+              "idiom" : "square",
+              "value" : true
+            }
+          ],
+          "image-name" : "Circle Outline 2.png",
+          "name" : "Circle Outline 2"
         }
       ],
       "shadow" : {
