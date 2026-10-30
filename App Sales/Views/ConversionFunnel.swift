@@ -56,10 +56,22 @@ struct ConversionFunnel: View {
                         Text(stage.count.formatted())
                             .fontWeight(.semibold)
                             .layoutPriority(1)
-                        if showsTrends, let change = stage.change {
-                            PercentChange(change: change)
-                                .font(.caption)
-                                .layoutPriority(1)
+                        if showsTrends, stages.contains(where: { $0.change != nil }) {
+                            // Every row's trend column is as wide as the widest, so the figures line up
+                            // whether or not a row has a trend.
+                            ZStack(alignment: .trailing) {
+                                ForEach(stages) { other in
+                                    if let change = other.change {
+                                        PercentChange(change: change)
+                                            .hidden()
+                                    }
+                                }
+                                if let change = stage.change {
+                                    PercentChange(change: change)
+                                }
+                            }
+                            .font(.caption)
+                            .layoutPriority(1)
                         }
                     }
                     .lineLimit(1)
