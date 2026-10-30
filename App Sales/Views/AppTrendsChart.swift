@@ -10,7 +10,7 @@ struct AppTrendsChart: View {
     let stat: AppListSort
     let range: Range<Date>
 
-    private static let colors: [Color] = [.blue, .green, .orange, .purple]
+    private static let colors: [Color] = [.blue, .green, .orange, .purple, .red]
 
     var body: some View {
         Chart(trends.reversed()) { trend in

@@ -4,7 +4,7 @@ import Charts
 struct DownloadsAndProceedsChart: View {
 
     /// In the order their bars stand, top down: the first `limit` get a row each, and the rest share
-    /// an Other row beneath them.
+    /// an Other row beneath them — unless there is only one more, which takes the row itself.
     let apps: [AppPerformanceSummary]
     let iconLength: CGFloat
     /// Each app's average daily active devices, keyed by Apple ID; `nil` leaves their bars out.
@@ -21,10 +21,11 @@ struct DownloadsAndProceedsChart: View {
     }
 
     private var rows: [Row] {
-        var rows = apps.prefix(Self.limit).map { app in
+        let shown = apps.count == Self.limit + 1 ? apps.count : Self.limit
+        var rows = apps.prefix(shown).map { app in
             Row(id: app.appleID, app: app, downloads: Double(app.downloads), proceeds: app.proceeds, activeDevices: Double(activeDevices?[app.appleID] ?? 0))
         }
-        let rest = apps.dropFirst(Self.limit)
+        let rest = apps.dropFirst(shown)
         if !rest.isEmpty {
             rows.append(Row(
                 id: "Other",
@@ -61,7 +62,7 @@ struct DownloadsAndProceedsChart: View {
                         AppIconView(app: app, length: iconLength)
                     } else {
                         // Where an icon would be, so Other lines up with the apps above it.
-                        Image(systemName: "ellipsis")
+                        Image(systemName: "app.grid.2x2")
                             .foregroundStyle(.secondary)
                             .frame(width: iconLength, height: iconLength)
                             .background(.fill.secondary, in: .rect(cornerRadius: iconLength / 4))

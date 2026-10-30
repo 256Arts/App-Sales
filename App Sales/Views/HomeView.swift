@@ -442,7 +442,7 @@ struct HomeView: View {
             var trends = top.map { AppTrend(app: $0, days: days(of: [$0])) }
             let other = days(of: rest)
             if other.contains(where: { $0.value > 0 }) {
-                trends.append(AppTrend(otherDays: other))
+                trends.append(rest.count == 1 ? AppTrend(app: rest[0], days: other) : AppTrend(otherDays: other))
             }
             return (trends, analytics.range)
         }
@@ -458,7 +458,8 @@ struct HomeView: View {
         if !restApps.isEmpty {
             let other = data.dailyTotals(for: type, in: range, filteredApps: restApps)
             if other.contains(where: { $0.value > 0 }) {
-                trends.append(AppTrend(otherDays: other))
+                // One app left over takes its own layer rather than an Other of one.
+                trends.append(rest.count == 1 ? AppTrend(app: rest[0], days: other) : AppTrend(otherDays: other))
             }
         }
         return (trends, range)
