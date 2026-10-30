@@ -53,7 +53,7 @@ struct SummaryWithChart: View {
             .allowsTightening(true)
             
             if advanced || widgetFamily == .systemLarge {
-                DownloadsAndProceedsChart(apps: data.topApps, iconLength: 22)
+                DownloadsAndProceedsChart(apps: data.apps, iconLength: 22)
                     .chartLegend(.hidden)
             } else {
                 DownloadsIconsGraphic(apps: data.topApps)

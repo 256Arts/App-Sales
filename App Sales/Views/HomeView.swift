@@ -416,13 +416,12 @@ struct HomeView: View {
         #endif
     }
 
-    /// The most apps the line chart draws, past which its lines tangle into one another.
-    private static let trendLimit = 8
-
-    /// The best few apps by `stat`, a line each, over the days its figures cover: the summary's 30
-    /// days for sales, and the analytics reports' own 30 for active devices, which lag a few days.
+    /// The best few apps by `stat`, stacked over the days its figures cover, with every other app
+    /// summed into an Other layer: the summary's 30 days for sales, and the analytics reports' own
+    /// 30 for active devices, which lag a few days.
     private func trends(of stat: AppListSort, data: ACData, apps: [AppPerformanceSummary], activeDevices: [String: Int]?) -> ([AppTrend], Range<Date>) {
-        let apps = stat.sort(apps, counts: activeDevices ?? [:])
+        let sorted = stat.sort(apps, counts: activeDevices ?? [:])
+        let top = sorted
             .filter { app in
                 switch stat {
                 case .proceeds: app.proceeds > 0
@@ -430,21 +429,37 @@ struct HomeView: View {
                 default: app.downloads > 0
                 }
             }
-            .prefix(Self.trendLimit)
+            .prefix(DownloadsAndProceedsChart.limit)
+        let topIDs = Set(top.map(\.appleID))
+        let rest = sorted.filter { !topIDs.contains($0.appleID) }
 
         if stat == .activeDevices, case .ready(let analytics) = appStoreAnalytics {
-            let trends = apps.map { app in
-                AppTrend(app: app, days: (analytics.days[app.appleID] ?? [:])
+            func days(of apps: [AppPerformanceSummary]) -> [DailyValue] {
+                Dictionary(apps.flatMap { (analytics.days[$0.appleID] ?? [:]).map { ($0.key, Double($0.value.activeDevices)) } }, uniquingKeysWith: +)
                     .sorted { $0.key < $1.key }
-                    .map { DailyValue(date: $0.key, value: Double($0.value.activeDevices)) })
+                    .map { DailyValue(date: $0.key, value: $0.value) }
+            }
+            var trends = top.map { AppTrend(app: $0, days: days(of: [$0])) }
+            let other = days(of: rest)
+            if other.contains(where: { $0.value > 0 }) {
+                trends.append(AppTrend(otherDays: other))
             }
             return (trends, analytics.range)
         }
 
         let range = (Calendar.autoupdatingCurrent.date(byAdding: .day, value: -30, to: .now) ?? .now)..<Date.now
         let type: InfoType = stat == .proceeds ? .proceeds : .downloads
-        let trends = apps.map { app in
+        var trends = top.map { app in
             AppTrend(app: app, days: data.dailyTotals(for: type, in: range, filteredApps: data.apps.filter { $0.appleID == app.appleID }))
+        }
+        let restIDs = Set(rest.map(\.appleID))
+        let restApps = data.apps.filter { restIDs.contains($0.appleID) }
+        // An empty filter means every app, so there is no Other without apps to put in it.
+        if !restApps.isEmpty {
+            let other = data.dailyTotals(for: type, in: range, filteredApps: restApps)
+            if other.contains(where: { $0.value > 0 }) {
+                trends.append(AppTrend(otherDays: other))
+            }
         }
         return (trends, range)
     }
