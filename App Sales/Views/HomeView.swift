@@ -295,7 +295,7 @@ struct HomeView: View {
                         }
                     }
 
-                    SharePiesSection(data: data)
+                    SharePiesSection(data: data, analytics: appStoreAnalytics)
 
                     let funnel = loader.summary.flatMap { funnel(data: data, summary: $0) }
                     if let funnel {

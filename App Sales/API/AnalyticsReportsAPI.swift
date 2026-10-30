@@ -45,7 +45,8 @@ final class AnalyticsReportsAPI {
                 default: return AnalyticsDay()
                 }
             case .sessions:
-                return AnalyticsDay(sessions: int("Sessions"), activeDevices: int("Unique Devices"))
+                let devices = int("Unique Devices")
+                return AnalyticsDay(sessions: int("Sessions"), activeDevices: devices, activeDevicesByOS: [AnalyticsDay.majorOS(row["Platform Version"]): devices])
             }
         }
     }

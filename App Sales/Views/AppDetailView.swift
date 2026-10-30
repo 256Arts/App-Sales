@@ -104,7 +104,7 @@ struct AppDetailView: View {
                 Text("Last 30 Days")
             }
 
-            SharePiesSection(data: data, filteredApps: acApps)
+            SharePiesSection(data: data, filteredApps: acApps, analytics: analytics)
 
             if showsWebsite {
                 Section("Webpage") {

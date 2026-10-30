@@ -86,21 +86,26 @@ struct SharePie: View {
     }
 }
 
-/// The last 30 days' income by source, downloads by device, and downloads by region, as cards
-/// in one horizontally scrolling row: every app's on the Summary, one app's on its detail page.
+/// The last 30 days' income by source, downloads by device, downloads by region, and active
+/// devices by OS version (over the analytics reports' 30 days), as cards in one horizontally scrolling row: every app's on the Summary, one app's on its detail page.
 /// A pie with nothing to divide is left out, and one with a single slice too, as a full circle says
 /// nothing.
 struct SharePiesSection: View {
 
     let data: ACData
     var filteredApps: [ACApp] = []
+    var analytics: AnalyticsAvailability?
 
     private var cards: [SharePieCard] {
-        [
+        var cards = [
             SharePieCard(title: "Income by Source", shares: data.incomeBySource(filteredApps: filteredApps), value: .currency),
             SharePieCard(title: "Downloads by Device", shares: data.downloadsByDevice(filteredApps: filteredApps), value: .count),
             SharePieCard(title: "Downloads by Region", shares: data.downloadsByRegion(filteredApps: filteredApps), value: .count)
         ]
+        if case .ready(let analytics) = analytics {
+            cards.append(SharePieCard(title: "Daily Active Devices by OS", shares: analytics.activeDevicesByOS(filteredApps: filteredApps), value: .count))
+        }
+        return cards
         .filter { $0.shares.count > 1 }
     }
 
@@ -125,7 +130,6 @@ struct SharePiesSection: View {
                 }
                 .scrollTargetBehavior(.viewAligned)
                 .scrollIndicators(.hidden)
-                .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
                 .contentMargins(.horizontal, 20, for: .scrollContent)
                 .contentMargins(.vertical, 16, for: .scrollContent)
                 .listRowInsets(EdgeInsets())
@@ -393,6 +397,25 @@ extension ACData {
             .filter { $0.value >= total * 0.02 && $0.value > 0 }
             .sorted { $0.value > $1.value }
             .map { $0.key.share($0.value) }
+    }
+}
+
+extension AppStoreAnalytics {
+    /// Average daily active devices by major OS version, most first and anything before the
+    /// year-numbered releases last. Every app's when `filteredApps` is empty.
+    func activeDevicesByOS(filteredApps: [ACApp] = []) -> [PieShare] {
+        let totals = filteredApps.isEmpty ? [totals()] : filteredApps.map { totals(for: $0.appleID) }
+        let byOS = totals.reduce(into: [Int: Int]()) { $0.merge($1.averageDailyActiveDevicesByOS, uniquingKeysWith: +) }
+        let colors: [Color] = [.blue, .indigo, .purple, .teal, .mint]
+        let releases = byOS.keys.filter { $0 > 0 }.sorted(by: >)
+        let shares = byOS.filter { $0.value > 0 }.map { os, devices in
+            if os == 0 {
+                return PieShare(name: String(localized: "Earlier"), badge: .symbol("clock.arrow.circlepath"), color: .gray, value: Double(devices))
+            }
+            let rank = releases.firstIndex(of: os) ?? 0
+            return PieShare(name: String(localized: "OS \(os)"), badge: .symbol("\(os).circle.fill"), color: colors[rank % colors.count], value: Double(devices))
+        }
+        return shares.slices(foldingInto: PieShare(name: String(localized: "Earlier"), badge: .symbol("clock.arrow.circlepath"), color: .gray, value: 0))
     }
 }
 

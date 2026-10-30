@@ -9,13 +9,25 @@ struct AnalyticsDay: Codable, Hashable {
     var sessions = 0
     /// Devices that opened the app at least once that day.
     var activeDevices = 0
+    /// `activeDevices` by major OS version, every platform's together: 26 for iOS 26 and macOS 26
+    /// alike, and `0` for anything before the year-numbered releases, whose numbers do not line up.
+    /// A cache from before this was kept fails to decode, so its instances download again with it.
+    var activeDevicesByOS: [Int: Int] = [:]
+
+    /// The report's "Platform Version", such as "iOS 26.1", as a key of `activeDevicesByOS`.
+    static func majorOS(_ platformVersion: String?) -> Int {
+        let number = platformVersion?.split(separator: " ").first(where: { $0.first?.isNumber == true })
+        let major = number.flatMap { Int($0.prefix(while: \.isNumber)) } ?? 0
+        return major >= 26 ? major : 0
+    }
 
     static func + (lhs: AnalyticsDay, rhs: AnalyticsDay) -> AnalyticsDay {
         AnalyticsDay(
             impressions: lhs.impressions + rhs.impressions,
             pageViews: lhs.pageViews + rhs.pageViews,
             sessions: lhs.sessions + rhs.sessions,
-            activeDevices: lhs.activeDevices + rhs.activeDevices)
+            activeDevices: lhs.activeDevices + rhs.activeDevices,
+            activeDevicesByOS: lhs.activeDevicesByOS.merging(rhs.activeDevicesByOS, uniquingKeysWith: +))
     }
 }
 
@@ -27,6 +39,8 @@ struct AnalyticsTotals {
     /// Averaged over the days that have data rather than summed: the same device opens an app on
     /// many days, so a sum would count people several times over.
     let averageDailyActiveDevices: Int
+    /// `averageDailyActiveDevices` by major OS version, keyed as `AnalyticsDay.activeDevicesByOS`.
+    let averageDailyActiveDevicesByOS: [Int: Int]
 
     /// First-time downloads as a share of unique impressions, which is how App Store Connect
     /// defines conversion rate. `nil` when nobody saw the app, rather than a division by zero.
@@ -96,7 +110,8 @@ struct AppStoreAnalytics {
             impressions: sum.impressions,
             pageViews: sum.pageViews,
             sessions: sum.sessions,
-            averageDailyActiveDevices: daysWithSessions == 0 ? 0 : sum.activeDevices / daysWithSessions)
+            averageDailyActiveDevices: daysWithSessions == 0 ? 0 : sum.activeDevices / daysWithSessions,
+            averageDailyActiveDevicesByOS: daysWithSessions == 0 ? [:] : sum.activeDevicesByOS.mapValues { $0 / daysWithSessions })
     }
 
     /// Analytics for the Demo account, in proportion to `ACData.example`'s downloads, so the
@@ -114,11 +129,14 @@ struct AppStoreAnalytics {
                 let downloads = Int(data.getTotal(for: .downloads, in: date..<nextDate, filteredApps: [app]))
                 // The strongest seller converts best, so the ranking reads the same both ways.
                 let impressionsPerDownload = 14 + index * 5
+                let activeDevices = downloads * (6 - index) + offset % 3
                 days[app.appleID, default: [:]][date] = AnalyticsDay(
                     impressions: downloads * impressionsPerDownload,
                     pageViews: downloads * 3 + offset % 4,
                     sessions: downloads * (9 - index),
-                    activeDevices: downloads * (6 - index) + offset % 3)
+                    activeDevices: activeDevices,
+                    // Most on this year's release, a good share on last year's, a few further back.
+                    activeDevicesByOS: [27: activeDevices * 6 / 10, 26: activeDevices * 3 / 10, 0: activeDevices - activeDevices * 9 / 10])
             }
         }
         return AppStoreAnalytics(days: days)
