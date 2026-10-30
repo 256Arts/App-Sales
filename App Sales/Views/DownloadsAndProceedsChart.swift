@@ -55,21 +55,45 @@ struct DownloadsAndProceedsChart: View {
             "Daily Active Devices": Color.orange
         ])
         .chartYScale(domain: rows.map(\.id))
+        // The axis only holds the icons' room: Charts sets a categorical label on its band's top
+        // edge whatever its anchor, so the icons are laid in the overlay, across each band's middle.
         .chartYAxis {
             AxisMarks(preset: .extended, position: .leading, values: rows.map(\.id)) { axis in
-                AxisValueLabel(centered: true) {
-                    if let app = rows[axis.index].app {
-                        AppIconView(app: app, length: iconLength)
-                    } else {
-                        // Where an icon would be, so Other lines up with the apps above it.
-                        Image(systemName: "app.grid.2x2")
-                            .foregroundStyle(.secondary)
-                            .frame(width: iconLength, height: iconLength)
-                            .background(.fill.secondary, in: .rect(cornerRadius: iconLength / 4))
-                            .accessibilityLabel("Other")
+                AxisValueLabel(horizontalSpacing: Self.iconSpacing) {
+                    Color.clear
+                        .frame(width: iconLength, height: iconLength)
+                        .accessibilityLabel(rows[axis.index].app?.name ?? String(localized: "Other"))
+                }
+            }
+        }
+        .chartOverlay { proxy in
+            GeometryReader { geometry in
+                if let plotFrame = proxy.plotFrame {
+                    let frame = geometry[plotFrame]
+                    ForEach(rows) { row in
+                        if let y = proxy.position(forY: row.id) {
+                            icon(for: row)
+                                .position(x: frame.minX - Self.iconSpacing - iconLength / 2, y: frame.minY + y)
+                        }
                     }
                 }
             }
+            .accessibilityHidden(true)
+        }
+    }
+
+    private static let iconSpacing: CGFloat = 8
+
+    @ViewBuilder
+    private func icon(for row: Row) -> some View {
+        if let app = row.app {
+            AppIconView(app: app, length: iconLength)
+        } else {
+            Image(systemName: "app.grid.2x2.fill")
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(.secondary)
+                .frame(width: iconLength, height: iconLength)
         }
     }
 

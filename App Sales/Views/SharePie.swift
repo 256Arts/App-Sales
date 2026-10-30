@@ -116,9 +116,8 @@ struct SharePiesSection: View {
                                     .padding(.horizontal, 16)
                             }
                             card
-                                // Room for three where it fits, else enough of the next to show it scrolls.
                                 .containerRelativeFrame(.horizontal) { length, _ in
-                                    length >= 720 ? (length - 66) / 3 : min(length * 0.72, 300)
+                                    cardWidth(in: length, count: cards.count)
                                 }
                         }
                     }
@@ -126,12 +125,27 @@ struct SharePiesSection: View {
                 }
                 .scrollTargetBehavior(.viewAligned)
                 .scrollIndicators(.hidden)
+                .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
                 .contentMargins(.horizontal, 20, for: .scrollContent)
                 .contentMargins(.vertical, 16, for: .scrollContent)
                 .listRowInsets(EdgeInsets())
             }
         }
     }
+}
+
+extension SharePiesSection {
+    /// Each card's share of the row's width where they all fit at `minCardWidth` or wider, else
+    /// enough of the next to show the row scrolls. `length` is already inside the content margins.
+    private func cardWidth(in length: CGFloat, count: Int) -> CGFloat {
+        let dividers = CGFloat(count - 1) * Self.dividerWidth
+        let fitted = ((length - dividers) / CGFloat(count)).rounded(.down)
+        return fitted >= Self.minCardWidth ? fitted : min(length * 0.72, 300)
+    }
+
+    private static let minCardWidth: CGFloat = 180
+    /// A divider's line and the padding either side of it.
+    private static let dividerWidth: CGFloat = 33
 }
 
 /// A pie with a title above and a legend beneath giving each share's figure, since a badge does
