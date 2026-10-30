@@ -1,6 +1,7 @@
 import WidgetKit
 import SwiftUI
 import AppIntents
+import AIUsageKit
 
 struct WidgetsEntryView: View {
     @Environment(\.widgetFamily) var size
@@ -85,3 +86,11 @@ struct Widgets: Widget {
     ACStatEntry(date: .now, data: .example, configuration: WidgetPreferences())
 }
 #endif
+
+/// Brings AIUsageKit's widget configuration and assistant picker into this extension's App Intents
+/// metadata.
+struct AIUsageIntentsPackage: AppIntentsPackage {
+    static var includedPackages: [any AppIntentsPackage.Type] {
+        [AIUsageKitPackage.self]
+    }
+}

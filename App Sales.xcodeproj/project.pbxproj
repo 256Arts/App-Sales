@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1BA1E5A00000000000000002 /* AIUsageKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA1E5A00000000000000001 /* AIUsageKit */; };
+		1BA1E5A00000000000000004 /* AIUsageKitIntents in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA1E5A00000000000000003 /* AIUsageKitIntents */; };
+		1BA1E5A00000000000000006 /* AIUsageKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA1E5A00000000000000005 /* AIUsageKit */; };
+		1BA1E5A00000000000000008 /* AIUsageKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA1E5A00000000000000007 /* AIUsageKit */; };
 		1BC0FFEE0000000000000010 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000C /* Gzip */; };
 		1BC0FFEE0000000000000011 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000D /* SwiftCSV */; };
 		1BC0FFEE0000000000000012 /* AppStoreConnect-Swift-SDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000E /* AppStoreConnect-Swift-SDK */; };
@@ -131,7 +135,6 @@
 				Info.plist,
 				InfoPlist.xcstrings,
 				Intents/AppSalesShortcuts.swift,
-				Intents/GetAIUsageIntent.swift,
 				Intents/GetAppSummariesIntent.swift,
 				Intents/GetPerformanceSummaryIntent.swift,
 				Intents/SalesIntentSupport.swift,
@@ -139,8 +142,6 @@
 				Localizable.xcstrings,
 				Views/AccountDetailView.swift,
 				Views/AccountsList.swift,
-				Views/AIUsageMenuBar.swift,
-				Views/AIUsageSection.swift,
 				Views/AppDetailView.swift,
 				Views/AppTrendsChart.swift,
 				Views/SharePie.swift,
@@ -188,7 +189,6 @@
 				Info.plist,
 				InfoPlist.xcstrings,
 				Intents/AppSalesShortcuts.swift,
-				Intents/GetAIUsageIntent.swift,
 				Intents/GetAppSummariesIntent.swift,
 				Intents/GetPerformanceSummaryIntent.swift,
 				Intents/SalesIntentSupport.swift,
@@ -196,8 +196,6 @@
 				Localizable.xcstrings,
 				Views/AccountDetailView.swift,
 				Views/AccountsList.swift,
-				Views/AIUsageMenuBar.swift,
-				Views/AIUsageSection.swift,
 				Views/AppDetailView.swift,
 				Views/AppTrendsChart.swift,
 				Views/SharePie.swift,
@@ -228,7 +226,6 @@
 				Info.plist,
 				InfoPlist.xcstrings,
 				Intents/AppSalesShortcuts.swift,
-				Intents/GetAIUsageIntent.swift,
 				Intents/GetAppSummariesIntent.swift,
 				Intents/GetPerformanceSummaryIntent.swift,
 				Intents/SalesIntentSupport.swift,
@@ -236,8 +233,6 @@
 				Localizable.xcstrings,
 				Views/AccountDetailView.swift,
 				Views/AccountsList.swift,
-				Views/AIUsageMenuBar.swift,
-				Views/AIUsageSection.swift,
 				Views/AppDetailView.swift,
 				Views/AppTrendsChart.swift,
 				Views/SharePie.swift,
@@ -330,6 +325,7 @@
 		1BC0FFEE000000000000001F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				1BA1E5A00000000000000008 /* AIUsageKit in Frameworks */,
 				1BC0FFEE0000000000000029 /* SwiftCSV in Frameworks */,
 				1BC0FFEE000000000000002B /* KeychainAccess in Frameworks */,
 				1BC0FFEE0000000000000028 /* Gzip in Frameworks */,
@@ -344,6 +340,8 @@
 		45E8C47A2612512E007F9B0E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				1BA1E5A00000000000000004 /* AIUsageKitIntents in Frameworks */,
+				1BA1E5A00000000000000002 /* AIUsageKit in Frameworks */,
 				45E8C4C0261268D4007F9B0E /* SwiftCSV in Frameworks */,
 				456187F426F66FE400FAE4F8 /* KeychainAccess in Frameworks */,
 				45E8C4BD261267FB007F9B0E /* Gzip in Frameworks */,
@@ -354,6 +352,7 @@
 		45E8C4912612531D007F9B0E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				1BA1E5A00000000000000006 /* AIUsageKit in Frameworks */,
 				45E8C4992612531D007F9B0E /* SwiftUI.framework in Frameworks */,
 				45CAC10F2615CBCB00FF63E7 /* AppStoreConnect-Swift-SDK in Frameworks */,
 				456187F626F6741A00FAE4F8 /* KeychainAccess in Frameworks */,
@@ -473,6 +472,7 @@
 			);
 			name = "Watch Widgets";
 			packageProductDependencies = (
+				1BA1E5A00000000000000007 /* AIUsageKit */,
 				1BC0FFEE0000000000000024 /* Gzip */,
 				1BC0FFEE0000000000000025 /* SwiftCSV */,
 				1BC0FFEE0000000000000026 /* AppStoreConnect-Swift-SDK */,
@@ -525,6 +525,8 @@
 			);
 			name = "App Sales";
 			packageProductDependencies = (
+				1BA1E5A00000000000000003 /* AIUsageKitIntents */,
+				1BA1E5A00000000000000001 /* AIUsageKit */,
 				45E8C4BC261267FB007F9B0E /* Gzip */,
 				45E8C4BF261268D4007F9B0E /* SwiftCSV */,
 				45CAC1082615CB8100FF63E7 /* AppStoreConnect-Swift-SDK */,
@@ -551,6 +553,7 @@
 			);
 			name = WidgetsExtension;
 			packageProductDependencies = (
+				1BA1E5A00000000000000005 /* AIUsageKit */,
 				45CAC10A2615CBC200FF63E7 /* Gzip */,
 				45CAC10C2615CBC700FF63E7 /* SwiftCSV */,
 				45CAC10E2615CBCB00FF63E7 /* AppStoreConnect-Swift-SDK */,
@@ -606,6 +609,7 @@
 			);
 			mainGroup = 45E8C4742612512E007F9B0E;
 			packageReferences = (
+				1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */,
 				45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */,
 				45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */,
 				45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */,
@@ -1300,6 +1304,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/256Arts/AIUsageKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
@@ -1343,6 +1355,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1BA1E5A00000000000000001 /* AIUsageKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */;
+			productName = AIUsageKit;
+		};
+		1BA1E5A00000000000000003 /* AIUsageKitIntents */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */;
+			productName = AIUsageKitIntents;
+		};
+		1BA1E5A00000000000000005 /* AIUsageKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */;
+			productName = AIUsageKit;
+		};
+		1BA1E5A00000000000000007 /* AIUsageKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */;
+			productName = AIUsageKit;
+		};
 		1BC0FFEE000000000000000C /* Gzip */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */;

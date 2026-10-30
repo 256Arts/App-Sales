@@ -86,12 +86,87 @@ struct SharePie: View {
     }
 }
 
-/// A small pie for the summary, which shows two side by side, with a legend beneath, as a badge
-/// does not name its share on its own.
+/// The last 30 days' income by source, downloads by device, and downloads by region, as cards
+/// in one horizontally scrolling row: every app's on the Summary, one app's on its detail page.
+/// A pie with nothing to divide is left out, and one with a single slice too, as a full circle says
+/// nothing.
+struct SharePiesSection: View {
+
+    let data: ACData
+    var filteredApps: [ACApp] = []
+
+    private var cards: [SharePieCard] {
+        [
+            SharePieCard(title: "Income by Source", shares: data.incomeBySource(filteredApps: filteredApps), value: .currency),
+            SharePieCard(title: "Downloads by Device", shares: data.downloadsByDevice(filteredApps: filteredApps), value: .count),
+            SharePieCard(title: "Downloads by Region", shares: data.downloadsByRegion(filteredApps: filteredApps), value: .count)
+        ]
+        .filter { $0.shares.count > 1 }
+    }
+
+    var body: some View {
+        let cards = cards
+        if !cards.isEmpty {
+            Section {
+                ScrollView(.horizontal) {
+                    HStack(alignment: .top, spacing: 0) {
+                        ForEach(Array(cards.enumerated()), id: \.element.title) { index, card in
+                            if index > 0 {
+                                Divider()
+                                    .padding(.horizontal, 16)
+                            }
+                            card
+                                // Room for three where it fits, else enough of the next to show it scrolls.
+                                .containerRelativeFrame(.horizontal) { length, _ in
+                                    length >= 720 ? (length - 66) / 3 : min(length * 0.72, 300)
+                                }
+                        }
+                    }
+                    .scrollTargetLayout()
+                }
+                .scrollTargetBehavior(.viewAligned)
+                .scrollIndicators(.hidden)
+                .contentMargins(.horizontal, 20, for: .scrollContent)
+                .contentMargins(.vertical, 16, for: .scrollContent)
+                .listRowInsets(EdgeInsets())
+            }
+        }
+    }
+}
+
+/// A pie with a title above and a legend beneath giving each share's figure, since a badge does
+/// not name its share on its own and a slice alone does not say how much.
 struct SharePieCard: View {
 
-    let title: LocalizedStringKey
+    let title: String
     let shares: [PieShare]
+    let value: Value
+
+    enum Value {
+        case currency
+        case count
+    }
+
+    init(title: LocalizedStringResource, shares: [PieShare], value: Value) {
+        self.title = String(localized: title)
+        self.shares = shares
+        self.value = value
+    }
+
+    /// Whole units: cents only crowd the names out of a legend.
+    private static let currencyFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.maximumFractionDigits = 0
+        return formatter
+    }()
+
+    private func figure(_ share: PieShare) -> String {
+        switch value {
+        case .currency: Self.currencyFormatter.string(from: NSNumber(value: share.value)) ?? ""
+        case .count: Int(share.value).formatted()
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -100,73 +175,29 @@ struct SharePieCard: View {
                 .foregroundStyle(.secondary)
 
             SharePie(shares: shares)
-                .frame(height: 130)
+                .frame(height: 140)
                 .frame(maxWidth: .infinity)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 ForEach(shares) { share in
                     HStack(spacing: 6) {
                         PieShareBadge(badge: share.badge)
                             .foregroundStyle(share.color)
+                            .frame(width: 20)
                         Text(share.name)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
+                        Spacer(minLength: 8)
+                        Text(figure(share))
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
                     }
                     .font(.caption)
+                    .accessibilityElement(children: .combine)
                 }
             }
-            // The slices already speak for themselves.
-            .accessibilityHidden(true)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
-    }
-}
-
-/// The last 30 days' proceeds by where they came from, as a pie beside a legend that gives each
-/// source's amount, since money reads better as a figure than as a slice alone.
-struct IncomePieCard: View {
-
-    let shares: [PieShare]
-
-    /// Whole units: cents only crowd the names out of a legend.
-    private static let amountFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.maximumFractionDigits = 0
-        return formatter
-    }()
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Income by Source")
-                .font(.subheadline.bold())
-                .foregroundStyle(.secondary)
-
-            HStack(spacing: 20) {
-                SharePie(shares: shares)
-                    .frame(width: 130, height: 130)
-
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(shares) { share in
-                        HStack(spacing: 6) {
-                            PieShareBadge(badge: share.badge)
-                                .foregroundStyle(share.color)
-                                .frame(width: 20)
-                            Text(share.name)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
-                            Spacer(minLength: 8)
-                            Text(Self.amountFormatter.string(from: NSNumber(value: share.value)) ?? "")
-                                .monospacedDigit()
-                                .foregroundStyle(.secondary)
-                        }
-                        .font(.subheadline)
-                        .accessibilityElement(children: .combine)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-            }
-        }
     }
 }
 

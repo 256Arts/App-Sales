@@ -21,7 +21,7 @@ struct AdEarning: Codable, Hashable {
 /// in with each. Earnings from all of them are matched to apps by App Store ID, so each App Store
 /// Connect account picks up its own. Like `GoogleAnalytics`, kept in the synchronizable Keychain, and
 /// plain HTTP after sign-in, so the widget extensions and the watch read it too. Google's refresh
-/// tokens do not rotate, so unlike `AIAssistants` several processes refreshing at once is harmless.
+/// tokens do not rotate, so unlike AIUsageKit's sign-ins several processes refreshing at once is harmless.
 @MainActor
 @Observable
 final class AdMob {

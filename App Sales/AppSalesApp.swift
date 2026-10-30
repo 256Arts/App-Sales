@@ -1,5 +1,6 @@
 import SwiftUI
 import StoreKit
+import AIUsageKit
 
 @main
 struct AppSalesApp: App {
@@ -21,7 +22,7 @@ struct AppSalesApp: App {
 
     #if os(macOS)
     @NSApplicationDelegateAdaptor private var appDelegate: AppDelegate
-    @AppStorage(UserDefaults.Key.aiUsageMenuBarExtra, store: UserDefaults.shared) private var showsMenuBarExtra = false
+    @AppStorage(AIUsageDefaultsKey.menuBarExtra, store: AIUsageKit.defaults) private var showsMenuBarExtra = false
     #endif
 
     static let mainWindowID = "main"
@@ -43,7 +44,7 @@ struct AppSalesApp: App {
         // Off until the reader turns it on in the AI Usage options — a menu bar item that installs
         // itself is one nobody asked for. A screenshot run always shows it, since it is one of the shots.
         MenuBarExtra(isInserted: ScreenshotMode.isActive ? .constant(true) : $showsMenuBarExtra) {
-            AIUsageMenuBar()
+            AIUsageMenuBar(mainWindowID: Self.mainWindowID)
         } label: {
             AIUsageMenuBarLabel()
         }
@@ -175,3 +176,12 @@ private struct AppSalesCommands: Commands {
         }
     }
 }
+
+#if os(macOS)
+/// A `Window` scene quits the app when it closes, which would take the menu bar extra with it.
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        !DockIcon.keepsRunning
+    }
+}
+#endif

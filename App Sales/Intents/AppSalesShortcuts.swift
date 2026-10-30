@@ -1,4 +1,5 @@
 import AppIntents
+import AIUsageKitIntents
 
 /// The shortcuts that exist the moment the app is installed — no setup in the Shortcuts app first.
 ///
@@ -40,5 +41,13 @@ struct AppSalesShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "AI Usage",
             systemImageName: "gauge.with.dots.needle.33percent")
+    }
+}
+
+/// Brings AIUsageKit's intent, its assistant picker, and its widget configuration into the app's
+/// App Intents metadata.
+struct AppSalesIntentsPackage: AppIntentsPackage {
+    static var includedPackages: [any AppIntentsPackage.Type] {
+        [AIUsageKitIntentsPackage.self]
     }
 }

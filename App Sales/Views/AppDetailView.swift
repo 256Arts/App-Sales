@@ -104,27 +104,7 @@ struct AppDetailView: View {
                 Text("Last 30 Days")
             }
 
-            if !devices.isEmpty {
-                Section("Downloads by Device") {
-                    SharePie(shares: devices)
-                        .frame(height: 180)
-                        .padding(.vertical, 8)
-
-                    // The rows double as the pie's legend.
-                    ForEach(devices) { share in
-                        LabeledContent {
-                            Text(Int(share.value), format: .number)
-                        } label: {
-                            Label {
-                                Text(share.name)
-                            } icon: {
-                                PieShareBadge(badge: share.badge)
-                                    .foregroundStyle(share.color)
-                            }
-                        }
-                    }
-                }
-            }
+            SharePiesSection(data: data, filteredApps: acApps)
 
             if showsWebsite {
                 Section("Webpage") {
@@ -288,10 +268,6 @@ struct AppDetailView: View {
                 .map { ChartPoint(series: "Daily Active Devices", date: $0.key, value: Double($0.value.activeDevices)) }
         }
         return points
-    }
-
-    private var devices: [PieShare] {
-        data.downloadsByDevice(filteredApps: acApps)
     }
 }
 

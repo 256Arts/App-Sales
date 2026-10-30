@@ -2,6 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>AIUsageKit</key>
+	<dict>
+		<key>AppGroup</key>
+		<string>group.com.jaydenirwin.appsales</string>
+		<key>KeychainService</key>
+		<string>com.jaydenirwin.appsales</string>
+	</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -20,6 +27,18 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-8282547272443688~5117317072</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.developer-tools</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>WidgetConfigurationIntent</string>
+	</array>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Tracking is used to personalize ads.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
@@ -219,18 +238,6 @@
 			<string>3qcr597p9d.skadnetwork</string>
 		</dict>
 	</array>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.developer-tools</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>NSUserActivityTypes</key>
-	<array>
-		<string>WidgetConfigurationIntent</string>
-	</array>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>Tracking is used to personalize ads.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

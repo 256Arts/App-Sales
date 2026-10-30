@@ -1,4 +1,5 @@
 import SwiftUI
+import AIUsageKit
 
 /// Transparent PNGs of every widget and the menu bar extra, for composing marketing shots by hand.
 ///
@@ -139,8 +140,8 @@ enum WidgetShots {
     /// The menu bar reads its options straight from the App Group, so draw them at their defaults and
     /// put the reader's back afterwards.
     private static func withDefaultOptions(_ body: () -> Void) {
-        let defaults = UserDefaults.shared
-        let keys = [UserDefaults.Key.aiUsageMetric, UserDefaults.Key.aiUsageTimeStyle, UserDefaults.Key.aiUsageGoal, UserDefaults.Key.aiUsageMenuBarStyle, UserDefaults.Key.aiUsageHidesUnreachable]
+        let defaults = AIUsageKit.defaults
+        let keys = AIUsageDefaultsKey.displayOptions
         let saved = keys.map { defaults?.object(forKey: $0) }
         keys.forEach { defaults?.removeObject(forKey: $0) }
         defer { for (key, value) in zip(keys, saved) { defaults?.set(value, forKey: key) } }
@@ -177,7 +178,7 @@ enum WidgetShots {
     }
 
     private static func window(panel: Bool) -> some View {
-        AIUsageMenuBar()
+        AIUsageMenuBar(mainWindowID: AppSalesApp.mainWindowID)
             .background {
                 if panel {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
@@ -200,12 +201,12 @@ enum WidgetShots {
                 .background(.white.opacity(0.25), in: .capsule)
                 .padding(.trailing, 16)
             if onGlass {
-                AIUsageMenuBar()
+                AIUsageMenuBar(mainWindowID: AppSalesApp.mainWindowID)
                     .environment(\.colorScheme, .dark)
                     .glassEffect(.clear, in: .rect(cornerRadius: 16))
                     .environment(\.colorScheme, .light)
             } else {
-                AIUsageMenuBar()
+                AIUsageMenuBar(mainWindowID: AppSalesApp.mainWindowID)
             }
         }
         .environment(\.colorScheme, .dark)

@@ -1,4 +1,5 @@
 import SwiftUI
+import AIUsageKit
 #if canImport(AdmobSwiftUI)
 import AdmobSwiftUI
 #endif
@@ -294,26 +295,7 @@ struct HomeView: View {
                         }
                     }
 
-                    let income = data.incomeBySource()
-                    // One source would be a full circle, which says nothing.
-                    if income.count > 1 {
-                        Section {
-                            IncomePieCard(shares: income)
-                                .padding(.vertical, 8)
-                        }
-                    }
-
-                    let devices = data.downloadsByDevice()
-                    let regions = data.downloadsByRegion()
-                    if !devices.isEmpty || !regions.isEmpty {
-                        Section {
-                            HStack(alignment: .top, spacing: isWide ? 32 : 20) {
-                                SharePieCard(title: "Downloads by Device", shares: devices)
-                                SharePieCard(title: "Downloads by Region", shares: regions)
-                            }
-                            .padding(.vertical, 8)
-                        }
-                    }
+                    SharePiesSection(data: data)
 
                     let funnel = loader.summary.flatMap { funnel(data: data, summary: $0) }
                     if let funnel {
@@ -338,7 +320,7 @@ struct HomeView: View {
                         }
                         #endif
 
-                        AIUsageSection(refreshCount: refreshCount)
+                        AIUsageSection(refreshCount: refreshCount, placeholder: Text("Sign in to Claude or Codex in Accounts to see how much of each one's limits you have left, beside the day's sales."))
                     }
                 }
                 .refreshable { await refresh() }

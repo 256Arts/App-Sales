@@ -217,46 +217,6 @@
         }
       }
     },
-    "%@ %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        }
-      }
-    },
     "%@ could not be reached." : {
       "localizations" : {
         "de" : {
@@ -423,40 +383,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "过去 30 天的收益为 %@"
-          }
-        }
-      }
-    },
-    "%@ shows a code once you approve. Copy it and paste it here." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@ zeigt nach deiner Genehmigung einen Code an. Kopiere ihn und füge ihn hier ein."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@ muestra un código una vez que apruebas. Cópialo y pégalo aquí."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@ affiche un code une fois que vous approuvez. Copiez-le et collez-le ici."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "承認すると%@がコードを表示します。それをコピーしてここに貼り付けてください。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "批准后%@会显示一个代码。将其复制并粘贴到此处。"
           }
         }
       }
@@ -985,40 +911,6 @@
         }
       }
     },
-    "5 Hours" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "5 Stunden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "5 horas"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "5 heures"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "5時間"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "5 小时"
-          }
-        }
-      }
-    },
     "30 days" : {
       "localizations" : {
         "de" : {
@@ -1117,40 +1009,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "每天"
-          }
-        }
-      }
-    },
-    "Absolute" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Absolut"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Absoluto"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Absolu"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "絶対"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "绝对"
           }
         }
       }
@@ -2005,40 +1863,6 @@
         }
       }
     },
-    "Choose Sign-In File…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Anmeldedatei wählen …"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Elegir archivo de inicio de sesión…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Choisir le fichier de connexion…"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "サインインファイルを選択…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "选择登录文件…"
-          }
-        }
-      }
-    },
     "Choose…" : {
       "localizations" : {
         "de" : {
@@ -2103,40 +1927,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "Claude"
-          }
-        }
-      }
-    },
-    "Code" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Code"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Código"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Code"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "コード"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "代码"
           }
         }
       }
@@ -2579,40 +2369,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "开发者网站"
-          }
-        }
-      }
-    },
-    "Don't Run Out" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Nicht aufbrauchen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "No agotar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ne pas épuiser"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "使い切らない"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "不要用完"
           }
         }
       }
@@ -3263,40 +3019,6 @@
         }
       }
     },
-    "Goal" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ziel"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Objetivo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Objectif"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "目標"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "目标"
-          }
-        }
-      }
-    },
     "Google Analytics" : {
       "localizations" : {
         "de" : {
@@ -3361,40 +3083,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "Google 无法为你登录。"
-          }
-        }
-      }
-    },
-    "Hide Irrelevant Limits" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Irrelevante Limits ausblenden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ocultar límites irrelevantes"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Masquer les limites non pertinentes"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "無関係な上限を非表示"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "隐藏不相关的限额"
           }
         }
       }
@@ -3841,74 +3529,6 @@
         }
       }
     },
-    "Left" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Verbleibend"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Restante"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Restant"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "残り"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "剩余"
-          }
-        }
-      }
-    },
-    "Line" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Linie"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Línea"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ligne"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "折れ線グラフ"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "折线图"
-          }
-        }
-      }
-    },
     "Lists each app's downloads and proceeds for an App Store Connect account, best-selling first." : {
       "localizations" : {
         "de" : {
@@ -4113,40 +3733,6 @@
         }
       }
     },
-    "None" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Keine"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ninguno"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Aucun"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "なし"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "无"
-          }
-        }
-      }
-    },
     "Not available" : {
       "localizations" : {
         "de" : {
@@ -4318,74 +3904,6 @@
         }
       }
     },
-    "Open App Sales" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Sales öffnen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Abrir App Sales"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ouvrir App Sales"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Salesを開く"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "打开 App Sales"
-          }
-        }
-      }
-    },
-    "Open at Login" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Beim Login öffnen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Abrir al iniciar sesión"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ouvrir à la connexion"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ログイン時に開く"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "登录时打开"
-          }
-        }
-      }
-    },
     "Open Webpage" : {
       "localizations" : {
         "de" : {
@@ -4416,176 +3934,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "打开网页"
-          }
-        }
-      }
-    },
-    "Opens %@ in your browser. App Sales asks only to read your limits — the sign-in is its own, and leaves the one your terminal uses alone." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Öffnet %@ in deinem Browser. App Sales bittet nur um Lesezugriff auf deine Limits — die Anmeldung ist eigenständig und lässt die deines Terminals unberührt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Abre %@ en tu navegador. App Sales solo solicita leer tus límites: este inicio de sesión es propio y no afecta al que usa tu terminal."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ouvre %@ dans votre navigateur. App Sales ne demande qu'à lire vos limites — cette connexion est indépendante et ne touche pas celle utilisée par votre terminal."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ブラウザで%@を開きます。App Salesは使用量の読み取りのみを求めます。このサインインは独立しており、ターミナルが使用するものには影響しません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "在浏览器中打开%@。App Sales 仅请求读取你的限额——此登录是独立的，不会影响终端使用的登录。"
-          }
-        }
-      }
-    },
-    "Options" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Optionen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Opciones"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Options"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "オプション"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "选项"
-          }
-        }
-      }
-    },
-    "Orange: ahead of pace, so it may run out before it resets." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Orange: schneller als geplant, das Limit könnte vor dem Zurücksetzen aufgebraucht sein."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Naranja: por delante del ritmo, podría agotarse antes de restablecerse."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Orange : en avance sur le rythme, la limite pourrait être atteinte avant sa réinitialisation."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "オレンジ：ペースより早く、リセット前に使い切る可能性があります。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "橙色：进度超前，可能在重置前用完。"
-          }
-        }
-      }
-    },
-    "Orange: behind pace, so tokens will go unused when it resets." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Orange: langsamer als geplant, beim Zurücksetzen bleiben Tokens ungenutzt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Naranja: por detrás del ritmo, quedarán tokens sin usar al restablecerse."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Orange : en retard sur le rythme, des jetons resteront inutilisés à la réinitialisation."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "オレンジ：ペースより遅く、リセット時にトークンが余ります。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "橙色：进度落后，重置时会有令牌未被使用。"
-          }
-        }
-      }
-    },
-    "Orange: over 75% used." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Orange: über 75 % genutzt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Naranja: más del 75 % usado."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Orange : plus de 75 % utilisés."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "オレンジ：75% 以上使用済み。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "橙色：已使用超过 75%。"
           }
         }
       }
@@ -4654,74 +4002,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "页面浏览量"
-          }
-        }
-      }
-    },
-    "Paste Code" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Code einfügen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Pegar código"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Coller le code"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "コードを貼り付け"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "粘贴代码"
-          }
-        }
-      }
-    },
-    "Paste Sign-In" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Anmeldung einfügen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Pegar inicio de sesión"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Coller la connexion"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "サインイン情報を貼り付け"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "粘贴登录信息"
           }
         }
       }
@@ -4998,142 +4278,6 @@
         }
       }
     },
-    "Progress Style" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Fortschrittsstil"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Estilo de progreso"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Style de progression"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "進行状況のスタイル"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "进度样式"
-          }
-        }
-      }
-    },
-    "Quit App Sales" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Sales beenden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Salir de App Sales"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Quitter App Sales"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Salesを終了"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "退出 App Sales"
-          }
-        }
-      }
-    },
-    "Reads the sign-in your terminal is already using, at ~/%@. App Sales keeps its own copy and never writes to the file." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Liest die Anmeldung, die dein Terminal bereits verwendet, unter ~/%@. App Sales behält eine eigene Kopie und schreibt nie in die Datei."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Lee el inicio de sesión que tu terminal ya está usando, en ~/%@. App Sales guarda su propia copia y nunca escribe en el archivo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Lit la connexion déjà utilisée par votre terminal, à ~/%@. App Sales conserve sa propre copie et n'écrit jamais dans le fichier."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ターミナルが既に使用しているサインイン情報を ~/%@ から読み取ります。App Salesは独自のコピーを保持し、このファイルには書き込みません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "读取终端已在使用的登录信息，位于 ~/%@。App Sales 会保留自己的副本，绝不会写入该文件。"
-          }
-        }
-      }
-    },
-    "Red: over 90% used." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Rot: über 90 % genutzt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Rojo: más del 90 % usado."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Rouge : plus de 90 % utilisés."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "赤：90% 以上使用済み。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "红色：已使用超过 90%。"
-          }
-        }
-      }
-    },
     "Refresh" : {
       "localizations" : {
         "de" : {
@@ -5164,40 +4308,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "刷新"
-          }
-        }
-      }
-    },
-    "Relative" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Relativ"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Relativo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Relatif"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "相対"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "相对"
           }
         }
       }
@@ -5270,74 +4380,6 @@
         }
       }
     },
-    "Reset Time Style" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Stil der Reset-Zeit"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Estilo de hora de reinicio"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Style de l'heure de réinitialisation"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "リセット時刻の表示形式"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "重置时间样式"
-          }
-        }
-      }
-    },
-    "Resets %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Zurücksetzen %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Se restablece %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Réinitialisation %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@にリセット"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "重置于%@"
-          }
-        }
-      }
-    },
     "Retry" : {
       "localizations" : {
         "de" : {
@@ -5368,74 +4410,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "重试"
-          }
-        }
-      }
-    },
-    "Ring" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ring"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Anillo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Anneau"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "リング表示"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "环形图"
-          }
-        }
-      }
-    },
-    "Run `%@` in a terminal and paste what it prints." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Führe `%@` in einem Terminal aus und füge das Ergebnis ein."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ejecuta `%@` en una terminal y pega lo que se muestre."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Exécutez `%@` dans un terminal et collez ce qui s'affiche."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ターミナルで`%@`を実行し、表示された内容を貼り付けてください。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "在终端中运行 `%@`，然后粘贴其输出内容。"
           }
         }
       }
@@ -5814,40 +4788,6 @@
         }
       }
     },
-    "Show in Menu Bar" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "In der Menüleiste anzeigen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Mostrar en la barra de menús"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Afficher dans la barre des menus"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "メニューバーに表示"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "在菜单栏中显示"
-          }
-        }
-      }
-    },
     "Sign In" : {
       "localizations" : {
         "de" : {
@@ -5878,108 +4818,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "登录"
-          }
-        }
-      }
-    },
-    "Sign In Again" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Erneut anmelden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Volver a iniciar sesión"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Se reconnecter"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "再度サインイン"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "重新登录"
-          }
-        }
-      }
-    },
-    "Sign In to %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Bei %@ anmelden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Iniciar sesión en %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Se connecter à %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@にサインイン"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "登录%@"
-          }
-        }
-      }
-    },
-    "Sign In to %@ Again…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Erneut bei %@ anmelden …"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Volver a iniciar sesión en %@…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Se reconnecter à %@…"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@に再度サインイン…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "重新登录%@…"
           }
         }
       }
@@ -6052,40 +4890,6 @@
         }
       }
     },
-    "Sign in to Claude or Codex in App Sales to see your limits here." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Melde dich in App Sales bei Claude oder Codex an, um deine Limits hier zu sehen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Inicia sesión en Claude o Codex en App Sales para ver tus límites aquí."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Connectez-vous à Claude ou Codex dans App Sales pour voir vos limites ici."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App SalesでClaudeまたはCodexにサインインすると、ここで上限を確認できます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "在 App Sales 中登录 Claude 或 Codex，即可在此处查看你的限额。"
-          }
-        }
-      }
-    },
     "Sign In to Google Analytics" : {
       "localizations" : {
         "de" : {
@@ -6120,40 +4924,6 @@
         }
       }
     },
-    "Sign In with %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Mit %@ anmelden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Iniciar sesión con %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Se connecter avec %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@でサインイン"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "使用%@登录"
-          }
-        }
-      }
-    },
     "Sign Out" : {
       "localizations" : {
         "de" : {
@@ -6184,40 +4954,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "退出登录"
-          }
-        }
-      }
-    },
-    "Sign-in" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Anmeldung"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Inicio de sesión"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Connexion"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "サインイン"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "登录信息"
           }
         }
       }
@@ -6392,74 +5128,6 @@
         }
       }
     },
-    "That code did not work. Sign in again to get a new one." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Der Code hat nicht funktioniert. Melde dich erneut an, um einen neuen zu erhalten."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ese código no funcionó. Vuelve a iniciar sesión para obtener uno nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ce code n'a pas fonctionné. Reconnectez-vous pour en obtenir un nouveau."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "そのコードは無効でした。再度サインインして新しいコードを取得してください。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "该代码无效。请重新登录以获取新代码。"
-          }
-        }
-      }
-    },
-    "That is not a %@ sign-in." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Das ist keine %@-Anmeldung."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Eso no es un inicio de sesión de %@."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Il ne s'agit pas d'une connexion %@."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "これは%@のサインインではありません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "这不是%@的登录信息。"
-          }
-        }
-      }
-    },
     "The credentials you entered are incorrect." : {
       "localizations" : {
         "de" : {
@@ -6524,40 +5192,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "你网站上关于%@的页面。留空则按应用名称查找页面。"
-          }
-        }
-      }
-    },
-    "The sign-in has expired. Sign in again in App Sales." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Die Anmeldung ist abgelaufen. Melde dich in App Sales erneut an."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "El inicio de sesión ha caducado. Vuelve a iniciar sesión en App Sales."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "La connexion a expiré. Reconnectez-vous dans App Sales."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "サインインの有効期限が切れました。App Salesで再度サインインしてください。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "登录已过期。请在 App Sales 中重新登录。"
           }
         }
       }
@@ -6800,40 +5434,6 @@
         }
       }
     },
-    "Updating…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Wird aktualisiert …"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Actualizando…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Mise à jour…"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "更新中…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "更新中…"
-          }
-        }
-      }
-    },
     "Usage" : {
       "localizations" : {
         "de" : {
@@ -6864,74 +5464,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "使用情况"
-          }
-        }
-      }
-    },
-    "Use All Tokens" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Alle Tokens verwenden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Usar todos los tokens"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Utiliser tous les jetons"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "すべてのトークンを使用"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "使用全部额度"
-          }
-        }
-      }
-    },
-    "Used" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Verwendet"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Usado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Utilisé"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "使用済み"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "已使用"
           }
         }
       }
@@ -7001,40 +5533,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "在 App Store 中查看%@"
-          }
-        }
-      }
-    },
-    "View how much of Claude's and Codex's limits you have left." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Zeigt, wie viel von Claudes und Codex' Limits dir noch bleibt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Muestra cuánto te queda de los límites de Claude y de Codex."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Affiche combien de limites Claude et Codex vous restent."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ClaudeとCodexの上限の残量を表示します。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "查看 Claude 和 Codex 剩余的限额。"
           }
         }
       }
@@ -7277,40 +5775,6 @@
         }
       }
     },
-    "Week" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Woche"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Semana"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Semaine"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "週間"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "本周"
-          }
-        }
-      }
-    },
     "Week Left" : {
       "localizations" : {
         "de" : {
@@ -7549,40 +6013,6 @@
         }
       }
     },
-    "You are not connected to this assistant." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Du bist nicht mit diesem Assistenten verbunden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "No estás conectado a este asistente."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vous n'êtes pas connecté à cet assistant."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "このアシスタントに接続されていません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你尚未连接此助手。"
-          }
-        }
-      }
-    },
     "You are not signed in to Google Analytics." : {
       "localizations" : {
         "de" : {
@@ -7783,40 +6213,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "你的 Google 登录已过期。请重新登录 Google Analytics。"
-          }
-        }
-      }
-    },
-    "Your sign-in has expired." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Deine Anmeldung ist abgelaufen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Tu inicio de sesión ha caducado."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Votre connexion a expiré."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "サインインの有効期限が切れました。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你的登录已过期。"
           }
         }
       }

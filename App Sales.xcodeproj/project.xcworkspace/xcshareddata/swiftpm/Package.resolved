@@ -1,5 +1,5 @@
 {
-  "originHash" : "e8266aa68b10b2932a65243bd1dbc807d18671b6ae76643b93d35e7a5498bb30",
+  "originHash" : "d4ca4f727b175abb1c7c11d3e5f6ced40757910d3a215b4c47191dec0bffa7dc",
   "pins" : [
     {
       "identity" : "admobswiftui",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "0ea4367f5b767a67a999d7991633729b5e7b00ee",
         "version" : "2.1.0"
+      }
+    },
+    {
+      "identity" : "aiusagekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/256Arts/AIUsageKit.git",
+      "state" : {
+        "revision" : "73d29d4d1d5b0fff10ac6c9f402bd2060a675ba8",
+        "version" : "1.0.0"
       }
     },
     {

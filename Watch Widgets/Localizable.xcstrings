@@ -75,46 +75,6 @@
         }
       }
     },
-    "%@ %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
-          }
-        }
-      }
-    },
     "%@ could not be reached." : {
       "localizations" : {
         "de" : {
@@ -145,74 +105,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "无法连接到%@。"
-          }
-        }
-      }
-    },
-    "5 Hours" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "5 Stunden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "5 horas"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "5 heures"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "5時間"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "5 小时"
-          }
-        }
-      }
-    },
-    "Absolute" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Absolut"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Absoluto"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Absolu"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "絶対"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "绝对"
           }
         }
       }
@@ -523,9 +415,7 @@
         }
       }
     },
-    "Daily Active Devices" : {
-
-    },
+    "Daily Active Devices" : {},
     "Data is not yet available." : {
       "localizations" : {
         "de" : {
@@ -556,40 +446,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "数据尚不可用。"
-          }
-        }
-      }
-    },
-    "Don't Run Out" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Nicht aufbrauchen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "No agotar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ne pas épuiser"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "使い切らない"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "不要用完"
           }
         }
       }
@@ -662,43 +518,7 @@
         }
       }
     },
-    "Impressions" : {
-
-    },
-    "Left" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Verbleibend"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Restante"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Restant"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "残り"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "剩余"
-          }
-        }
-      }
-    },
+    "Impressions" : {},
     "Name" : {
       "localizations" : {
         "de" : {
@@ -733,52 +553,7 @@
         }
       }
     },
-    "None" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Keine"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ninguno"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Aucun"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "なし"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "无"
-          }
-        }
-      }
-    },
-    "Orange: ahead of pace, so it may run out before it resets." : {
-
-    },
-    "Orange: behind pace, so tokens will go unused when it resets." : {
-
-    },
-    "Orange: over 75% used." : {
-
-    },
-    "Other" : {
-
-    },
+    "Other" : {},
     "Price" : {
       "localizations" : {
         "de" : {
@@ -843,77 +618,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "收益"
-          }
-        }
-      }
-    },
-    "Red: over 90% used." : {
-
-    },
-    "Relative" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Relativ"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Relativo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Relatif"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "相対"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "相对"
-          }
-        }
-      }
-    },
-    "Resets %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Zurücksetzen %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Se restablece %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Réinitialisation %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@にリセット"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "重置于%@"
           }
         }
       }
@@ -1054,74 +758,6 @@
         }
       }
     },
-    "That code did not work. Sign in again to get a new one." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Der Code hat nicht funktioniert. Melde dich erneut an, um einen neuen zu erhalten."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ese código no funcionó. Vuelve a iniciar sesión para obtener uno nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ce code n'a pas fonctionné. Reconnectez-vous pour en obtenir un nouveau."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "そのコードは無効でした。再度サインインして新しいコードを取得してください。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "该代码无效。请重新登录以获取新代码。"
-          }
-        }
-      }
-    },
-    "That is not a %@ sign-in." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Das ist keine %@-Anmeldung."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Eso no es un inicio de sesión de %@."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Il ne s'agit pas d'une connexion %@."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "これは%@のサインインではありません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "这不是%@的登录信息。"
-          }
-        }
-      }
-    },
     "The credentials you entered are incorrect." : {
       "localizations" : {
         "de" : {
@@ -1152,40 +788,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "你输入的凭据不正确。"
-          }
-        }
-      }
-    },
-    "The sign-in has expired. Sign in again in App Sales." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Die Anmeldung ist abgelaufen. Melde dich in App Sales erneut an."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "El inicio de sesión ha caducado. Vuelve a iniciar sesión en App Sales."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "La connexion a expiré. Reconnectez-vous dans App Sales."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "サインインの有効期限が切れました。App Salesで再度サインインしてください。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "登录已过期。请在 App Sales 中重新登录。"
           }
         }
       }
@@ -1224,74 +826,6 @@
         }
       }
     },
-    "Use All Tokens" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Alle Tokens verwenden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Usar todos los tokens"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Utiliser tous les jetons"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "すべてのトークンを使用"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "使用全部额度"
-          }
-        }
-      }
-    },
-    "Used" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Verwendet"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Usado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Utilisé"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "使用済み"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "已使用"
-          }
-        }
-      }
-    },
     "View app downloads and proceeds." : {
       "localizations" : {
         "de" : {
@@ -1326,43 +860,7 @@
         }
       }
     },
-    "View how much of Claude's and Codex's limits you have left." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Zeigt, wie viel von Claudes und Codex' Limits dir noch bleibt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Muestra cuánto te queda de los límites de Claude y de Codex."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Affiche combien de limites Claude et Codex vous restent."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ClaudeとCodexの上限の残量を表示します。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "查看 Claude 和 Codex 剩余的限额。"
-          }
-        }
-      }
-    },
-    "Webpage Views" : {
-
-    },
+    "Webpage Views" : {},
     "Website Views" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1394,74 +892,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "网站浏览量"
-          }
-        }
-      }
-    },
-    "Week" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Woche"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Semana"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Semaine"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "週間"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "本周"
-          }
-        }
-      }
-    },
-    "You are not connected to this assistant." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Du bist nicht mit diesem Assistenten verbunden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "No estás conectado a este asistente."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vous n'êtes pas connecté à cet assistant."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "このアシスタントに接続されていません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你尚未连接此助手。"
           }
         }
       }
