@@ -37,6 +37,7 @@ struct PieShareBadge: View {
 struct SharePie: View {
 
     let shares: [PieShare]
+    var showsBadges = true
 
     private static let innerRadius = 0.55
 
@@ -57,7 +58,7 @@ struct SharePie: View {
         // Placed by hand: an overlay annotation sits out by the ring's outer edge, not across its middle.
         .chartOverlay { proxy in
             GeometryReader { geometry in
-                if let plotFrame = proxy.plotFrame {
+                if showsBadges, let plotFrame = proxy.plotFrame {
                     let frame = geometry[plotFrame]
                     let radius = min(frame.width, frame.height) / 2 * (1 + Self.innerRadius) / 2
                     ForEach(badges, id: \.share.id) { badge in
@@ -95,6 +96,8 @@ struct SharePiesSection: View {
     let data: ACData
     var filteredApps: [ACApp] = []
     var analytics: AnalyticsAvailability?
+    /// Holds the OS pie's place while the analytics reports load.
+    var isLoadingAnalytics = false
 
     private var cards: [SharePieCard] {
         var cards = [
@@ -104,6 +107,8 @@ struct SharePiesSection: View {
         ]
         if case .ready(let analytics) = analytics {
             cards.append(SharePieCard(title: "Daily Active Devices by OS", shares: analytics.activeDevicesByOS(filteredApps: filteredApps), value: .count))
+        } else if isLoadingAnalytics {
+            cards.append(.placeholder(title: "Daily Active Devices by OS"))
         }
         return cards
         .filter { $0.shares.count > 1 }
@@ -139,20 +144,23 @@ struct SharePiesSection: View {
 }
 
 extension SharePiesSection {
-    /// Each card's share of the row's width where they all fit at `minCardWidth` or wider, else as
-    /// many as fit with `peek` of the next to show the row scrolls. `length` is already inside the
-    /// content margins.
+    /// Each card's share of the row's width, up to `maxCardWidth`, where they all fit at
+    /// `minCardWidth` or wider, else as many as fit at `minCardWidth` or a little wider, with
+    /// `peek` of the next to show the row scrolls. `length` is already inside the content margins.
     private func cardWidth(in length: CGFloat, count: Int) -> CGFloat {
         let dividers = CGFloat(count - 1) * Self.dividerWidth
         let fitted = ((length - dividers) / CGFloat(count)).rounded(.down)
-        if fitted >= Self.minCardWidth { return fitted }
-        let shown = ((length - Self.peek) / (Self.minCardWidth + Self.dividerWidth)).rounded(.down)
-        guard shown >= 2 else { return min(length * 0.72, 300) }
-        return ((length - Self.peek) / shown - Self.dividerWidth).rounded(.down)
+        if fitted >= Self.minCardWidth { return min(fitted, Self.maxCardWidth) }
+        let shown = ((length - Self.peek * Self.minCardWidth) / (Self.minCardWidth + Self.dividerWidth)).rounded(.down)
+        guard shown >= 1 else { return length * 0.72 }
+        return ((length - shown * Self.dividerWidth) / (shown + Self.peek)).rounded(.down)
     }
 
-    private static let minCardWidth: CGFloat = 180
-    private static let peek: CGFloat = 60
+    private static let minCardWidth: CGFloat = 160
+    /// Past this, a legend's names and figures drift too far apart to read as pairs.
+    private static let maxCardWidth: CGFloat = 220
+    /// How much of the next card shows, as a fraction of a card.
+    private static let peek: CGFloat = 0.4
     /// A divider's line and the padding either side of it.
     private static let dividerWidth: CGFloat = 33
 }
@@ -164,6 +172,7 @@ struct SharePieCard: View {
     let title: String
     let shares: [PieShare]
     let value: Value
+    var isPlaceholder = false
 
     enum Value {
         case currency
@@ -174,6 +183,15 @@ struct SharePieCard: View {
         self.title = String(localized: title)
         self.shares = shares
         self.value = value
+    }
+
+    /// Grey slices and a redacted legend, standing in for a pie whose figures are on their way.
+    static func placeholder(title: LocalizedStringResource) -> SharePieCard {
+        var card = SharePieCard(title: title, shares: [0.5, 0.3, 0.2].enumerated().map { index, value in
+            PieShare(name: "Placeholder \(index)", badge: .symbol("circle.fill"), color: .gray.opacity(0.4 - Double(index) * 0.1), value: value * 1000)
+        }, value: .count)
+        card.isPlaceholder = true
+        return card
     }
 
     /// Whole units: cents only crowd the names out of a legend.
@@ -197,7 +215,8 @@ struct SharePieCard: View {
                 .font(.subheadline.bold())
                 .foregroundStyle(.secondary)
 
-            SharePie(shares: shares)
+            SharePie(shares: shares, showsBadges: !isPlaceholder)
+                .accessibilityLabel(isPlaceholder ? Text("Loading") : Text(title))
                 .frame(height: 140)
                 .frame(maxWidth: .infinity)
 
@@ -219,6 +238,8 @@ struct SharePieCard: View {
                     .accessibilityElement(children: .combine)
                 }
             }
+            .redacted(reason: isPlaceholder ? .placeholder : [])
+            .accessibilityHidden(isPlaceholder)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
     }

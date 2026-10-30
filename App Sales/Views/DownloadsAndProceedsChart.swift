@@ -54,6 +54,9 @@ struct DownloadsAndProceedsChart: View {
             "Proceeds": Color.green,
             "Daily Active Devices": Color.orange
         ])
+        .chartXAxis {
+            AxisMarks(position: .top)
+        }
         .chartYScale(domain: rows.map(\.id))
         // The axis only holds the icons' room: Charts sets a categorical label on its band's top
         // edge whatever its anchor, so the icons are laid in the overlay, across each band's middle.

@@ -11,6 +11,7 @@ struct AppDetailView: View {
     /// Whether Google Analytics is connected, so the webpage can be set before it has any views.
     let showsWebsite: Bool
     let analytics: AnalyticsAvailability?
+    var isLoadingAnalytics = false
     /// The account whose reviews are read.
     let account: Account?
 
@@ -104,7 +105,7 @@ struct AppDetailView: View {
                 Text("Last 30 Days")
             }
 
-            SharePiesSection(data: data, filteredApps: acApps, analytics: analytics)
+            SharePiesSection(data: data, filteredApps: acApps, analytics: analytics, isLoadingAnalytics: isLoadingAnalytics)
 
             if showsWebsite {
                 Section("Webpage") {

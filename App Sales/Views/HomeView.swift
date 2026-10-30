@@ -83,6 +83,7 @@ struct HomeView: View {
                         websiteTraffic: websiteTraffic[app.appleID],
                         showsWebsite: !googleAnalytics.websites.isEmpty,
                         analytics: appStoreAnalytics,
+                        isLoadingAnalytics: isLoadingAppStoreAnalytics,
                         account: selectedKey)
                         .id(appleID)
                 } else {
@@ -295,10 +296,16 @@ struct HomeView: View {
                         }
                     }
 
-                    SharePiesSection(data: data, analytics: appStoreAnalytics)
+                    SharePiesSection(data: data, analytics: appStoreAnalytics, isLoadingAnalytics: isLoadingAppStoreAnalytics)
 
                     let funnel = loader.summary.flatMap { funnel(data: data, summary: $0) }
-                    if let funnel {
+                    if appStoreAnalytics == nil && isLoadingAppStoreAnalytics {
+                        Section("Funnel") {
+                            ConversionFunnel(stages: FunnelStage.placeholders(website: !googleAnalytics.websites.isEmpty))
+                                .redacted(reason: .placeholder)
+                                .accessibilityLabel(Text("Loading"))
+                        }
+                    } else if let funnel {
                         Section("Funnel") {
                             ConversionFunnel(stages: funnel)
                         }

@@ -9,6 +9,14 @@ struct FunnelStage: Identifiable {
     var change: Double?
 
     var id: AppListSort { stat }
+
+    /// Grey stages tapering like a typical funnel, standing in while the analytics reports load.
+    static func placeholders(website: Bool) -> [FunnelStage] {
+        let stages: [(AppListSort, Int)] = [(.websiteViews, 4_000), (.appStoreViews, 10_000), (.downloads, 3_000), (.activeDevices, 800)]
+        return stages
+            .filter { website || $0.0 != .websiteViews }
+            .map { FunnelStage(stat: $0.0, color: .gray.opacity(0.3), count: $0.1) }
+    }
 }
 
 /// The funnel from the webpage to active devices, a row per stage: its name, figure, and trend, with
