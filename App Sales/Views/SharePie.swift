@@ -139,15 +139,20 @@ struct SharePiesSection: View {
 }
 
 extension SharePiesSection {
-    /// Each card's share of the row's width where they all fit at `minCardWidth` or wider, else
-    /// enough of the next to show the row scrolls. `length` is already inside the content margins.
+    /// Each card's share of the row's width where they all fit at `minCardWidth` or wider, else as
+    /// many as fit with `peek` of the next to show the row scrolls. `length` is already inside the
+    /// content margins.
     private func cardWidth(in length: CGFloat, count: Int) -> CGFloat {
         let dividers = CGFloat(count - 1) * Self.dividerWidth
         let fitted = ((length - dividers) / CGFloat(count)).rounded(.down)
-        return fitted >= Self.minCardWidth ? fitted : min(length * 0.72, 300)
+        if fitted >= Self.minCardWidth { return fitted }
+        let shown = ((length - Self.peek) / (Self.minCardWidth + Self.dividerWidth)).rounded(.down)
+        guard shown >= 2 else { return min(length * 0.72, 300) }
+        return ((length - Self.peek) / shown - Self.dividerWidth).rounded(.down)
     }
 
     private static let minCardWidth: CGFloat = 180
+    private static let peek: CGFloat = 60
     /// A divider's line and the padding either side of it.
     private static let dividerWidth: CGFloat = 33
 }
