@@ -2,6 +2,7 @@ import WidgetKit
 import SwiftUI
 import AppIntents
 import AIUsageKit
+import AppSalesKit
 
 /// The watch face complications. The views are `AccessorySummary`, shared with the Lock Screen
 /// widgets on iPhone; only the family list differs, because `.accessoryCorner` is watchOS's alone.
@@ -44,10 +45,10 @@ struct WatchWidgets: Widget {
     ACStatEntry(date: .now, data: .example, configuration: WidgetPreferences())
 }
 
-/// Brings AIUsageKit's widget configuration and assistant picker into this extension's App Intents
-/// metadata.
-struct AIUsageIntentsPackage: AppIntentsPackage {
+/// Brings AppSalesKit's account picker, and AIUsageKit's widget configuration and assistant picker,
+/// into this extension's App Intents metadata.
+struct WidgetIntentsPackage: AppIntentsPackage {
     static var includedPackages: [any AppIntentsPackage.Type] {
-        [AIUsageKitPackage.self]
+        [AppSalesKitPackage.self, AIUsageKitPackage.self]
     }
 }

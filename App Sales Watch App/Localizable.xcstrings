@@ -35,40 +35,6 @@
         }
       }
     },
-    "%@ could not be reached." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@ konnte nicht erreicht werden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "No se pudo contactar con %@."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Impossible de contacter %@."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@に接続できませんでした。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "无法连接到%@。"
-          }
-        }
-      }
-    },
     "5 Hours" : {
       "localizations" : {
         "de" : {
@@ -239,40 +205,6 @@
         }
       }
     },
-    "An unknown error occurred. Please file a bug report." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ein unbekannter Fehler ist aufgetreten. Bitte melde einen Fehler."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Se produjo un error desconocido. Informa del error, por favor."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Une erreur inconnue est survenue. Merci de signaler ce bug."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "不明なエラーが発生しました。バグを報告してください。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "发生了未知错误。请提交错误报告。"
-          }
-        }
-      }
-    },
     "App Sales" : {
       "localizations" : {
         "de" : {
@@ -303,40 +235,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "App Sales"
-          }
-        }
-      }
-    },
-    "App Store Views" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store-Aufrufe"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vistas de App Store"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vues App Store"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store表示回数"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store 浏览量"
           }
         }
       }
@@ -477,43 +375,6 @@
         }
       }
     },
-    "Daily Active Devices" : {
-
-    },
-    "Data is not yet available." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Daten sind noch nicht verfügbar."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Los datos aún no están disponibles."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Les données ne sont pas encore disponibles."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "データはまだ利用できません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "数据尚不可用。"
-          }
-        }
-      }
-    },
     "Don't Run Out" : {
       "localizations" : {
         "de" : {
@@ -581,43 +442,6 @@
           }
         }
       }
-    },
-    "Google could not sign you in." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google konnte dich nicht anmelden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google no pudo iniciar tu sesión."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google n'a pas pu vous connecter."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Googleにサインインできませんでした。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google 无法为你登录。"
-          }
-        }
-      }
-    },
-    "Impressions" : {
-
     },
     "Last 30 Days" : {
       "localizations" : {
@@ -789,18 +613,9 @@
         }
       }
     },
-    "Orange: ahead of pace, so it may run out before it resets." : {
-
-    },
-    "Orange: behind pace, so tokens will go unused when it resets." : {
-
-    },
-    "Orange: over 75% used." : {
-
-    },
-    "Other" : {
-
-    },
+    "Orange: ahead of pace, so it may run out before it resets." : {},
+    "Orange: behind pace, so tokens will go unused when it resets." : {},
+    "Orange: over 75% used." : {},
     "Price" : {
       "localizations" : {
         "de" : {
@@ -869,9 +684,7 @@
         }
       }
     },
-    "Red: over 90% used." : {
-
-    },
+    "Red: over 90% used." : {},
     "Refresh" : {
       "localizations" : {
         "de" : {
@@ -1076,40 +889,6 @@
         }
       }
     },
-    "The credentials you entered are incorrect." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Die eingegebenen Anmeldedaten sind falsch."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Las credenciales introducidas son incorrectas."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Les identifiants saisis sont incorrects."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "入力された認証情報が正しくありません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你输入的凭据不正确。"
-          }
-        }
-      }
-    },
     "The sign-in has expired. Sign in again in App Sales." : {
       "localizations" : {
         "de" : {
@@ -1140,40 +919,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "登录已过期。请在 App Sales 中重新登录。"
-          }
-        }
-      }
-    },
-    "Updated %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Aktualisiert %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Actualizado %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Mis à jour %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@に更新"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "更新于%@"
           }
         }
       }
@@ -1245,9 +990,6 @@
           }
         }
       }
-    },
-    "Webpage Views" : {
-
     },
     "Website Views" : {
       "extractionState" : "stale",
@@ -1382,74 +1124,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "你尚未登录 Google Analytics。"
-          }
-        }
-      }
-    },
-    "You have exceeded the daily limit of API requests." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Du hast das tägliche Limit an API-Anfragen überschritten."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Has superado el límite diario de solicitudes de la API."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vous avez dépassé la limite quotidienne de requêtes API."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "APIリクエストの1日の上限を超えました。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你已超出每日 API 请求限额。"
-          }
-        }
-      }
-    },
-    "Your API-key does not have the right permissions." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Dein API-Schlüssel hat nicht die richtigen Berechtigungen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Tu clave de API no tiene los permisos correctos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Votre clé API ne dispose pas des autorisations requises."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "APIキーに適切な権限がありません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你的 API 密钥没有正确的权限。"
           }
         }
       }

@@ -1,5 +1,6 @@
 import AppIntents
 import AIUsageKitIntents
+import AppSalesKit
 
 /// The shortcuts that exist the moment the app is installed — no setup in the Shortcuts app first.
 ///
@@ -44,10 +45,10 @@ struct AppSalesShortcuts: AppShortcutsProvider {
     }
 }
 
-/// Brings AIUsageKit's intent, its assistant picker, and its widget configuration into the app's
-/// App Intents metadata.
+/// Brings AppSalesKit's account and metric, and AIUsageKit's intent, its assistant picker, and its
+/// widget configuration into the app's App Intents metadata.
 struct AppSalesIntentsPackage: AppIntentsPackage {
     static var includedPackages: [any AppIntentsPackage.Type] {
-        [AIUsageKitIntentsPackage.self]
+        [AppSalesKitPackage.self, AIUsageKitIntentsPackage.self]
     }
 }

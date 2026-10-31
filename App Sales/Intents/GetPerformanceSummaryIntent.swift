@@ -1,5 +1,6 @@
 import AppIntents
 import Foundation
+import AppSalesKit
 
 /// "How much did my apps make today?" — one metric's total for a period, the change against the
 /// window before it, and the per-app breakdown as a snippet.

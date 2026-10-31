@@ -1,6 +1,7 @@
 #if canImport(WidgetKit)
 import SwiftUI
 import WidgetKit
+import AppSalesKit
 
 struct ErrorWidget: View {
     let error: APIError

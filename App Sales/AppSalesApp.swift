@@ -1,6 +1,7 @@
 import SwiftUI
 import StoreKit
 import AIUsageKit
+import AppSalesKit
 
 @main
 struct AppSalesApp: App {

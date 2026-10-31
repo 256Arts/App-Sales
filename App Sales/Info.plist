@@ -2,6 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>AppSalesKit</key>
+	<dict>
+		<key>AppGroup</key>
+		<string>group.com.jaydenirwin.appsales</string>
+		<key>GoogleClientID</key>
+		<string>1019038999237-h5sj3hoc6v80214172tkemuqvkhkcfnb.apps.googleusercontent.com</string>
+		<key>KeychainService</key>
+		<string>com.jaydenirwin.appsales</string>
+	</dict>
 	<key>AIUsageKit</key>
 	<dict>
 		<key>AppGroup</key>

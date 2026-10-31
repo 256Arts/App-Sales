@@ -1,5 +1,6 @@
 import WidgetKit
 import SwiftUI
+import AppSalesKit
 
 // The accessory families exist only where something wears them: the iPhone's Lock Screen and the
 // watch face. `WidgetFamily` has no such cases on macOS or visionOS.

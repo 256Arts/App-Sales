@@ -7,31 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1BA5A1E50000000000000102 /* AppSalesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA5A1E50000000000000101 /* AppSalesKit */; };
+		1BA5A1E50000000000000202 /* AppSalesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA5A1E50000000000000201 /* AppSalesKit */; };
+		1BA5A1E50000000000000302 /* AppSalesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA5A1E50000000000000301 /* AppSalesKit */; };
+		1BA5A1E50000000000000402 /* AppSalesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA5A1E50000000000000401 /* AppSalesKit */; };
 		1BA1E5A00000000000000002 /* AIUsageKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA1E5A00000000000000001 /* AIUsageKit */; };
 		1BA1E5A00000000000000004 /* AIUsageKitIntents in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA1E5A00000000000000003 /* AIUsageKitIntents */; };
 		1BA1E5A00000000000000006 /* AIUsageKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA1E5A00000000000000005 /* AIUsageKit */; };
 		1BA1E5A00000000000000008 /* AIUsageKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1BA1E5A00000000000000007 /* AIUsageKit */; };
-		1BC0FFEE0000000000000010 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000C /* Gzip */; };
-		1BC0FFEE0000000000000011 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000D /* SwiftCSV */; };
-		1BC0FFEE0000000000000012 /* AppStoreConnect-Swift-SDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000E /* AppStoreConnect-Swift-SDK */; };
-		1BC0FFEE0000000000000013 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE000000000000000F /* KeychainAccess */; };
 		1BC0FFEE0000000000000015 /* App Sales Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 1BC0FFEE0000000000000002 /* App Sales Watch App.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		1BC0FFEE0000000000000028 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE0000000000000024 /* Gzip */; };
-		1BC0FFEE0000000000000029 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE0000000000000025 /* SwiftCSV */; };
-		1BC0FFEE000000000000002A /* AppStoreConnect-Swift-SDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE0000000000000026 /* AppStoreConnect-Swift-SDK */; };
-		1BC0FFEE000000000000002B /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 1BC0FFEE0000000000000027 /* KeychainAccess */; };
 		1BC0FFEE000000000000002D /* Watch Widgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1BC0FFEE0000000000000019 /* Watch Widgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		456187F426F66FE400FAE4F8 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 456187F326F66FE400FAE4F8 /* KeychainAccess */; };
-		456187F626F6741A00FAE4F8 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 456187F526F6741A00FAE4F8 /* KeychainAccess */; };
-		45CAC1092615CB8100FF63E7 /* AppStoreConnect-Swift-SDK in Frameworks */ = {isa = PBXBuildFile; productRef = 45CAC1082615CB8100FF63E7 /* AppStoreConnect-Swift-SDK */; };
-		45CAC10B2615CBC200FF63E7 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 45CAC10A2615CBC200FF63E7 /* Gzip */; };
-		45CAC10D2615CBC700FF63E7 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 45CAC10C2615CBC700FF63E7 /* SwiftCSV */; };
-		45CAC10F2615CBCB00FF63E7 /* AppStoreConnect-Swift-SDK in Frameworks */ = {isa = PBXBuildFile; productRef = 45CAC10E2615CBCB00FF63E7 /* AppStoreConnect-Swift-SDK */; };
 		45E8C4972612531D007F9B0E /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45E8C4962612531D007F9B0E /* WidgetKit.framework */; };
 		45E8C4992612531D007F9B0E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 45E8C4982612531D007F9B0E /* SwiftUI.framework */; };
 		45E8C4A52612531E007F9B0E /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 45E8C4942612531D007F9B0E /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		45E8C4BD261267FB007F9B0E /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = 45E8C4BC261267FB007F9B0E /* Gzip */; };
-		45E8C4C0261268D4007F9B0E /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = 45E8C4BF261268D4007F9B0E /* SwiftCSV */; };
 		1BAD5A000000000000000001 /* AdmobSwiftUI in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = 1BAD5A000000000000000002 /* AdmobSwiftUI */; };
 /* End PBXBuildFile section */
 
@@ -140,16 +128,7 @@
 				Intents/SalesIntentSupport.swift,
 				Intents/SalesSnippetViews.swift,
 				Localizable.xcstrings,
-				Views/AccountDetailView.swift,
-				Views/AccountsList.swift,
-				Views/AppDetailView.swift,
-				Views/AppTrendsChart.swift,
-				Views/SharePie.swift,
-				Views/ConversionFunnel.swift,
 				Views/HomeView.swift,
-				Views/InsightsView.swift,
-				Views/NewAccountView.swift,
-				Views/WebsitePageEditor.swift,
 				WidgetShots.swift,
 			);
 			target = 45E8C4932612531D007F9B0E /* WidgetsExtension */;
@@ -194,17 +173,7 @@
 				Intents/SalesIntentSupport.swift,
 				Intents/SalesSnippetViews.swift,
 				Localizable.xcstrings,
-				Views/AccountDetailView.swift,
-				Views/AccountsList.swift,
-				Views/AppDetailView.swift,
-				Views/AppTrendsChart.swift,
-				Views/SharePie.swift,
-				Views/ConversionFunnel.swift,
-				Views/DownloadsAndProceedsChart.swift,
 				Views/HomeView.swift,
-				Views/InsightsView.swift,
-				Views/NewAccountView.swift,
-				Views/WebsitePageEditor.swift,
 				WidgetShots.swift,
 			);
 			target = 1BC0FFEE0000000000000001 /* App Sales Watch App */;
@@ -231,17 +200,7 @@
 				Intents/SalesIntentSupport.swift,
 				Intents/SalesSnippetViews.swift,
 				Localizable.xcstrings,
-				Views/AccountDetailView.swift,
-				Views/AccountsList.swift,
-				Views/AppDetailView.swift,
-				Views/AppTrendsChart.swift,
-				Views/SharePie.swift,
-				Views/ConversionFunnel.swift,
-				Views/DownloadsAndProceedsChart.swift,
 				Views/HomeView.swift,
-				Views/InsightsView.swift,
-				Views/NewAccountView.swift,
-				Views/WebsitePageEditor.swift,
 				WidgetShots.swift,
 			);
 			target = 1BC0FFEE0000000000000018 /* Watch Widgets */;
@@ -316,20 +275,14 @@
 		1BC0FFEE0000000000000007 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
-				1BC0FFEE0000000000000011 /* SwiftCSV in Frameworks */,
-				1BC0FFEE0000000000000013 /* KeychainAccess in Frameworks */,
-				1BC0FFEE0000000000000010 /* Gzip in Frameworks */,
-				1BC0FFEE0000000000000012 /* AppStoreConnect-Swift-SDK in Frameworks */,
+				1BA5A1E50000000000000302 /* AppSalesKit in Frameworks */,
 			);
 		};
 		1BC0FFEE000000000000001F /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				1BA5A1E50000000000000402 /* AppSalesKit in Frameworks */,
 				1BA1E5A00000000000000008 /* AIUsageKit in Frameworks */,
-				1BC0FFEE0000000000000029 /* SwiftCSV in Frameworks */,
-				1BC0FFEE000000000000002B /* KeychainAccess in Frameworks */,
-				1BC0FFEE0000000000000028 /* Gzip in Frameworks */,
-				1BC0FFEE000000000000002A /* AppStoreConnect-Swift-SDK in Frameworks */,
 			);
 		};
 		1BC0FFEE0000000000000034 /* Frameworks */ = {
@@ -340,25 +293,19 @@
 		45E8C47A2612512E007F9B0E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				1BA5A1E50000000000000102 /* AppSalesKit in Frameworks */,
 				1BA1E5A00000000000000004 /* AIUsageKitIntents in Frameworks */,
 				1BA1E5A00000000000000002 /* AIUsageKit in Frameworks */,
-				45E8C4C0261268D4007F9B0E /* SwiftCSV in Frameworks */,
-				456187F426F66FE400FAE4F8 /* KeychainAccess in Frameworks */,
-				45E8C4BD261267FB007F9B0E /* Gzip in Frameworks */,
-				45CAC1092615CB8100FF63E7 /* AppStoreConnect-Swift-SDK in Frameworks */,
 				1BAD5A000000000000000001 /* AdmobSwiftUI in Frameworks */,
 			);
 		};
 		45E8C4912612531D007F9B0E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				1BA5A1E50000000000000202 /* AppSalesKit in Frameworks */,
 				1BA1E5A00000000000000006 /* AIUsageKit in Frameworks */,
 				45E8C4992612531D007F9B0E /* SwiftUI.framework in Frameworks */,
-				45CAC10F2615CBCB00FF63E7 /* AppStoreConnect-Swift-SDK in Frameworks */,
-				456187F626F6741A00FAE4F8 /* KeychainAccess in Frameworks */,
-				45CAC10D2615CBC700FF63E7 /* SwiftCSV in Frameworks */,
 				45E8C4972612531D007F9B0E /* WidgetKit.framework in Frameworks */,
-				45CAC10B2615CBC200FF63E7 /* Gzip in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -446,10 +393,7 @@
 			);
 			name = "App Sales Watch App";
 			packageProductDependencies = (
-				1BC0FFEE000000000000000C /* Gzip */,
-				1BC0FFEE000000000000000D /* SwiftCSV */,
-				1BC0FFEE000000000000000E /* AppStoreConnect-Swift-SDK */,
-				1BC0FFEE000000000000000F /* KeychainAccess */,
+				1BA5A1E50000000000000301 /* AppSalesKit */,
 			);
 			productName = "App Sales Watch App";
 			productReference = 1BC0FFEE0000000000000002 /* App Sales Watch App.app */;
@@ -472,11 +416,8 @@
 			);
 			name = "Watch Widgets";
 			packageProductDependencies = (
+				1BA5A1E50000000000000401 /* AppSalesKit */,
 				1BA1E5A00000000000000007 /* AIUsageKit */,
-				1BC0FFEE0000000000000024 /* Gzip */,
-				1BC0FFEE0000000000000025 /* SwiftCSV */,
-				1BC0FFEE0000000000000026 /* AppStoreConnect-Swift-SDK */,
-				1BC0FFEE0000000000000027 /* KeychainAccess */,
 			);
 			productName = "Watch Widgets";
 			productReference = 1BC0FFEE0000000000000019 /* Watch Widgets.appex */;
@@ -525,12 +466,9 @@
 			);
 			name = "App Sales";
 			packageProductDependencies = (
+				1BA5A1E50000000000000101 /* AppSalesKit */,
 				1BA1E5A00000000000000003 /* AIUsageKitIntents */,
 				1BA1E5A00000000000000001 /* AIUsageKit */,
-				45E8C4BC261267FB007F9B0E /* Gzip */,
-				45E8C4BF261268D4007F9B0E /* SwiftCSV */,
-				45CAC1082615CB8100FF63E7 /* AppStoreConnect-Swift-SDK */,
-				456187F326F66FE400FAE4F8 /* KeychainAccess */,
 				1BAD5A000000000000000002 /* AdmobSwiftUI */,
 			);
 			productName = "AC Widget";
@@ -553,11 +491,8 @@
 			);
 			name = WidgetsExtension;
 			packageProductDependencies = (
+				1BA5A1E50000000000000201 /* AppSalesKit */,
 				1BA1E5A00000000000000005 /* AIUsageKit */,
-				45CAC10A2615CBC200FF63E7 /* Gzip */,
-				45CAC10C2615CBC700FF63E7 /* SwiftCSV */,
-				45CAC10E2615CBCB00FF63E7 /* AppStoreConnect-Swift-SDK */,
-				456187F526F6741A00FAE4F8 /* KeychainAccess */,
 			);
 			productName = WidgetsExtension;
 			productReference = 45E8C4942612531D007F9B0E /* WidgetsExtension.appex */;
@@ -609,11 +544,8 @@
 			);
 			mainGroup = 45E8C4742612512E007F9B0E;
 			packageReferences = (
+				1BA5A1E500000000000000FF /* XCRemoteSwiftPackageReference "AppSalesKit" */,
 				1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */,
-				45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */,
-				45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */,
-				45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */,
-				456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				1BAD5A000000000000000003 /* XCRemoteSwiftPackageReference "AdmobSwiftUI" */,
 			);
 			preferredProjectObjectVersion = 90;
@@ -1304,44 +1236,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1BA5A1E500000000000000FF /* XCRemoteSwiftPackageReference "AppSalesKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/256Arts/AppSalesKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/256Arts/AIUsageKit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
-			};
-		};
-		456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
-		45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/AvdLee/appstoreconnect-swift-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.4.3;
-			};
-		};
-		45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/1024jp/GzipSwift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.1.1;
-			};
-		};
-		45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/swiftcsv/SwiftCSV";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.6.0;
 			};
 		};
 		1BAD5A000000000000000003 /* XCRemoteSwiftPackageReference "AdmobSwiftUI" */ = {
@@ -1355,6 +1263,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1BA5A1E50000000000000101 /* AppSalesKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BA5A1E500000000000000FF /* XCRemoteSwiftPackageReference "AppSalesKit" */;
+			productName = AppSalesKit;
+		};
+		1BA5A1E50000000000000201 /* AppSalesKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BA5A1E500000000000000FF /* XCRemoteSwiftPackageReference "AppSalesKit" */;
+			productName = AppSalesKit;
+		};
+		1BA5A1E50000000000000301 /* AppSalesKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BA5A1E500000000000000FF /* XCRemoteSwiftPackageReference "AppSalesKit" */;
+			productName = AppSalesKit;
+		};
+		1BA5A1E50000000000000401 /* AppSalesKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1BA5A1E500000000000000FF /* XCRemoteSwiftPackageReference "AppSalesKit" */;
+			productName = AppSalesKit;
+		};
 		1BA1E5A00000000000000001 /* AIUsageKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */;
@@ -1374,86 +1302,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */;
 			productName = AIUsageKit;
-		};
-		1BC0FFEE000000000000000C /* Gzip */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */;
-			productName = Gzip;
-		};
-		1BC0FFEE000000000000000D /* SwiftCSV */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */;
-			productName = SwiftCSV;
-		};
-		1BC0FFEE000000000000000E /* AppStoreConnect-Swift-SDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */;
-			productName = "AppStoreConnect-Swift-SDK";
-		};
-		1BC0FFEE000000000000000F /* KeychainAccess */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
-			productName = KeychainAccess;
-		};
-		1BC0FFEE0000000000000024 /* Gzip */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */;
-			productName = Gzip;
-		};
-		1BC0FFEE0000000000000025 /* SwiftCSV */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */;
-			productName = SwiftCSV;
-		};
-		1BC0FFEE0000000000000026 /* AppStoreConnect-Swift-SDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */;
-			productName = "AppStoreConnect-Swift-SDK";
-		};
-		1BC0FFEE0000000000000027 /* KeychainAccess */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
-			productName = KeychainAccess;
-		};
-		456187F326F66FE400FAE4F8 /* KeychainAccess */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
-			productName = KeychainAccess;
-		};
-		456187F526F6741A00FAE4F8 /* KeychainAccess */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 456187F226F66FE400FAE4F8 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
-			productName = KeychainAccess;
-		};
-		45CAC1082615CB8100FF63E7 /* AppStoreConnect-Swift-SDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */;
-			productName = "AppStoreConnect-Swift-SDK";
-		};
-		45CAC10A2615CBC200FF63E7 /* Gzip */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */;
-			productName = Gzip;
-		};
-		45CAC10C2615CBC700FF63E7 /* SwiftCSV */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */;
-			productName = SwiftCSV;
-		};
-		45CAC10E2615CBCB00FF63E7 /* AppStoreConnect-Swift-SDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45CAC1072615CB8100FF63E7 /* XCRemoteSwiftPackageReference "appstoreconnect-swift-sdk" */;
-			productName = "AppStoreConnect-Swift-SDK";
-		};
-		45E8C4BC261267FB007F9B0E /* Gzip */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45E8C4BB261267FB007F9B0E /* XCRemoteSwiftPackageReference "GzipSwift" */;
-			productName = Gzip;
-		};
-		45E8C4BF261268D4007F9B0E /* SwiftCSV */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 45E8C4BE261268D4007F9B0E /* XCRemoteSwiftPackageReference "SwiftCSV" */;
-			productName = SwiftCSV;
 		};
 		1BAD5A000000000000000002 /* AdmobSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;

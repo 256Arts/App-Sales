@@ -1,5 +1,6 @@
 import AppIntents
 import SwiftUI
+import AppSalesKit
 
 /// The card Siri and Shortcuts show for `GetPerformanceSummaryIntent`: one metric's total for the
 /// period, how it moved against the window before it, and the apps behind it.

@@ -1,5 +1,5 @@
 {
-  "originHash" : "d4ca4f727b175abb1c7c11d3e5f6ced40757910d3a215b4c47191dec0bffa7dc",
+  "originHash" : "4dc0a550ad3008a33dd91fba7931b3ccc3059a261abcb1b1b5abd6205784367b",
   "pins" : [
     {
       "identity" : "admobswiftui",
@@ -20,12 +20,21 @@
       }
     },
     {
+      "identity" : "appsaleskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/256Arts/AppSalesKit.git",
+      "state" : {
+        "revision" : "9148aeed12465694c23aaf4f17eb9dbdf41975e2",
+        "version" : "1.0.0"
+      }
+    },
+    {
       "identity" : "appstoreconnect-swift-sdk",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/AvdLee/appstoreconnect-swift-sdk.git",
       "state" : {
-        "revision" : "55fceaba611dcf7f4e7f897addcd8fb90867fa01",
-        "version" : "4.4.3"
+        "revision" : "b5492e64bba47c992ea53457ae666fa7aae15008",
+        "version" : "4.5.3"
       }
     },
     {

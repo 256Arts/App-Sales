@@ -1,4 +1,5 @@
 import SwiftUI
+import AppSalesKit
 
 struct DownloadsIconsGraphic: View {
     

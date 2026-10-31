@@ -1,5 +1,6 @@
 import AppIntents
 import Foundation
+import AppSalesKit
 
 /// The window an intent reports on.
 ///
@@ -76,32 +77,6 @@ private extension Calendar {
     /// `date(byAdding:value:to:)` without the optional, which no period here can actually hit.
     func date(byAdding component: Calendar.Component, value: Int, to date: Date, default fallback: Date) -> Date {
         self.date(byAdding: component, value: value, to: date) ?? fallback
-    }
-}
-
-/// Exposes the app's existing metric split to Shortcuts, rather than keeping a second enum in step
-/// with it.
-extension InfoType: AppEnum {
-    static var typeDisplayRepresentation: TypeDisplayRepresentation { "Metric" }
-    static var caseDisplayRepresentations: [InfoType: DisplayRepresentation] {
-        [
-            .proceeds: DisplayRepresentation(title: "Proceeds", image: .init(systemName: "dollarsign.circle")),
-            .downloads: DisplayRepresentation(title: "Downloads", image: .init(systemName: "square.and.arrow.down")),
-            .updates: DisplayRepresentation(title: "Updates", image: .init(systemName: "arrow.triangle.2.circlepath")),
-            .iap: DisplayRepresentation(title: "In-App Purchases", image: .init(systemName: "cart")),
-        ]
-    }
-
-    /// The metric's name for dialog text. See `SalesPeriod.title`.
-    var title: LocalizedStringResource {
-        InfoType.caseDisplayRepresentations[self]?.title ?? "\(rawValue)"
-    }
-}
-
-/// Lets an `APIError` surface in Shortcuts with the same wording the app shows.
-extension APIError: CustomLocalizedStringResourceConvertible {
-    var localizedStringResource: LocalizedStringResource {
-        "\(errorDescription ?? String(localized: "An unknown error occurred."))"
     }
 }
 

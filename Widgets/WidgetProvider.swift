@@ -1,6 +1,7 @@
 import WidgetKit
 import SwiftUI
 import AppIntents
+import AppSalesKit
 
 /// The configuration, timeline provider, and entry every App Sales widget is built on — the home
 /// screen widgets on iPhone, iPad, Mac, and Vision, and the watch face complications. They differ

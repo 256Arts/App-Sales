@@ -1,7 +1,12 @@
 import AppTrackingTransparency
+import AppSalesKit
 #if canImport(AdmobSwiftUI)
 import AdmobSwiftUI
 #endif
+
+extension UserDefaults.Key {
+    static let appLaunchCount = "appLaunchCount"
+}
 
 /// Decides when ads and App Store review requests appear, so both ramp up with the same engagement.
 final class ExperienceManager {

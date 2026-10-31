@@ -1,5 +1,6 @@
 import SwiftUI
 import AIUsageKit
+import AppSalesKit
 
 /// Transparent PNGs of every widget and the menu bar extra, for composing marketing shots by hand.
 ///

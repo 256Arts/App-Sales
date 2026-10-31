@@ -1,5 +1,6 @@
 import SwiftUI
 import WidgetKit
+import AppSalesKit
 
 struct SummarySmall: View {
     let percentFormatter: NumberFormatter = {

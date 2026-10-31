@@ -35,74 +35,6 @@
         }
       }
     },
-    "Unknown" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Unbekannt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Desconocido"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Inconnu"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "不明"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "未知"
-          }
-        }
-      }
-    },
-    "—" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "—"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "—"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "—"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "—"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "—"
-          }
-        }
-      }
-    },
     "%@" : {
       "localizations" : {
         "de" : {
@@ -133,46 +65,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@"
-          }
-        }
-      }
-    },
-    "%@ · %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ · %2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ · %2$@"
           }
         }
       }
@@ -213,40 +105,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ (%2$@)"
-          }
-        }
-      }
-    },
-    "%@ could not be reached." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@ konnte nicht erreicht werden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "No se pudo contactar con %@."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Impossible de contacter %@."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@に接続できませんでした。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "无法连接到%@。"
           }
         }
       }
@@ -353,36 +211,122 @@
         }
       }
     },
-    "%@ proceeds in the last 30 days" : {
+    "%@ · %@" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@ Einnahmen in den letzten 30 Tagen"
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@"
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@ de ingresos en los últimos 30 días"
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@ de revenus au cours des 30 derniers jours"
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "過去30日間の収益%@"
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "过去 30 天的收益为 %@"
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "%@%@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        }
+      }
+    },
+    "%@%lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$lld"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@%2$lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$lld"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$lld"
           }
         }
       }
@@ -587,188 +531,6 @@
         }
       }
     },
-    "%@%@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@%2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$@"
-          }
-        }
-      }
-    },
-    "%@%lld" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$lld"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@%2$lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$lld"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$lld"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$lld"
-          }
-        }
-      }
-    },
-    "%lld active devices a day over the last 30 days" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Durchschnittlich %lld aktive Geräte pro Tag in den letzten 30 Tagen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Una media de %lld dispositivos activos al día en los últimos 30 días"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld appareils actifs par jour en moyenne au cours des 30 derniers jours"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "過去30日間の1日あたりのアクティブデバイス数 %lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "过去 30 天平均每天 %lld 台活跃设备"
-          }
-        }
-      }
-    },
-    "%lld App Store impressions in the last 30 days" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld App Store-Impressionen in den letzten 30 Tagen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld impresiones en el App Store en los últimos 30 días"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld impressions sur l’App Store au cours des 30 derniers jours"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "過去30日間のApp Storeインプレッション数 %lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "过去 30 天 App Store 展示 %lld 次"
-          }
-        }
-      }
-    },
-    "%lld App Store product page views in the last 30 days" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld Aufrufe der App Store-Produktseite in den letzten 30 Tagen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld vistas de la página de producto del App Store en los últimos 30 días"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld vues de la page produit de l’App Store au cours des 30 derniers jours"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "過去30日間のApp Storeプロダクトページ閲覧数 %lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "过去 30 天 App Store 产品页浏览 %lld 次"
-          }
-        }
-      }
-    },
     "%lld apps for %@, led by %@ with %@ downloads." : {
       "localizations" : {
         "de" : {
@@ -809,108 +571,6 @@
         }
       }
     },
-    "%lld downloads in the last 30 days" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld Downloads in den letzten 30 Tagen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld descargas en los últimos 30 días"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld téléchargements au cours des 30 derniers jours"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "過去30日間で%lldダウンロード"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "过去 30 天有 %lld 次下载"
-          }
-        }
-      }
-    },
-    "%lld webpage views in the last 30 days" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld Webseitenaufrufe in den letzten 30 Tagen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld vistas de la página web en los últimos 30 días"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%lld vues de la page web au cours des 30 derniers jours"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "過去30日間のWebページ閲覧数 %lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "过去 30 天网页浏览 %lld 次"
-          }
-        }
-      }
-    },
-    "••••%@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "••••%@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "••••%@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "••••%@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "••••%@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "••••%@"
-          }
-        }
-      }
-    },
     "30 days" : {
       "localizations" : {
         "de" : {
@@ -941,278 +601,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "30 天"
-          }
-        }
-      }
-    },
-    "30 days through %@, the latest reported." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "30 Tage bis %@, der zuletzt gemeldete Zeitraum."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "30 días hasta el %@, el período más reciente notificado."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "30 jours jusqu'au %@, la période la plus récente signalée."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@までの30日間（最新の報告）。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "截至%@的 30 天，最新报告数据。"
-          }
-        }
-      }
-    },
-    "a day" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "pro Tag"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "al día"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "par jour"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "1日あたり"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "每天"
-          }
-        }
-      }
-    },
-    "Account" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Account"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Cuenta"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Compte"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "アカウント"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "账户"
-          }
-        }
-      }
-    },
-    "Account Name" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Kontoname"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Nombre de la cuenta"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Nom du compte"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "アカウント名"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "账户名称"
-          }
-        }
-      }
-    },
-    "Accounts" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Accounts"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Cuentas"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Comptes"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "アカウント"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "账户"
-          }
-        }
-      }
-    },
-    "Accounts…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Accounts …"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Cuentas…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Comptes…"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "アカウント…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "账户…"
-          }
-        }
-      }
-    },
-    "Add an App Store Connect account in App Sales first." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Füge zuerst einen App Store Connect Account in App Sales hinzu."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Añade primero una cuenta de App Store Connect en App Sales."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ajoutez d'abord un compte App Store Connect dans App Sales."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "まずApp SalesでApp Store Connectアカウントを追加してください。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "请先在 App Sales 中添加 App Store Connect 账户。"
-          }
-        }
-      }
-    },
-    "Add Demo Account" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Demo-Account hinzufügen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Añadir cuenta de demostración"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ajouter un compte de démonstration"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "デモアカウントを追加"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "添加演示账户"
           }
         }
       }
@@ -1285,138 +673,172 @@
         }
       }
     },
-    "An unknown error occurred." : {
+    "Account" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Ein unbekannter Fehler ist aufgetreten."
+            "value" : "Account"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Se produjo un error desconocido."
+            "value" : "Cuenta"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Une erreur inconnue est survenue."
+            "value" : "Compte"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "不明なエラーが発生しました。"
+            "value" : "アカウント"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "发生了未知错误。"
+            "value" : "账户"
           }
         }
       }
     },
-    "An unknown error occurred. Please file a bug report." : {
+    "Accounts" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Ein unbekannter Fehler ist aufgetreten. Bitte melde einen Fehler."
+            "value" : "Accounts"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Se produjo un error desconocido. Informa del error, por favor."
+            "value" : "Cuentas"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Une erreur inconnue est survenue. Merci de signaler ce bug."
+            "value" : "Comptes"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "不明なエラーが発生しました。バグを報告してください。"
+            "value" : "アカウント"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "发生了未知错误。请提交错误报告。"
+            "value" : "账户"
           }
         }
       }
     },
-    "Analytics reports need to be turned on once with an API key that has the Admin role. After that, a Sales and Reports key can read them." : {
+    "Accounts…" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Analyseberichte müssen einmal mit einem API-Schlüssel mit der Rolle „Admin“ aktiviert werden. Danach kann ein Sales-and-Reports-Schlüssel sie lesen."
+            "value" : "Accounts …"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Los informes de análisis deben activarse una vez con una clave de API con el rol de administrador. Después, una clave de Sales and Reports puede leerlos."
+            "value" : "Cuentas…"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Les rapports d'analyse doivent être activés une fois avec une clé API ayant le rôle Admin. Ensuite, une clé Sales and Reports peut les lire."
+            "value" : "Comptes…"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "分析レポートは、管理者ロールを持つAPIキーで一度有効にする必要があります。その後は、SalesおよびReportsのキーで読み取れます。"
+            "value" : "アカウント…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "分析报告需要先用具有管理员角色的 API 密钥启用一次。之后，销售和报告密钥即可读取它们。"
+            "value" : "账户…"
           }
         }
       }
     },
-    "Analyzing…" : {
+    "Add Demo Account" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Wird analysiert …"
+            "value" : "Demo-Account hinzufügen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Analizando…"
+            "value" : "Añadir cuenta de demostración"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Analyse en cours…"
+            "value" : "Ajouter un compte de démonstration"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "分析中…"
+            "value" : "デモアカウントを追加"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "分析中…"
+            "value" : "添加演示账户"
+          }
+        }
+      }
+    },
+    "Add an App Store Connect account in App Sales first." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Füge zuerst einen App Store Connect Account in App Sales hinzu."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Añade primero una cuenta de App Store Connect en App Sales."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Ajoutez d'abord un compte App Store Connect dans App Sales."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "まずApp SalesでApp Store Connectアカウントを追加してください。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "请先在 App Sales 中添加 App Store Connect 账户。"
           }
         }
       }
@@ -1489,108 +911,6 @@
         }
       }
     },
-    "App Store Analytics" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Analytics"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Analítica de App Store"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Analytique App Store"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store分析"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store 分析"
-          }
-        }
-      }
-    },
-    "App Store Connect" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connect"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connect"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connect"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connect"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connect"
-          }
-        }
-      }
-    },
-    "App Store Connect is preparing analytics reports for your apps. The first ones usually arrive within two days." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connect erstellt gerade Analyseberichte für deine Apps. Die ersten treffen meist innerhalb von zwei Tagen ein."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connect está preparando informes de análisis para tus apps. Los primeros suelen llegar en dos días."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connect prépare les rapports d'analyse de vos applications. Les premiers arrivent généralement dans les deux jours."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connectがアプリの分析レポートを準備しています。最初のレポートは通常2日以内に届きます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connect 正在为你的应用准备分析报告。首批报告通常会在两天内送达。"
-          }
-        }
-      }
-    },
     "App Store Link" : {
       "localizations" : {
         "de" : {
@@ -1621,40 +941,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "App Store 链接"
-          }
-        }
-      }
-    },
-    "App Store Views" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store-Aufrufe"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vistas de App Store"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vues App Store"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store表示回数"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store 浏览量"
           }
         }
       }
@@ -1723,142 +1009,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "助手"
-          }
-        }
-      }
-    },
-    "Cancel" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Abbrechen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Cancelar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Annuler"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "キャンセル"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "取消"
-          }
-        }
-      }
-    },
-    "Chart Options" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Diagrammoptionen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Opciones de gráfico"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Options du graphique"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "グラフオプション"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "图表选项"
-          }
-        }
-      }
-    },
-    "Check Again" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Erneut prüfen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Comprobar de nuevo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vérifier à nouveau"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "再確認"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "重新检查"
-          }
-        }
-      }
-    },
-    "Choose a unique name." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Wähle einen eindeutigen Namen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Elige un nombre único."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Choisissez un nom unique."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "他と重複しない名前を選んでください。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "请选择一个唯一的名称。"
           }
         }
       }
@@ -1999,346 +1149,6 @@
         }
       }
     },
-    "Conversion Rate" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Konversionsrate"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Tasa de conversión"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Taux de conversion"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "コンバージョン率"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "转化率"
-          }
-        }
-      }
-    },
-    "Copy" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Kopieren"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Copiar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Copier"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "コピー"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "复制"
-          }
-        }
-      }
-    },
-    "Couldn't generate insights right now." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Erkenntnisse konnten momentan nicht erstellt werden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "No se pudieron generar novedades en este momento."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Impossible de générer des informations pour le moment."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "現在インサイトを生成できません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "目前无法生成洞察。"
-          }
-        }
-      }
-    },
-    "Current Account" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Aktueller Account"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Cuenta actual"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Compte actuel"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "現在のアカウント"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "当前账户"
-          }
-        }
-      }
-    },
-    "Daily Active Devices" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Täglich aktive Geräte"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Dispositivos activos diarios"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Appareils actifs quotidiens"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "1日のアクティブデバイス数"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "每日活跃设备"
-          }
-        }
-      }
-    },
-    "Data is not yet available." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Daten sind noch nicht verfügbar."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Los datos aún no están disponibles."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Les données ne sont pas encore disponibles."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "データはまだ利用できません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "数据尚不可用。"
-          }
-        }
-      }
-    },
-    "Data Type" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Datentyp"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Tipo de datos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Type de données"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "データの種類"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "数据类型"
-          }
-        }
-      }
-    },
-    "Day" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Tag"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Día"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Jour"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "日"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "日期"
-          }
-        }
-      }
-    },
-    "Delete" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Löschen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Eliminar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Supprimer"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "削除"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "删除"
-          }
-        }
-      }
-    },
-    "Delete Account?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Account löschen?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "¿Eliminar la cuenta?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Supprimer le compte ?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "アカウントを削除しますか？"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "删除账户？"
-          }
-        }
-      }
-    },
     "Developer Website" : {
       "localizations" : {
         "de" : {
@@ -2369,74 +1179,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "开发者网站"
-          }
-        }
-      }
-    },
-    "Done" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Fertig"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Listo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Terminé"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "完了"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "完成"
-          }
-        }
-      }
-    },
-    "down" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "runter"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "bajada"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "en baisse"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "下降"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "下降"
           }
         }
       }
@@ -2505,108 +1247,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "每日下载量"
-          }
-        }
-      }
-    },
-    "Downloads by Device" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Downloads nach Gerät"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Descargas por dispositivo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Téléchargements par appareil"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "デバイス別ダウンロード数"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "按设备划分的下载量"
-          }
-        }
-      }
-    },
-    "Duplicate Account" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Doppelter Account"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Cuenta duplicada"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Compte en double"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "重複したアカウント"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "重复的账户"
-          }
-        }
-      }
-    },
-    "Duplicate Name" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Doppelter Name"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Nombre duplicado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Nom en double"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "重複した名前"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "重复的名称"
           }
         }
       }
@@ -2747,74 +1387,6 @@
         }
       }
     },
-    "Free" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Kostenlos"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Gratis"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Gratuit"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "無料"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "免费"
-          }
-        }
-      }
-    },
-    "Generated on-device by Apple Intelligence. May contain mistakes." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Auf dem Gerät von Apple Intelligence erstellt. Kann Fehler enthalten."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Generado en el dispositivo por Apple Intelligence. Puede contener errores."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Générées sur l'appareil par Apple Intelligence. Peuvent contenir des erreurs."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Apple Intelligenceによりデバイス上で生成されました。誤りが含まれる場合があります。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "由 Apple Intelligence 在设备端生成，可能包含错误。"
-          }
-        }
-      }
-    },
     "Get ${metric} for ${period}" : {
       "localizations" : {
         "de" : {
@@ -2917,6 +1489,40 @@
         }
       }
     },
+    "Get Sales Summary" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Verkaufsübersicht abrufen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Obtener resumen de ventas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Obtenir le résumé des ventes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "売上概要を取得"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "获取销售摘要"
+          }
+        }
+      }
+    },
     "Get Sales by App" : {
       "localizations" : {
         "de" : {
@@ -2985,312 +1591,6 @@
         }
       }
     },
-    "Get Sales Summary" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Verkaufsübersicht abrufen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Obtener resumen de ventas"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Obtenir le résumé des ventes"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "売上概要を取得"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "获取销售摘要"
-          }
-        }
-      }
-    },
-    "Google Analytics" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google Analytics"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google Analytics"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google Analytics"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google Analytics"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google Analytics"
-          }
-        }
-      }
-    },
-    "Google could not sign you in." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google konnte dich nicht anmelden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google no pudo iniciar tu sesión."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google n'a pas pu vous connecter."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Googleにサインインできませんでした。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Google 无法为你登录。"
-          }
-        }
-      }
-    },
-    "How to create an API key" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "So erstellst du einen API-Schlüssel"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Cómo crear una clave de API"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Comment créer une clé API"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "APIキーの作成方法"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "如何创建 API 密钥"
-          }
-        }
-      }
-    },
-    "How to find it" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "So findest du es"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Cómo encontrarlo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Comment le trouver"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "見つけ方"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "如何找到它"
-          }
-        }
-      }
-    },
-    "https://example.com/app" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "https://example.com/app"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "https://example.com/app"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "https://example.com/app"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "https://example.com/app"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "https://example.com/app"
-          }
-        }
-      }
-    },
-    "If you haven't created an API key yet, now is the time to do it." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Falls du noch keinen API-Schlüssel erstellt hast, ist jetzt der richtige Zeitpunkt dafür."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Si aún no has creado una clave de API, ahora es el momento de hacerlo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Si vous n'avez pas encore créé de clé API, c'est le moment de le faire."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "まだAPIキーを作成していない場合は、今作成しましょう。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "如果你还没有创建 API 密钥，现在正是时候。"
-          }
-        }
-      }
-    },
-    "Impressions" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Impressionen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Impresiones"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Impressions"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "インプレッション数"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "曝光量"
-          }
-        }
-      }
-    },
-    "In the third column of the table on the keys page in App Store Connect." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "In der dritten Spalte der Tabelle auf der Schlüssel-Seite in App Store Connect."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "En la tercera columna de la tabla de la página de claves en App Store Connect."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Dans la troisième colonne du tableau de la page des clés dans App Store Connect."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connectのキーページにある表の3列目にあります。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "在 App Store Connect 密钥页面表格的第三列中。"
-          }
-        }
-      }
-    },
     "In-App Purchases" : {
       "localizations" : {
         "de" : {
@@ -3321,108 +1621,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "应用内购买"
-          }
-        }
-      }
-    },
-    "Insights" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Erkenntnisse"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Novedades"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Informations"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "インサイト"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "洞察"
-          }
-        }
-      }
-    },
-    "Invalid Account" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ungültiger Account"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Cuenta no válida"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Compte invalide"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "無効なアカウント"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "无效的账户"
-          }
-        }
-      }
-    },
-    "Issuer ID" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Aussteller-ID"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ID del emisor"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ID de l'émetteur"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "発行者ID"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "颁发者 ID"
           }
         }
       }
@@ -3461,40 +1659,6 @@
         }
       }
     },
-    "Last 7 Days" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Letzte 7 Tage"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Últimos 7 días"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "7 derniers jours"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "過去7日間"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "过去 7 天"
-          }
-        }
-      }
-    },
     "Last 30 Days" : {
       "localizations" : {
         "de" : {
@@ -3525,6 +1689,40 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "过去 30 天"
+          }
+        }
+      }
+    },
+    "Last 7 Days" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Letzte 7 Tage"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Últimos 7 días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "7 derniers jours"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "過去7日間"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "过去 7 天"
           }
         }
       }
@@ -3733,40 +1931,6 @@
         }
       }
     },
-    "Not available" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Nicht verfügbar"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "No disponible"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Non disponible"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "利用不可"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "不可用"
-          }
-        }
-      }
-    },
     "Not on the App Store" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3870,40 +2034,6 @@
         }
       }
     },
-    "On the top of the keys page in App Store Connect, it will state your 'Issuer ID'." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Oben auf der Schlüssel-Seite in App Store Connect steht deine „Aussteller-ID“."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "En la parte superior de la página de claves en App Store Connect aparecerá tu «ID del emisor»."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "En haut de la page des clés dans App Store Connect figure votre « ID de l'émetteur »."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connectのキーページの上部に「発行者ID」が表示されます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "在 App Store Connect 密钥页面顶部会显示你的“颁发者 ID”。"
-          }
-        }
-      }
-    },
     "Open Webpage" : {
       "localizations" : {
         "de" : {
@@ -3934,74 +2064,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "打开网页"
-          }
-        }
-      }
-    },
-    "Other" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Andere"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Otro"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Autre"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "その他"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "其他"
-          }
-        }
-      }
-    },
-    "Page Views" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Seitenaufrufe"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vistas de página"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Pages vues"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ページ閲覧数"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "页面浏览量"
           }
         }
       }
@@ -4108,108 +2170,6 @@
         }
       }
     },
-    "Priced at %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Preis: %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Precio: %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Prix : %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "価格%@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "定价 %@"
-          }
-        }
-      }
-    },
-    "Private Key" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Privater Schlüssel"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Clave privada"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Clé privée"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "秘密鍵"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "私钥"
-          }
-        }
-      }
-    },
-    "Private Key ID" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ID des privaten Schlüssels"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ID de la clave privada"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ID de la clé privée"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "秘密鍵ID"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "私钥 ID"
-          }
-        }
-      }
-    },
     "Proceeds" : {
       "localizations" : {
         "de" : {
@@ -4240,40 +2200,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "收益"
-          }
-        }
-      }
-    },
-    "Product Page Views" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Produktseiten-Aufrufe"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vistas de la página de producto"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vues de la page produit"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "製品ページの表示回数"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "产品页面浏览量"
           }
         }
       }
@@ -4448,40 +2374,6 @@
         }
       }
     },
-    "Sales by App" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Verkäufe nach App"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ventas por app"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ventes par application"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "アプリ別売上"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "按应用统计销售额"
-          }
-        }
-      }
-    },
     "Sales Summary" : {
       "localizations" : {
         "de" : {
@@ -4516,70 +2408,36 @@
         }
       }
     },
-    "Sales through %@" : {
+    "Sales by App" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Verkäufe bis %@"
+            "value" : "Verkäufe nach App"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Ventas hasta el %@"
+            "value" : "Ventas por app"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Ventes jusqu'au %@"
+            "value" : "Ventes par application"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "%@までの売上"
+            "value" : "アプリ別売上"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "截至%@的销售额"
-          }
-        }
-      }
-    },
-    "Save" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Sichern"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Guardar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Enregistrer"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "保存"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "保存"
+            "value" : "按应用统计销售额"
           }
         }
       }
@@ -4652,40 +2510,6 @@
         }
       }
     },
-    "Sessions" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Sitzungen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Sesiones"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Sessions"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "セッション数"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "会话数"
-          }
-        }
-      }
-    },
     "Set Webpage…" : {
       "localizations" : {
         "de" : {
@@ -4716,176 +2540,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "设置网页…"
-          }
-        }
-      }
-    },
-    "Show" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Anzeigen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Mostrar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Afficher"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "表示"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "显示"
-          }
-        }
-      }
-    },
-    "Show in App List" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "In App-Liste anzeigen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Mostrar en la lista de apps"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Afficher dans la liste des apps"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App リストに表示"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "在 App 列表中显示"
-          }
-        }
-      }
-    },
-    "Sign In" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Anmelden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Iniciar sesión"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Se connecter"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "サインイン"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "登录"
-          }
-        }
-      }
-    },
-    "Sign In to App Store Connect" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Bei App Store Connect anmelden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Iniciar sesión en App Store Connect"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Se connecter à App Store Connect"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connectにサインイン"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "登录 App Store Connect"
-          }
-        }
-      }
-    },
-    "Sign in to Claude or Codex in Accounts to see how much of each one's limits you have left, beside the day's sales." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Melde dich in Accounts bei Claude oder Codex an, um neben den Tagesverkäufen zu sehen, wie viel Limit dir noch bleibt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Inicia sesión en Claude o Codex en Cuentas para ver, junto a las ventas del día, cuánto te queda de cada límite."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Connectez-vous à Claude ou Codex dans Comptes pour voir, à côté des ventes du jour, combien de limites vous reste-t-il."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "「アカウント」でClaudeまたはCodexにサインインすると、その日の売上の横に各アシスタントの残り上限が表示されます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "在“账户”中登录 Claude 或 Codex，即可在当天销售额旁看到各自还剩多少限额。"
           }
         }
       }
@@ -4924,138 +2578,36 @@
         }
       }
     },
-    "Sign Out" : {
+    "Sign in to Claude or Codex in Accounts to see how much of each one's limits you have left, beside the day's sales." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Abmelden"
+            "value" : "Melde dich in Accounts bei Claude oder Codex an, um neben den Tagesverkäufen zu sehen, wie viel Limit dir noch bleibt."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Cerrar sesión"
+            "value" : "Inicia sesión en Claude o Codex en Cuentas para ver, junto a las ventas del día, cuánto te queda de cada límite."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "Se déconnecter"
+            "value" : "Connectez-vous à Claude ou Codex dans Comptes pour voir, à côté des ventes du jour, combien de limites vous reste-t-il."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "サインアウト"
+            "value" : "「アカウント」でClaudeまたはCodexにサインインすると、その日の売上の横に各アシスタントの残り上限が表示されます。"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "machine_translated",
-            "value" : "退出登录"
-          }
-        }
-      }
-    },
-    "Some or all of the information entered is incorrect." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ein Teil oder alle der eingegebenen Angaben sind falsch."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Parte o toda la información introducida es incorrecta."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Une partie ou la totalité des informations saisies est incorrecte."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "入力された情報の一部または全部が正しくありません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "输入的部分或全部信息不正确。"
-          }
-        }
-      }
-    },
-    "Sort Apps By" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Apps sortieren nach"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ordenar apps por"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Trier les apps par"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App の並べ替え"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App 排序方式"
-          }
-        }
-      }
-    },
-    "Sort By" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Sortieren nach"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ordenar por"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Trier par"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "並べ替え"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "排序方式"
+            "value" : "在“账户”中登录 Claude 或 Codex，即可在当天销售额旁看到各自还剩多少限额。"
           }
         }
       }
@@ -5128,108 +2680,6 @@
         }
       }
     },
-    "The credentials you entered are incorrect." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Die eingegebenen Anmeldedaten sind falsch."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Las credenciales introducidas son incorrectas."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Les identifiants saisis sont incorrects."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "入力された認証情報が正しくありません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你输入的凭据不正确。"
-          }
-        }
-      }
-    },
-    "The page about %@ on your website. Leave it empty to find the page by the app's name." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Die Seite über %@ auf deiner Website. Leer lassen, um die Seite anhand des App-Namens zu finden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "La página sobre %@ en tu sitio web. Déjala vacía para buscar la página por el nombre de la app."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "La page concernant %@ sur votre site web. Laissez vide pour trouver la page par le nom de l'application."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "ウェブサイト内の%@に関するページ。空欄にするとアプリ名でページを検索します。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你网站上关于%@的页面。留空则按应用名称查找页面。"
-          }
-        }
-      }
-    },
-    "These credentials have already been added." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Diese Anmeldedaten wurden bereits hinzugefügt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Estas credenciales ya se han añadido."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ces identifiants ont déjà été ajoutés."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "この認証情報は既に追加されています。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "这些凭据已经添加过了。"
-          }
-        }
-      }
-    },
     "Today" : {
       "localizations" : {
         "de" : {
@@ -5298,40 +2748,6 @@
         }
       }
     },
-    "up" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "hoch"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "subida"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "en hausse"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "上昇"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "上升"
-          }
-        }
-      }
-    },
     "Updated" : {
       "localizations" : {
         "de" : {
@@ -5362,40 +2778,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "已更新"
-          }
-        }
-      }
-    },
-    "Updated %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Aktualisiert %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Actualizado %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Mis à jour %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "%@に更新"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "更新于%@"
           }
         }
       }
@@ -5468,40 +2850,6 @@
         }
       }
     },
-    "Vendor Number" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Anbieternummer"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Número de proveedor"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Numéro de fournisseur"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "販売者番号"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "供应商编号"
-          }
-        }
-      }
-    },
     "View %@ on the App Store" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -5533,40 +2881,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "在 App Store 中查看%@"
-          }
-        }
-      }
-    },
-    "View on the App Store" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Im App Store ansehen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Ver en el App Store"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Afficher sur l’App Store"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Storeで見る"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "在 App Store 中查看"
           }
         }
       }
@@ -5605,6 +2919,40 @@
         }
       }
     },
+    "View on the App Store" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Im App Store ansehen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Ver en el App Store"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "Afficher sur l’App Store"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "App Storeで見る"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "在 App Store 中查看"
+          }
+        }
+      }
+    },
     "Web Analytics" : {
       "localizations" : {
         "de" : {
@@ -5639,74 +2987,6 @@
         }
       }
     },
-    "Webpage" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Webseite"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Página web"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Page web"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Webページ"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "网页"
-          }
-        }
-      }
-    },
-    "Webpage Views" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Webseitenaufrufe"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vistas de la página web"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vues de la page web"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Webページの表示回数"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "网页浏览量"
-          }
-        }
-      }
-    },
     "Website" : {
       "localizations" : {
         "de" : {
@@ -5737,40 +3017,6 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "网站"
-          }
-        }
-      }
-    },
-    "Website Page" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Webseite"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Página del sitio web"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Page du site web"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Web サイトのページ"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "网站页面"
           }
         }
       }
@@ -5877,108 +3123,6 @@
         }
       }
     },
-    "XXXXXXXX" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXX"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXX"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXX"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXX"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXX"
-          }
-        }
-      }
-    },
-    "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-          }
-        }
-      }
-    },
-    "XXXXXXXXXX" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXXXX"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXXXX"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXXXX"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXXXX"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "XXXXXXXXXX"
-          }
-        }
-      }
-    },
     "Yesterday" : {
       "localizations" : {
         "de" : {
@@ -6047,142 +3191,6 @@
         }
       }
     },
-    "You can find it on App Store Connect in your 'Reports' tab. In the top left it should state your 'Vendor #'." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Du findest sie in App Store Connect im Tab „Reports“. Oben links sollte deine „Vendor #“ stehen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Puedes encontrarlo en App Store Connect, en la pestaña «Reports». En la parte superior izquierda debería figurar tu «Vendor #»."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vous le trouverez dans App Store Connect, dans l'onglet « Rapports ». En haut à gauche devrait figurer votre « N° de fournisseur »."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "App Store Connectの「レポート」タブにあります。左上に「販売者番号」が表示されます。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你可以在 App Store Connect 的“报告”标签页中找到它。左上角应会显示你的“供应商编号”。"
-          }
-        }
-      }
-    },
-    "You have exceeded the daily limit of API requests." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Du hast das tägliche Limit an API-Anfragen überschritten."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Has superado el límite diario de solicitudes de la API."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vous avez dépassé la limite quotidienne de requêtes API."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "APIリクエストの1日の上限を超えました。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你已超出每日 API 请求限额。"
-          }
-        }
-      }
-    },
-    "You should have gotten the key right after creating it. Once you close the window, there unfortunately is no way to show it again. You'll have to create a new one." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Du solltest den Schlüssel direkt nach dem Erstellen erhalten haben. Sobald du das Fenster schließt, kann er leider nicht mehr angezeigt werden. Du musst einen neuen erstellen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Deberías haber obtenido la clave justo después de crearla. Una vez que cierres la ventana, lamentablemente no hay forma de volver a mostrarla. Tendrás que crear una nueva."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Vous devriez avoir obtenu la clé juste après sa création. Une fois la fenêtre fermée, il n'est malheureusement plus possible de l'afficher à nouveau. Vous devrez en créer une nouvelle."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "キーは作成直後に取得しているはずです。ウィンドウを閉じると、残念ながら再度表示する方法はありません。新しいキーを作成する必要があります。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你应该在创建密钥后就立即获取它。一旦关闭该窗口，很遗憾就无法再次显示了。你需要重新创建一个。"
-          }
-        }
-      }
-    },
-    "Your API-key does not have the right permissions." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Dein API-Schlüssel hat nicht die richtigen Berechtigungen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Tu clave de API no tiene los permisos correctos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "Votre clé API ne dispose pas des autorisations requises."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "APIキーに適切な権限がありません。"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "machine_translated",
-            "value" : "你的 API 密钥没有正确的权限。"
-          }
-        }
-      }
-    },
     "Your Google sign-in has expired. Sign in to Google Analytics again." : {
       "localizations" : {
         "de" : {
@@ -6213,6 +3221,74 @@
           "stringUnit" : {
             "state" : "machine_translated",
             "value" : "你的 Google 登录已过期。请重新登录 Google Analytics。"
+          }
+        }
+      }
+    },
+    "down" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "runter"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "bajada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "en baisse"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "下降"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "下降"
+          }
+        }
+      }
+    },
+    "up" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "hoch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "subida"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "en hausse"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "上昇"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "machine_translated",
+            "value" : "上升"
           }
         }
       }

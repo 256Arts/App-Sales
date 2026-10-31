@@ -2,6 +2,7 @@ import WidgetKit
 import SwiftUI
 import AppIntents
 import AIUsageKit
+import AppSalesKit
 
 struct WidgetsEntryView: View {
     @Environment(\.widgetFamily) var size
@@ -87,10 +88,10 @@ struct Widgets: Widget {
 }
 #endif
 
-/// Brings AIUsageKit's widget configuration and assistant picker into this extension's App Intents
-/// metadata.
-struct AIUsageIntentsPackage: AppIntentsPackage {
+/// Brings AppSalesKit's account picker, and AIUsageKit's widget configuration and assistant picker,
+/// into this extension's App Intents metadata.
+struct WidgetIntentsPackage: AppIntentsPackage {
     static var includedPackages: [any AppIntentsPackage.Type] {
-        [AIUsageKitPackage.self]
+        [AppSalesKitPackage.self, AIUsageKitPackage.self]
     }
 }

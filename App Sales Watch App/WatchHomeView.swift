@@ -1,4 +1,5 @@
 import SwiftUI
+import AppSalesKit
 
 /// The watch's home screen: the same 30-day proceeds and downloads the iPhone leads with, sized to
 /// be read at a glance, followed by the per-app breakdown.

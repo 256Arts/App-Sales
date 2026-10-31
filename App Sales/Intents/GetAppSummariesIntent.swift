@@ -1,5 +1,6 @@
 import AppIntents
 import Foundation
+import AppSalesKit
 
 /// The per-app breakdown, as entities a shortcut can loop over rather than a block of text.
 struct GetAppSummariesIntent: AppIntent {
@@ -84,7 +85,7 @@ struct AppSalesEntity: AppEntity {
     /// The App Group's cached artwork, the same copy the widget draws from. Nil until a fetch has
     /// had a chance to save it, in which case Shortcuts falls back to the app's own icon.
     private var icon: DisplayRepresentation.Image? {
-        guard let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID),
+        guard let groupURL = AppSalesKit.containerURL,
               let data = try? Data(contentsOf: groupURL.appending(path: id).appendingPathExtension("jpg")) else { return nil }
 
         return DisplayRepresentation.Image(data: data)
