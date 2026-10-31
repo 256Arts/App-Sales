@@ -1249,7 +1249,7 @@
 			repositoryURL = "https://github.com/256Arts/AIUsageKit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				minimumVersion = 1.0.1;
 			};
 		};
 		1BAD5A000000000000000003 /* XCRemoteSwiftPackageReference "AdmobSwiftUI" */ = {
