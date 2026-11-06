@@ -69,9 +69,9 @@ enum WidgetShots {
             }
             home(SummarySmall(data: summary, advanced: true), small, "Sales Small")
             home(SummarySmall(data: summary, advanced: false), small, "Sales Small Simple")
-            home(SummaryWithChart(data: summary, advanced: true), medium, "Sales Medium")
-            home(SummaryWithChart(data: summary, advanced: false), medium, "Sales Medium Simple")
-            home(SummaryWithChart(data: summary, advanced: true), large, "Sales Large")
+            home(SummaryWithChart(data: summary, advanced: true, family: .systemMedium), medium, "Sales Medium")
+            home(SummaryWithChart(data: summary, advanced: false, family: .systemMedium), medium, "Sales Medium Simple")
+            home(SummaryWithChart(data: summary, advanced: true, family: .systemLarge), large, "Sales Large")
             // The AI usage widget draws on `.fill.tertiary` over the system's tile.
             home(usage.system(showingAll: false), small, "AI Usage Small", fill: true)
             home(usage.system(showingAll: true), medium, "AI Usage Medium", fill: true)

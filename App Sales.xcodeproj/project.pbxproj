@@ -208,7 +208,7 @@
 		1BC0FFEE000000000000001D /* Exceptions for "Widgets" folder in "Watch Widgets" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				DownloadsIconsGraphic.swift,
+				DownloadsBarsGraphic.swift,
 				ErrorWidget.swift,
 				Info.plist,
 				InfoPlist.xcstrings,

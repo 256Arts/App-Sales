@@ -19,7 +19,7 @@ struct WidgetsEntryView: View {
                 AccessorySummary(summary: data)
             #endif
             default:
-                SummaryWithChart(data: data, advanced: entry.configuration.advanced)
+                SummaryWithChart(data: data, advanced: entry.configuration.advanced, family: size)
             }
         } else {
             #if os(iOS)
