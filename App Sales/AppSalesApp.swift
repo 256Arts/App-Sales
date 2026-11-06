@@ -92,7 +92,7 @@ struct AppSalesApp: App {
             }
             .screenshotModeStatus()
             // The AI usage figures move while the work is being done, so while the app is up they
-            // are read once a minute and handed to the widget, which cannot ask that often itself.
+            // are checked once a minute, fetched about every 2, and handed to the widget, which cannot ask that often itself.
             .task(id: scenePhase) {
                 guard scenePhase == .active, !ScreenshotMode.isActive else { return }
 
