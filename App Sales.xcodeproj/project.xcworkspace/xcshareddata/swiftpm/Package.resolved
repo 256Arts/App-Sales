@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/256Arts/AIUsageKit.git",
       "state" : {
-        "revision" : "f448bc18e1cec6a19c8aa299ebbafa99c5f6b5c1",
-        "version" : "1.2.1"
+        "revision" : "4304250a1466fbb8fb386ed7a18063a938f5af7f",
+        "version" : "1.2.2"
       }
     },
     {
