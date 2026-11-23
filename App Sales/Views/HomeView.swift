@@ -1,4 +1,5 @@
 import SwiftUI
+import AppIntents
 import AppSalesKit
 import AIUsageKit
 #if canImport(AdmobSwiftUI)
@@ -11,6 +12,7 @@ struct HomeView: View {
 
     @State var showingAccountsList = false
     @State private var aiAssistants = AIAssistants.shared
+    @State private var navigation = AppNavigation.shared
     @State private var editingWebsitePage: AppPerformanceSummary?
     @State private var selection: HomeSelection? = .summary
     /// The summary, on a phone: the app list is one step back from it, the way Mail opens on the inbox.
@@ -62,6 +64,8 @@ struct HomeView: View {
                         AppReviewsSection(account: selectedKey, appleID: appleID)
                     }
                     .id(appleID)
+                    // So "how's this app doing?" knows which app is on screen.
+                    .appEntityIdentifier(EntityIdentifier(for: AppSalesEntity.self, identifier: appleID))
                 } else {
                     ProgressView()
                 }
@@ -83,6 +87,23 @@ struct HomeView: View {
         .loadsSales(loader, account: selectedKey)
         .onChange(of: keyID) {
             selection = .summary
+        }
+        // A Spotlight hit, or the Open App Details shortcut.
+        .onChange(of: navigation.requestedAppleID, initial: true) {
+            guard let appleID = navigation.requestedAppleID else { return }
+            selection = .app(appleID)
+            preferredColumn = .detail
+            navigation.requestedAppleID = nil
+        }
+        // `lastRefresh` moves only when a load succeeds.
+        .task(id: loader.lastRefresh) {
+            guard loader.lastRefresh != nil, let apps = loader.summary?.apps, let account = loader.account else { return }
+            await AppSpotlightIndex.update(apps: apps, account: account)
+        }
+        .task(id: accountManager.accounts.isEmpty) {
+            if accountManager.accounts.isEmpty {
+                await AppSpotlightIndex.clear()
+            }
         }
         .focusedSceneValue(\.homeCommands, HomeCommandContext(
             countedStats: loader.summary.map { _ in Set(loader.appCounts.keys) },
@@ -120,6 +141,10 @@ struct HomeView: View {
                     }
                 }
             }
+        }
+        .appEntityIdentifier(forSelectionType: HomeSelection.self) { selection in
+            guard case .app(let appleID) = selection else { return nil }
+            return EntityIdentifier(for: AppSalesEntity.self, identifier: appleID)
         }
         .refreshable { await loader.refresh() }
         .navigationTitle("App Sales")

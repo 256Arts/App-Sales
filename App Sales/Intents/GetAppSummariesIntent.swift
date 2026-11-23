@@ -43,7 +43,9 @@ struct GetAppSummariesIntent: AppIntent {
 }
 
 /// One app's numbers, so a shortcut can pull out a single field instead of parsing a sentence.
-struct AppSalesEntity: AppEntity {
+/// Indexed in Spotlight by `AppSpotlightIndex`, where a hit runs `OpenAppIntent`, and named by the
+/// app's screen so Siri knows which app "this" is.
+struct AppSalesEntity: IndexedEntity {
 
     static var typeDisplayRepresentation: TypeDisplayRepresentation { "App" }
     static var defaultQuery = AppSalesQuery()
