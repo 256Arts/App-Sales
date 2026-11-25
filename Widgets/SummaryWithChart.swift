@@ -20,6 +20,7 @@ struct SummaryWithChart: View {
     let data: PerformanceSummary
     let advanced: Bool
     let family: WidgetFamily
+    var activeDevices: [String: Int]?
 
     var body: some View {
         Group {
@@ -85,7 +86,7 @@ struct SummaryWithChart: View {
     @ViewBuilder
     private var graph: some View {
         if advanced || family == .systemLarge {
-            DownloadsAndProceedsChart(apps: data.apps, iconLength: family == .systemMedium ? 20 : 22)
+            DownloadsAndProceedsChart(apps: data.apps, iconLength: family == .systemMedium ? 20 : 22, activeDevices: family == .systemLarge ? activeDevices : nil)
                 .chartLegend(.hidden)
         } else {
             DownloadsBarsGraphic(apps: data.apps)

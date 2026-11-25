@@ -45,6 +45,7 @@ struct Provider: AppIntentTimelineProvider {
                 let entry = ACStatEntry(
                     date: Date(),
                     data: data,
+                    activeDevices: await activeDevices(for: data, configuration: configuration, in: context),
                     configuration: configuration,
                     relevance: isNewData ? .high : .medium
                 )
@@ -64,7 +65,7 @@ struct Provider: AppIntentTimelineProvider {
                 Calendar.autoupdatingCurrent.isDateInYesterday(proceed.1)
             }
 
-            let entry = ACStatEntry(date: Date(), data: data, configuration: configuration, relevance: isNewData ? .high : .medium)
+            let entry = ACStatEntry(date: Date(), data: data, activeDevices: await activeDevices(for: data, configuration: configuration, in: context), configuration: configuration, relevance: isNewData ? .high : .medium)
 
             return Timeline(entries: [entry], policy: .after(Provider.nextUpdate(having: data)))
         } catch let err as APIError {
@@ -163,6 +164,23 @@ struct Provider: AppIntentTimelineProvider {
     }
     #endif
 
+    /// Each app's daily active devices, for the large widget's chart when the app's chart shows them
+    /// too. Nil otherwise, and when the analytics reports are not ready.
+    private func activeDevices(for data: ACData, configuration: WidgetPreferences, in context: Context) async -> [String: Int]? {
+        #if os(watchOS)
+        return nil
+        #else
+        guard context.family == .systemLarge,
+              UserDefaults.shared?.bool(forKey: UserDefaults.Key.homeChartShowsActiveDevices) == true,
+              let account = configuration.account,
+              let availability = try? await AnalyticsReportsAPI(account: account).getAnalytics(appleIDs: data.apps.map(\.appleID), sales: data),
+              case .ready(let analytics) = availability else { return nil }
+
+        let counts = Dictionary(uniqueKeysWithValues: data.apps.map { ($0.appleID, analytics.totals(for: $0.appleID).averageDailyActiveDevices) })
+        return counts.values.contains { $0 > 0 } ? counts : nil
+        #endif
+    }
+
     func getApiData(apiKey: Account?) async throws -> ACData {
         guard let apiKey,
               AccountManager.shared.getApiKey(apiKeyId: apiKey.id) != nil else {
@@ -177,13 +195,15 @@ struct ACStatEntry: TimelineEntry {
 
     let date: Date
     let summary: PerformanceSummary?
+    var activeDevices: [String: Int]?
     var error: APIError?
     let configuration: WidgetPreferences
     var relevance: TimelineEntryRelevance?
     
-    init(date: Date, data: ACData?, error: APIError? = nil, configuration: WidgetPreferences, relevance: TimelineEntryRelevance? = nil) {
+    init(date: Date, data: ACData?, activeDevices: [String: Int]? = nil, error: APIError? = nil, configuration: WidgetPreferences, relevance: TimelineEntryRelevance? = nil) {
         self.date = date
         self.summary = data?.getPerformanceSummary()
+        self.activeDevices = activeDevices
         self.error = error
         self.configuration = configuration
         self.relevance = relevance
