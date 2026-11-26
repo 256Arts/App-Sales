@@ -1244,7 +1244,7 @@
 			repositoryURL = "https://github.com/256Arts/AppSalesKit.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.4.1;
+				minimumVersion = 1.4.2;
 			};
 		};
 		1BA1E5A00000000000000009 /* XCRemoteSwiftPackageReference "AIUsageKit" */ = {

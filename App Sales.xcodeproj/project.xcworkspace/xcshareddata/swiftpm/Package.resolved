@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/256Arts/AppSalesKit.git",
       "state" : {
-        "revision" : "0afc23b2ac0737aacbfdc088bf62c5175d365b32",
-        "version" : "1.4.1"
+        "revision" : "20732f6891124bd95c092abd543da36004f8ff77",
+        "version" : "1.4.2"
       }
     },
     {
