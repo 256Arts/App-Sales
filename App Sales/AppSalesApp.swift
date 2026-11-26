@@ -168,7 +168,9 @@ private struct AppSalesCommands: Commands {
             if let countedStats = home?.countedStats {
                 AppListOptions(countedStats: countedStats, inMenuBar: true)
             }
-            ShowWebsitesToggle()
+            if home?.hasWebsites == true {
+                ShowWebsitesToggle()
+            }
 
             Divider()
         }

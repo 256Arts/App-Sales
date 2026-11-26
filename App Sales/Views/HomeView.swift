@@ -12,7 +12,6 @@ struct HomeView: View {
 
     @State var showingAccountsList = false
     @State private var aiAssistants = AIAssistants.shared
-    @State private var googleAnalytics = GoogleAnalytics.shared
     @State private var navigation = AppNavigation.shared
     @State private var editingWebsitePage: AppPerformanceSummary?
     @State private var selection: HomeSelection? = .summary
@@ -42,15 +41,15 @@ struct HomeView: View {
         #endif
     }
 
-    /// Whether the sidebar lists the websites: the reader turned them on, and has some chosen.
+    /// Whether the sidebar lists the websites: the reader turned them on, and has some (the demo's, or chosen in Google Analytics).
     private var showsWebsites: Bool {
-        showsWebsitesSetting && GoogleSignIn.isAvailable && !googleAnalytics.websites.isEmpty
+        showsWebsitesSetting && !loader.websites.isEmpty
     }
 
     /// The chosen websites, most viewed first once their reports are in.
     private var websites: [GoogleAnalyticsProperty] {
         let views = Dictionary(loader.websiteReports.map { ($0.id, $0.totals.views) }, uniquingKeysWith: +)
-        return googleAnalytics.websites.enumerated()
+        return loader.websites.enumerated()
             .sorted { (views[$0.element.id] ?? 0, -$0.offset) > (views[$1.element.id] ?? 0, -$1.offset) }
             .map(\.element)
     }
@@ -87,7 +86,7 @@ struct HomeView: View {
             case .websiteSummary:
                 websiteSummaryView
             case .website(let id):
-                if let website = googleAnalytics.websites.first(where: { $0.id == id }) {
+                if let website = loader.websites.first(where: { $0.id == id }) {
                     WebsiteDetailView(website: website, loader: loader)
                         .id(id)
                 } else {
@@ -139,6 +138,7 @@ struct HomeView: View {
         }
         .focusedSceneValue(\.homeCommands, HomeCommandContext(
             countedStats: loader.summary.map { _ in Set(loader.appCounts.keys) },
+            hasWebsites: !loader.websites.isEmpty,
             refresh: { Task { await loader.refresh() } },
             showAccounts: { showingAccountsList = true }))
     }
@@ -237,7 +237,9 @@ struct HomeView: View {
             if let counts {
                 AppListOptions(countedStats: Set(counts.keys))
             }
-            ShowWebsitesToggle()
+            if !loader.websites.isEmpty {
+                ShowWebsitesToggle()
+            }
             #if !os(macOS)
             Section {
                 AppSalesApp.links()
@@ -326,6 +328,8 @@ struct HomeView: View {
 struct HomeCommandContext {
     /// Nil until the sales have loaded, which is when there is a list to sort.
     let countedStats: Set<AppListSort>?
+    /// Whether there are websites to offer to show in the sidebar.
+    let hasWebsites: Bool
     let refresh: () -> Void
     let showAccounts: () -> Void
 }
