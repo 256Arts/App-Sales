@@ -18,6 +18,8 @@ struct AppSalesApp: App {
     @Bindable private var apiKeysProvider = AccountManager.shared
     
     @State private var showingEvent = false
+    @State private var eventAlertTitle: String?
+    @State private var pendingEventDestination: AppStoreEventDestination?
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -80,15 +82,19 @@ struct AppSalesApp: App {
                 await ExperienceManager.shared.requestTrackingThenStartAds()
             }
             #endif
-            .alert("Event Intro", isPresented: $showingEvent) {
-                Button("OK") { }
+            .alert(eventAlertTitle ?? String(localized: "Event Intro"), isPresented: $showingEvent) {
+                Button("OK") {
+                    AppNavigation.shared.requestedEventDestination = pendingEventDestination
+                }
             } message: {
                 Text("Now let's celebrate by connecting your App Store Connect account and trying out the new features!")
             }
             .onOpenURL { url in
-                if url.path().contains("appsales/appstoreevent") {
-                    showingEvent = true
-                }
+                guard let event = AppNavigation.appStoreEvent(from: url) else { return }
+                // The accounts sheet must not compete with the intro alert for presentation.
+                pendingEventDestination = event.destination
+                eventAlertTitle = event.destination == nil ? nil : event.title
+                showingEvent = true
             }
             .screenshotModeStatus()
             // The AI usage figures move while the work is being done, so while the app is up they

@@ -29,6 +29,35 @@ final class AppNavigation {
     static let shared = AppNavigation()
 
     var requestedAppleID: String?
+    /// A screen an App Store in-app event link asked the home screen to show; see `appStoreEvent(from:)` and `AppSalesApp`'s `onOpenURL`.
+    var requestedEventDestination: AppStoreEventDestination?
+}
+
+/// A screen the App Store in-app event link can route to. Raw values are the allowlisted `destination` query values.
+enum AppStoreEventDestination: String, CaseIterable, Sendable {
+    case summary, accounts, websites
+}
+
+/// The parsed `title`/`destination` query items from an App Store in-app event link, if any.
+struct AppStoreEventLink: Equatable {
+    var title: String?
+    var destination: AppStoreEventDestination?
+}
+
+extension AppNavigation {
+
+    /// Parses `https://www.256arts.com/appsales/appstoreevent`, optionally with `title` and `destination` query items.
+    /// Returns `nil` for any other host/path. Unknown `destination` values and duplicate params are handled safely
+    /// (first occurrence of each param wins; an unrecognized destination parses to `nil`, not an error).
+    nonisolated static func appStoreEvent(from url: URL) -> AppStoreEventLink? {
+        guard url.scheme == "https", url.host() == "www.256arts.com", url.path() == "/appsales/appstoreevent" else { return nil }
+
+        let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+        let title = items.first { $0.name == "title" }?.value.flatMap { $0.isEmpty ? nil : $0 }
+        let destination = items.first { $0.name == "destination" }?.value.flatMap(AppStoreEventDestination.init(rawValue:))
+        return AppStoreEventLink(title: title, destination: destination)
+    }
+
 }
 
 /// Keeps Spotlight's apps in step with the account on screen.

@@ -126,6 +126,20 @@ struct HomeView: View {
             preferredColumn = .detail
             navigation.requestedAppleID = nil
         }
+        // An App Store in-app event link with a valid `destination`.
+        .onChange(of: navigation.requestedEventDestination, initial: true) {
+            guard let destination = navigation.requestedEventDestination else { return }
+            switch destination {
+            case .summary:
+                selection = .summary
+            case .accounts:
+                showingAccountsList = true
+            case .websites:
+                selection = .websiteSummary
+            }
+            preferredColumn = .detail
+            navigation.requestedEventDestination = nil
+        }
         // `lastRefresh` moves only when a load succeeds.
         .task(id: loader.lastRefresh) {
             guard loader.lastRefresh != nil, let apps = loader.summary?.apps, let account = loader.account else { return }
